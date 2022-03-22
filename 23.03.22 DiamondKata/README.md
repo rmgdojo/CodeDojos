@@ -21,7 +21,7 @@ Examples
        B B
         A
 
-It may be helpful visualise the whitespace in your rendering like this:
+It may be helpful to visualise the whitespace in your rendering like this:
 
     > diamond.exe C
     _ _ A _ _
