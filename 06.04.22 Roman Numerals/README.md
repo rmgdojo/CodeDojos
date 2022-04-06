@@ -6,7 +6,7 @@ To make it easier, we will specify that the integer will be **unsigned** and tha
 
 ### Test cases ###
 
-As a test case, consider the number **1987**, which convers to the Roman numerals **MCMLXXXVII**, and **2019**, which converts to **MMXIX**.
+As a test case, consider the number **1987**, which converts to the Roman numerals **MCMLXXXVII**, and **2019**, which converts to **MMXIX**.
 
 ### Notes ###
 
