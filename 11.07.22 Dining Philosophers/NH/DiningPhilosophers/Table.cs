@@ -101,7 +101,7 @@ namespace DiningPhilosophers
 
         public Table(int numberOfPairsOfChopsticks, int numberOfPhilosophers, params string[] names)
         {
-            if (numberOfPairsOfChopsticks < 1 || numberOfPhilosophers > 14) throw new ArgumentException("Must be at least 1 chopsticks and max 15 philosophers. Because I say so.");
+            if (numberOfPairsOfChopsticks < 1 || numberOfPhilosophers > 14) throw new ArgumentException("Must be at least 1 chopsticks and max 14 philosophers. Because I say so.");
 
             var chopsticks = new List<Chopsticks>();
             for (int i = 0; i < numberOfPairsOfChopsticks; i++)
