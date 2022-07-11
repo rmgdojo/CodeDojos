@@ -9,8 +9,9 @@ namespace DiningPhilosophers
     public class Philosopher
     {
         private const int MINIMUM_TIME = 1000;
-        private const int MAXIMUM_TIME = 30000;
-        private Random _random = new Random(DateTime.Now.Millisecond);
+        private const int MAXIMUM_TIME = 10000;
+       
+        private Random _random = new Random(new Random(DateTime.Now.Millisecond).Next()); // doubly random!
         private Table _table;
         private ConsoleColor _color;
         
