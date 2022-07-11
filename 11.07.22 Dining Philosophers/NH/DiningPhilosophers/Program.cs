@@ -5,7 +5,7 @@
         static void Main(string[] args)
         {
             string[] philosopherNames = new string[] {
-                "Emmanuel Kant",
+                "Immanuel Kant",
                 "Martin Heidegger",
                 "David Hume",
                 "Georg Wilhelm Friedrich Hegel",
