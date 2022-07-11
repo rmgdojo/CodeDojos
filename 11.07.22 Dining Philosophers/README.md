@@ -1,4 +1,4 @@
-#Dining Philosophers
+# Dining Philosophers
 
 ### The problem
 
