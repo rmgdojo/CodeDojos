@@ -54,8 +54,6 @@ namespace DiningPhilosophers
 
         public void BeginDinner()
         {
-            Random random = new Random(DateTime.Now.Millisecond);
-
             Console.WriteLine("Time for dinner!");
             Console.WriteLine($"There are {Philosophers.Count()} guests and {Chopsticks.Count()} pairs of chopsticks available.");
             Console.Write("Dinner begins in ");
@@ -84,12 +82,21 @@ namespace DiningPhilosophers
 
         private void Dine()
         {
+            Random random = new Random(new Random(DateTime.Now.Millisecond).Next());
+
             while (_dining)
             {
                 Thread thread = Thread.CurrentThread;
                 Philosopher philosopher = _threads[thread];
 
-                philosopher.Think();
+                bool eatsFirst = random.Next(0, 10) < 5;
+
+                if (philosopher.State != PhilosopherState.Starting || 
+                    (philosopher.State == PhilosopherState.Starting && eatsFirst))
+                {
+                    philosopher.Think();
+                }
+                
                 philosopher.Eat();
             }
         }

@@ -16,7 +16,7 @@ namespace DiningPhilosophers
         private ConsoleColor _color;
         
         public string Name { get; init; }
-        public PhilosopherState State { get; private set; }
+        public PhilosopherState State { get; private set; } = PhilosopherState.Starting;
 
         public void Think()
         {
@@ -49,6 +49,6 @@ namespace DiningPhilosophers
 
     public enum PhilosopherState
     {
-        Thinking, Eating
+        Starting, Thinking, Eating
     }
 }
