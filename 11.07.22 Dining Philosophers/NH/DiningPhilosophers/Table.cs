@@ -92,7 +92,7 @@ namespace DiningPhilosophers
                 bool eatsFirst = random.Next(0, 10) < 5;
 
                 if (philosopher.State != PhilosopherState.Starting || 
-                    (philosopher.State == PhilosopherState.Starting && eatsFirst))
+                    (philosopher.State == PhilosopherState.Starting && !eatsFirst))
                 {
                     philosopher.Think();
                 }
