@@ -13,7 +13,7 @@ Every cell interacts with its eight neighbours, which are the cells that are hor
 
 The initial pattern constitutes the seed of the system.
 
-The first generation is created by applying the rule in the user stories below simultaneously to every cell in the seed. Births and deaths occur simultaneously, and the discrete moment at which this happens is  called a tick.
+The first generation is created by applying the rule in the user stories below simultaneously to every cell in the seed. Births and deaths occur simultaneously, and the discrete moment at which this happens is called a tick.
 
 The rules continue to be applied repeatedly to create further generations.
 
@@ -56,9 +56,7 @@ Scenario 4:
     Accept:
       If cell has 3 living neighbours, cell lives
 
-Feel free to render the board and the states in any way, and in any language you like - but I'd recommend a command line app for the purpose of this excercise.
-
-We'll be spending an hour.
+Feel free to render the board and the states in any way, and in any language you like - but I'd recommend a command line app for the purpose of this exercise.
 
 ## Example
 
