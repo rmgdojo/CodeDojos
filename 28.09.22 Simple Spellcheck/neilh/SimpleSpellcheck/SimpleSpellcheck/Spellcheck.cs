@@ -12,7 +12,7 @@ namespace SimpleSpellcheck
 {
     public class Spellcheck
     {
-        private Dictionary<string, int> _dictionary;
+        private Dictionary<string, int>? _dictionary;
         private string _alphabet = "abcdefghijklmnopqrstuvwxyz";
 
         public IEnumerable<string> FindUnrecognisedWords(string input)
