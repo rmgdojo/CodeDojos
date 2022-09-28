@@ -12,7 +12,7 @@ namespace SimpleSpellcheck
 {
     public class Spellcheck
     {
-        private Dictionary<string, int> _dictionary = new();
+        private Dictionary<string, int> _dictionary;
         private string _alphabet = "abcdefghijklmnopqrstuvwxyz";
 
         public IEnumerable<string> FindUnrecognisedWords(string input)
@@ -73,29 +73,11 @@ namespace SimpleSpellcheck
 
         private void BuildDictionary(string corpus)
         {
-            string[] words = Regex.Matches(corpus.ToLowerInvariant(), "[a-z]+")
-                .Cast<Match>()
+            _dictionary = Regex.Matches(corpus.ToLowerInvariant(), "[a-z]+")
                 .Where(match => match.Value.Length > 2)
                 .Select(match => match.Value)
-                .OrderBy(x => x)
-                .ToArray();
-
-            int count = 0;
-            string currentWord = "";
-            foreach (string word in words)
-            {
-                if (word != currentWord)
-                {
-                    if (currentWord != "") _dictionary.Add(currentWord, count);
-
-                    currentWord = word;
-                    count = 1;
-                }
-                else
-                {
-                    count++;
-                }
-            }
+                .GroupBy(x => x)
+                .ToDictionary(g => g.Key, g => g.Count());
         }
 
         public Spellcheck(string corpus)
