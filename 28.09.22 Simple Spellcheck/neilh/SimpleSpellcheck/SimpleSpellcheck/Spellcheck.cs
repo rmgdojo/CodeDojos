@@ -23,7 +23,7 @@ namespace SimpleSpellcheck
 
         public IEnumerable<(string word, string[] replacements)> SuggestForText(string text)
         {
-            return FindUnrecognisedWords(Strip(text))
+            return FindUnrecognisedWords(text)
                 .Select(word => (word, SuggestForWord(word)));
         }
 
