@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,69 +21,49 @@ namespace SimpleSpellcheck
             return input.Split(' ').Distinct().Where(x => x.Length > 2 && !_dictionary.Keys.Contains(x));
         }
 
-        public IDictionary<string, string[]> SuggestForText(string text)
+        public IEnumerable<(string word, string[] replacements)> SuggestForText(string text)
         {
-            text = Strip(text);
-            Dictionary<string, string[]> results = new();
-
-            foreach (string word in FindUnrecognisedWords(text))
-            {
-                results.Add(word, SuggestForWord(word));
-            }
-
-            return results;
+            return FindUnrecognisedWords(Strip(text))
+                .Select(word => (word, SuggestForWord(word)));
         }
 
         public string AutoCorrectText(string text)
         {
             string original = text;
-            
             text = Strip(text);
-            IDictionary<string, string[]> results = SuggestForText(text);
-            
-            foreach (string word in results.Keys)
+            IEnumerable<(string word, string[] replacements)> results = SuggestForText(text);
+            foreach (var pair in results)
             {
-                if (results[word].Length > 0) original = original.Replace(word, results[word][0]);
+                if (pair.word.Length > 0 && pair.replacements.Length > 0)
+                {
+                    original = original.Replace(pair.word, pair.replacements[0], StringComparison.OrdinalIgnoreCase);
+                }
             }
-
-            return original.Replace("\t","");
+            return original;
         }
 
         public string[] SuggestForWord(string word)
         {
-            word = Strip(word);
-            List<string> misspellings = new();
-            
-            IEnumerable<string> candidates = Permute(word); // first-generation search
-            foreach (string candidate in candidates)
-            {
-                misspellings.AddRange(Permute(candidate)); // second-generation search
-            }
-
-            return misspellings.Where(x => _dictionary.Keys.Contains(x)).Distinct().OrderByDescending(x => _dictionary[x]).ToArray();
+            return Permute(Strip(word))
+                .SelectMany(x => Permute(x))
+                .Where(x => _dictionary.Keys.Contains(x))
+                .Distinct()
+                .OrderByDescending(x => _dictionary[x]).ToArray();
         }
 
         private IEnumerable<string> Permute(string word)
         {
             int count = word.Length - 1;
 
-            IEnumerable<(string left, string right)> splits = For(1, count).Select(i => (word[0..i], word[i..]));
+            IEnumerable<(string left, string right)> splits = Enumerable.Range(1, count).Select(i => (word[0..i], word[i..]));
             List<string> candidates = new();
 
             candidates.AddRange(splits.Select(x => x.left + x.right[1..])); // deletions
             candidates.AddRange(splits.Select(x => x.left[0..^1] + x.right[0] + x.left[^1..] + x.right[1..])); // transpositions
-            foreach (char c in _alphabet)
-            {
-                candidates.AddRange(splits.Select(x => x.left + c + x.right)); // insertions
-                candidates.AddRange(splits.Select(x => x.left[0..^1] + c + x.right)); // substitutions
-            }
+            candidates.AddRange(_alphabet.SelectMany(c => splits.Select(x => x.left + c + x.right))); // insertions
+            candidates.AddRange(_alphabet.SelectMany(c => splits.Select(x => x.left[0..^1] + c + x.right))); // substitutions
 
             return candidates;
-        }
-
-        private IEnumerable<int> For(int start, int count)
-        {
-            return Enumerable.Range(start, count);
         }
 
         private string Strip(string input)

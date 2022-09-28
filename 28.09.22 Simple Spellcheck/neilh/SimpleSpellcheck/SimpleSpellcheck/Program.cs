@@ -37,14 +37,14 @@
 
             Console.WriteLine("\nSuggested replacements:\n ");
             var suggested = spellcheck.SuggestForText(sample);
-            foreach (string word in suggested.Keys)
+            foreach (var pair in suggested)
             {
                 string replacements = "";
-                foreach (string replacement in suggested[word])
+                foreach (string replacement in pair.replacements)
                 {
                     replacements += $"{replacement}, ";
                 }
-                if (replacements != "") Console.WriteLine($"{word}: {replacements[0..^2]}");
+                if (replacements != "") Console.WriteLine($"{pair.word}: {replacements[0..^2]}");
             }
 
             Console.ReadLine();
