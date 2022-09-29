@@ -36,8 +36,14 @@ namespace SimpleSpellcheck
                 {
                     string replacement = pair.replacements[0];
                     original = InteractiveReplace(original, pair.word, replacement, (found) => {
-                        if (found[0] <= 'Z') return (char.ToUpper(replacement[0]) + replacement[1..]);
-                        return replacement;
+                        if (found[0] <= 'Z')
+                        {
+                            return (char.ToUpper(replacement[0]) + replacement[1..]);
+                        }
+                        else
+                        {
+                            return replacement;
+                        }
                     });
                 }
             }
