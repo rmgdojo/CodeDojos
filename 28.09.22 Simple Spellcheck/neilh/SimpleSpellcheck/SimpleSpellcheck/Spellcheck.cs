@@ -79,7 +79,7 @@ namespace SimpleSpellcheck
             return Regex.Replace(input.ToLowerInvariant(), "[^a-z ]+", "");
         }
 
-        private string InteractiveReplace(string original, string find, string replace, Func<string, string> adjuster)
+        private string InteractiveReplace(string original, string find, Func<string, string> adjuster)
         {
             string output = original;
             int index = 0;
