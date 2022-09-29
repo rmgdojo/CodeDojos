@@ -35,7 +35,7 @@ namespace SimpleSpellcheck
                 if (pair.word.Length > 0 && pair.replacements.Length > 0)
                 {
                     string replacement = pair.replacements[0];
-                    original = InteractiveReplace(original, pair.word, replacement, (found) => {
+                    original = InteractiveReplace(original, pair.word, (found) => {
                         if (found[0] <= 'Z')
                         {
                             return (char.ToUpper(replacement[0]) + replacement[1..]);
