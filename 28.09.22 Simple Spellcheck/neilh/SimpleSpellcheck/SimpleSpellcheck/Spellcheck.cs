@@ -12,43 +12,45 @@ namespace SimpleSpellcheck
 {
     public class Spellcheck
     {
-        private Dictionary<string, int>? _dictionary;
+        private Dictionary<string, int> _dictionary;
         private string _alphabet = "abcdefghijklmnopqrstuvwxyz";
 
         public IEnumerable<string> FindUnrecognisedWords(string input)
         {
-            input = Strip(input);
-            return input.Split(' ').Distinct().Where(x => x.Length > 2 && !_dictionary.Keys.Contains(x));
+            return Strip(input).Split(' ').Distinct().Where(x => x.Length > 2 && !_dictionary.Keys.Contains(x));
         }
 
         public IEnumerable<(string word, string[] replacements)> SuggestForText(string text)
         {
             return FindUnrecognisedWords(text)
-                .Select(word => (word, SuggestForWord(word)));
+                .Select(word => (word, SuggestForWord(word).ToArray()));
         }
 
         public string AutoCorrectText(string text)
         {
             string original = text;
-            text = Strip(text);
-            IEnumerable<(string word, string[] replacements)> results = SuggestForText(text);
+            IEnumerable<(string word, string[] replacements)> results = SuggestForText(Strip(text));
             foreach (var pair in results)
             {
                 if (pair.word.Length > 0 && pair.replacements.Length > 0)
                 {
-                    original = original.Replace(pair.word, pair.replacements[0], StringComparison.OrdinalIgnoreCase);
+                    string replacement = pair.replacements[0];
+                    original = InteractiveReplace(original, pair.word, replacement, (found) => {
+                        if (found[0] <= 'Z') return (char.ToUpper(replacement[0]) + replacement[1..]);
+                        return replacement;
+                    });
                 }
             }
             return original;
         }
 
-        public string[] SuggestForWord(string word)
+        public IEnumerable<string> SuggestForWord(string word)
         {
             return Permute(Strip(word))
                 .SelectMany(x => Permute(x))
                 .Where(x => _dictionary.Keys.Contains(x))
                 .Distinct()
-                .OrderByDescending(x => _dictionary[x]).ToArray();
+                .OrderByDescending(x => _dictionary[x]);
         }
 
         private IEnumerable<string> Permute(string word)
@@ -69,6 +71,26 @@ namespace SimpleSpellcheck
         private string Strip(string input)
         {
             return Regex.Replace(input.ToLowerInvariant(), "[^a-z ]+", "");
+        }
+
+        private string InteractiveReplace(string original, string find, string replace, Func<string, string> adjuster)
+        {
+            string output = original;
+            int index = 0;
+            while (index > -1)
+            {
+                index = output.IndexOf(find, index + 1, StringComparison.OrdinalIgnoreCase);
+                if (index > -1)
+                {
+                    string before = output[0..index];
+                    string found = output[index..(index + find.Length)];
+                    string after = output[(index + find.Length)..];
+                    string adjustedReplace = adjuster(found);
+                    output = before + adjustedReplace + after;
+                }
+            }
+
+            return output;
         }
 
         private void BuildDictionary(string corpus)
