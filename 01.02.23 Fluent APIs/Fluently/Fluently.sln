@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fluently.Core", "Fluently.Core\Fluently.Core.csproj", "{0F16A45E-3DEF-4191-82E5-6558732EDEB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fluently.Test", "Fluently.Test\Fluently.Test.csproj", "{9B8D9ABA-D3B0-4261-87F5-6954E78D9B4A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0F16A45E-3DEF-4191-82E5-6558732EDEB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F16A45E-3DEF-4191-82E5-6558732EDEB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F16A45E-3DEF-4191-82E5-6558732EDEB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F16A45E-3DEF-4191-82E5-6558732EDEB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B8D9ABA-D3B0-4261-87F5-6954E78D9B4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B8D9ABA-D3B0-4261-87F5-6954E78D9B4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B8D9ABA-D3B0-4261-87F5-6954E78D9B4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B8D9ABA-D3B0-4261-87F5-6954E78D9B4A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E5D35C31-F4D7-4BA0-A70E-1DE14DC471AC}
+	EndGlobalSection
+EndGlobal
