@@ -22,7 +22,11 @@ The specific goal is to complete a VM environment that can run the game of Pong 
 This list will grow as we go, but here are some useful resources to get started with:
 
 https://en.wikipedia.org/wiki/CHIP-8 - the Wikipedia article on CHIP-8 (lists opcodes etc)
+
 https://github.com/badlogic/chip8/tree/master/roms/sources - some CHIP-8 games from badlogic's Kotlin implementation
+
 https://github.com/badlogic/chip8/ - CHIP-8 in Kotlin
+
 https://www.pong-story.com/chip8/ - David Winter's CHIP-8 Emulator page (which started it all)
+
 https://www.emutalk.net/threads/chip-8.19894/ - useful (but OLD) thread on EmuTalk about CHIP-8 emulation
