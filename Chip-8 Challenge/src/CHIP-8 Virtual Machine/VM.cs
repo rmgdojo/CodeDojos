@@ -17,8 +17,8 @@ namespace CHIP_8_Virtual_Machine
             _vregisters = new VRegisters();
         }
 
-        public ushort PC { get; private set; }
-        public ushort I { get; private set; }
+        public TwelveBit PC { get; private set; }
+        public TwelveBit I { get; private set; }
 
         public VRegisters V => _vregisters;
     }

@@ -11,26 +11,16 @@
             _memory = new byte[RAM_SIZE];
         }
 
-        public byte this[ushort address]
+        public byte this[TwelveBit address]
         {
             get
             {
-                CheckAddressOverflow(address);
                 return _memory[address];
             }
 
             set
             {
-                CheckAddressOverflow(address);
                 _memory[address] = value;
-            }
-        }
-
-        private void CheckAddressOverflow(ushort address)
-        {
-            if (address > RAM_SIZE - 1)
-            {
-                throw new ArgumentOutOfRangeException($"Address is greater than {RAM_SIZE - 1}");
             }
         }
     }
