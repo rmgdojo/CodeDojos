@@ -8,4 +8,14 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CHIP-8 Virtual Machine\CHIP-8 Virtual Machine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="pong.rom">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

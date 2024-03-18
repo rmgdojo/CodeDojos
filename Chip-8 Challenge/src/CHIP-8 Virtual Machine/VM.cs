@@ -17,6 +17,27 @@ namespace CHIP_8_Virtual_Machine
             _vregisters = new VRegisters();
         }
 
+        public void Load(string path)
+        {
+            byte[] rom = System.IO.File.ReadAllBytes(path);
+            for (int i = 0; i < rom.Length; i++)
+            {
+                PC = 0x200;
+                _ram[i + PC] = rom[i];
+            }
+        }
+
+        public void Run()
+        {
+            while (true)
+            {
+                var (mnemonic, arguments) = InstructionDecoder.Decode(_ram.GetWord(PC));
+                Console.Write($"{mnemonic} {arguments}");
+                Console.ReadLine();
+                PC += 2;
+            }
+        }
+
         public TwelveBit PC { get; private set; }
         public TwelveBit I { get; private set; }
 

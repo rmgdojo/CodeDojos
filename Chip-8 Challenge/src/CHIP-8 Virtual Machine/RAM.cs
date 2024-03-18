@@ -15,13 +15,34 @@
         {
             get
             {
-                return _memory[address];
+                return GetByte(address);
             }
 
             set
             {
-                _memory[address] = value;
+                SetByte(address, value);
             }
+        }
+
+        public ushort GetWord(TwelveBit address)
+        {
+            return (ushort)(_memory[address] << 8 | _memory[address + 1]);
+        }
+
+        public void SetWord(TwelveBit address, ushort value)
+        {
+            _memory[address] = (byte)(value >> 8);
+            _memory[address + 1] = (byte)value;
+        }
+
+        public byte GetByte(TwelveBit address)
+        {
+            return _memory[address];
+        }
+
+        public void SetByte(TwelveBit address, byte value)
+        {
+            _memory[address] = value;
         }
     }
 }

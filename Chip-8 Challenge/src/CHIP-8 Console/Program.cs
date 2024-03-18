@@ -1,10 +1,14 @@
-﻿namespace CHIP_8_Console
+﻿using CHIP_8_Virtual_Machine;
+
+namespace CHIP_8_Console
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            VM vm = new VM();
+            vm.Load("pong.rom");
+            vm.Run();
         }
     }
 }
