@@ -30,3 +30,5 @@ https://github.com/badlogic/chip8/ - CHIP-8 in Kotlin
 https://www.pong-story.com/chip8/ - David Winter's CHIP-8 Emulator page (which started it all)
 
 https://www.emutalk.net/threads/chip-8.19894/ - useful (but OLD) thread on EmuTalk about CHIP-8 emulation
+
+https://github.com/craigthomas/Chip8Assembler - CHIP 8 assembler project (useful for list of mnemonics)
