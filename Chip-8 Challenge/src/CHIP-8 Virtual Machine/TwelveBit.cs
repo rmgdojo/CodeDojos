@@ -7,6 +7,21 @@ public struct TwelveBit
 
     private ushort _value;
 
+    public Nybble this[int index]
+    {
+        get
+        {
+            if (index < 0 || index > 2)
+            {
+                throw new ArgumentOutOfRangeException("Index must be between 0 and 2");
+            }
+
+            return (Nybble)(_value >> (2 - index) * 4);
+        }
+    }
+
+    public byte HighByte => (byte)(_value >> 8);
+
     public TwelveBit(Nybble nybble1, Nybble nybble2, Nybble nybble3)
     {
         var value = (ushort)(nybble1 << 8 | nybble2 << 4 | nybble3);

@@ -31,8 +31,8 @@ namespace CHIP_8_Virtual_Machine
         {
             while (true)
             {
-                var (mnemonic, arguments) = InstructionDecoder.Decode(_ram.GetWord(PC));
-                Console.Write($"{mnemonic} {arguments}");
+                Instruction instruction = InstructionDecoder.Decode(_ram.GetWord(PC));
+                Console.Write($"{instruction.Mnemonic} {instruction.Arguments}");
                 Console.ReadLine();
                 PC += 2;
             }
