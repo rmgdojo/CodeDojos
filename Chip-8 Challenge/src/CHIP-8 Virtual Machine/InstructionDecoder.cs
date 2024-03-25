@@ -19,14 +19,14 @@ public static class InstructionDecoder
                 {
                     return opcodeString[1..^0] switch
                     {
-                        "0E0" => ("CLEAR", arguments),
-                        "0EE" => ("RET", arguments),
-                        _ => ("CALL", arguments)
+                        "0E0" => ("CLR", arguments),
+                        "0EE" => ("RTS", arguments),
+                        _ => ("SYS", arguments)
                     };
                 }
             case '1':
                 {
-                    return ("GOTO", arguments);
+                    return ("JUMP", arguments);
                 }
             case '2':
                 {
@@ -34,55 +34,55 @@ public static class InstructionDecoder
                 }
             case '3':
                 {
-                    return ("SKIP_IF_EQUAL", arguments);
+                    return ("SKE", arguments);
                 }
             case '4':
                 {
-                    return ("SKIP_IF_NOT_EQUAL", arguments);
+                    return ("SKNE", arguments);
                 }
             case '5':
                 {
-                    return ("SKIP_IF_REGISTER_EQUAL", arguments);
+                    return ("SKRE", arguments);
                 }
             case '6':
                 {
-                    return ("SET_REGISTER", arguments);
+                    return ("LOAD", arguments);
                 }
             case '7':
                 {
-                    return ("ADD_TO_REGISTER", arguments);
+                    return ("ADD", arguments);
                 }
             case '8':
                 {
                     return opcodeString[3] switch
                     {
-                        '0' => ("SET_REGISTER_TO_REGISTER", arguments),
-                        '1' => ("OR_REGISTER_WITH_REGISTER", arguments),
-                        '2' => ("AND_REGISTER_WITH_REGISTER", arguments),
-                        '3' => ("XOR_REGISTER_WITH_REGISTER", arguments),
-                        '4' => ("ADD_REGISTER_TO_REGISTER", arguments),
-                        '5' => ("SUBTRACT_REGISTER_FROM_REGISTER", arguments),
-                        '6' => ("SHIFT_RIGHT_REGISTER", arguments),
-                        '7' => ("SUBTRACT_REGISTER_FROM_REGISTER_REVERSED", arguments),
-                        'E' => ("SHIFT_LEFT_REGISTER", arguments),
+                        '0' => ("MOVE", arguments),
+                        '1' => ("OR", arguments),
+                        '2' => ("AND", arguments),
+                        '3' => ("XOR", arguments),
+                        '4' => ("ADDR", arguments),
+                        '5' => ("SUB", arguments),
+                        '6' => ("SHR", arguments),
+                        '7' => ("SUBR", arguments),
+                        'E' => ("SHL", arguments),
                         _ => ("NOP", arguments)
                     };
                 }
             case '9':
                 {
-                    return ("SKIP_IF_REGISTER_NOT_EQUAL", arguments);
+                    return ("SKRNE", arguments);
                 }
             case 'A':
                 {
-                    return ("SET_INDEX_REGISTER", arguments);
+                    return ("LOADI", arguments);
                 }
             case 'B':
                 {
-                    return ("JUMP_WITH_OFFSET", arguments);
+                    return ("JUMPI", arguments);
                 }
             case 'C':
                 {
-                    return ("RANDOM", arguments);
+                    return ("RAND", arguments);
                 }
             case 'D':
                 {
@@ -92,8 +92,8 @@ public static class InstructionDecoder
                 {
                     return opcodeString[2..^0] switch
                     {
-                        "9E" => ("SKIP_IF_KEY_PRESSED", arguments),
-                        "A1" => ("SKIP_IF_KEY_NOT_PRESSED", arguments),
+                        "9E" => ("SKPR", arguments),
+                        "A1" => ("SKUP", arguments),
                         _ => ("NOP", arguments)
                     };
                 }
@@ -101,15 +101,15 @@ public static class InstructionDecoder
                 {
                     return opcodeString[2..^0] switch
                     {
-                        "07" => ("GET_DELAY_TIMER", arguments),
-                        "0A" => ("WAIT_FOR_KEY_PRESS", arguments),
-                        "15" => ("SET_DELAY_TIMER", arguments),
-                        "18" => ("SET_SOUND_TIMER", arguments),
-                        "1E" => ("ADD_TO_INDEX_REGISTER", arguments),
-                        "29" => ("SET_INDEX_REGISTER_TO_SPRITE", arguments),
-                        "33" => ("STORE_BCD", arguments),
-                        "55" => ("STORE_REGISTERS", arguments),
-                        "65" => ("LOAD_REGISTERS", arguments),
+                        "07" => ("MOVED", arguments),
+                        "0A" => ("KEYD", arguments),
+                        "15" => ("LOADD", arguments),
+                        "18" => ("LOADS", arguments),
+                        "1E" => ("ADDI", arguments),
+                        "29" => ("LDSPR", arguments),
+                        "33" => ("BCD", arguments),
+                        "55" => ("STOR", arguments),
+                        "65" => ("READ", arguments),
                         _ => ("NOP", arguments)
                     };
                 }
