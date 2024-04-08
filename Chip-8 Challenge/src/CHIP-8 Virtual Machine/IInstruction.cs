@@ -13,26 +13,26 @@ public interface IAddressInstruction : IInstruction
 
 public interface IRegisterWithValueInstruction : IInstruction
 {
-    Nybble RegisterIndex => Arguments[1];
-    byte Value => Arguments.HighByte;
+    Nybble RegisterIndex => Arguments.Nybble2;
+    byte Value => Arguments.LowByte;
 }
 
-public interface IRegisterWithTypeInstruction : IInstruction
+public interface IRegisterWithDiscriminatorInstruction : IInstruction
 {
-    Nybble RegisterIndex => Arguments[1];
-    byte Type => Arguments.HighByte;
+    Nybble RegisterIndex => Arguments.Nybble2;
+    byte Discriminator => Arguments.LowByte;
 
 }
 
-public interface ITwoRegistersWithTypeInstruction : IInstruction
+public interface ITwoRegistersWithDiscriminatorInstruction : IInstruction
 {
-    Nybble RegisterIndex1 => Arguments[1];
-    Nybble RegisterIndex2 => Arguments[2];
-    byte Type => Arguments.HighByte;
+    Nybble RegisterIndex1 => Arguments.Nybble2;
+    Nybble RegisterIndex2 => Arguments.Nybble3;
+    byte Discriminator => Arguments.LowByte;
 }
 public interface ITwoRegistersWithValueInstruction : IInstruction
 {
-    Nybble RegisterIndex1 => Arguments[1];
-    Nybble RegisterIndex2 => Arguments[2];
-    byte Value => Arguments.HighByte;
+    Nybble RegisterIndex1 => Arguments.Nybble2;
+    Nybble RegisterIndex2 => Arguments.Nybble3;
+    byte Value => Arguments.LowByte;
 }

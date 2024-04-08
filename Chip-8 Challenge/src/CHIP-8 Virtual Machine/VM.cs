@@ -20,10 +20,15 @@ namespace CHIP_8_Virtual_Machine
         public void Load(string path)
         {
             byte[] rom = System.IO.File.ReadAllBytes(path);
-            for (int i = 0; i < rom.Length; i++)
+            if (rom.Length > RAM.RAM_SIZE)
+            {
+                throw new ArgumentOutOfRangeException("ROM is too large to fit in RAM");
+            }
+
+            for (ushort i = 0; i < rom.Length; i++)
             {
                 PC = 0x200;
-                _ram[i + PC] = rom[i];
+                _ram[(ushort)(i + PC)] = rom[i];
             }
         }
 
