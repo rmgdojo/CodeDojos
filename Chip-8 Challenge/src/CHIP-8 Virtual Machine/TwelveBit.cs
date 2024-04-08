@@ -5,28 +5,23 @@ public struct TwelveBit
 {
     public const int MAX_ADDRESS = 4095;
 
-    private ushort _value;
+    public byte HighByte => (byte)(HighNybble << 4 | MiddleNybble);
+    public byte LowByte => (byte)(MiddleNybble << 4 | LowNybble);
+    public Nybble HighNybble { get; init; }
+    public Nybble MiddleNybble { get; init; }
+    public Nybble LowNybble { get; init; }
+    public ushort Value => (ushort)(HighNybble << 8 | MiddleNybble << 4 | LowNybble);
 
-    public byte HighByte => (byte)((ushort)(_value << 4) / 256);
-    public byte LowByte => (byte)(_value % 256);
-    public Nybble Nybble1 { get; init; }
-    public Nybble Nybble2 { get; init; }
-    public Nybble Nybble3 { get; init; }
-
-    public TwelveBit(Nybble nybble1, Nybble nybble2, Nybble nybble3)
+    public TwelveBit(Nybble high, Nybble middle, Nybble low)
     {
-        Nybble1 = nybble1;
-        Nybble2 = nybble2;
-        Nybble3 = nybble3;
+        HighNybble = high;
+        MiddleNybble = middle;
+        LowNybble = low;
 
-        var value = (ushort)(nybble1 << 8 | nybble2 << 4 | nybble3);
-
-        if (value > MAX_ADDRESS)
+        if (Value > MAX_ADDRESS)
         {
             throw new ArgumentOutOfRangeException($"Address is greater than {MAX_ADDRESS}");
         }
-
-        _value = value;
     }
 
     public TwelveBit(ushort value)
@@ -35,16 +30,14 @@ public struct TwelveBit
         {
             throw new ArgumentOutOfRangeException($"Address is greater than {MAX_ADDRESS}");
         }
-
-        _value = value;
-        
-        Nybble1 = (byte)(HighByte >> 4);
-        Nybble2 = (byte)(HighByte & 0x0F);
-        Nybble3 = (byte)(LowByte & 0x0F);
+       
+        HighNybble = (byte)(value >> 8);
+        MiddleNybble = (byte)((value >> 4) & 0x0F);
+        LowNybble = (byte)((byte)value & 0x0F);
     }
 
-    public override string ToString() => _value.ToString("X3");
+    public override string ToString() => Value.ToString("X3");
 
-    public static implicit operator ushort(TwelveBit twelveBit) => twelveBit._value;
+    public static implicit operator ushort(TwelveBit twelveBit) => twelveBit.Value;
     public static implicit operator TwelveBit(ushort value) => new(value);
 }
