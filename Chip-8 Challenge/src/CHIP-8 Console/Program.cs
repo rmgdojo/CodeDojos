@@ -7,7 +7,8 @@ namespace CHIP_8_Console
         static void Main(string[] args)
         {
             VM vm = new VM();
-            vm.Load("pong.rom");
+            vm.Load(new byte[] { 0x0F, 0xFF });
+            //vm.Load("pong.rom");
             vm.Run();
         }
     }

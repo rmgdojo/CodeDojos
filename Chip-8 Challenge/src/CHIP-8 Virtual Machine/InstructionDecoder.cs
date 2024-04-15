@@ -8,7 +8,13 @@ namespace CHIP_8_Virtual_Machine;
 
 public static class InstructionDecoder
 {
-    public static Instruction Decode(ushort opcode)
+    public static Instruction DecodeInstruction(TwelveBit instructionData)
+    {
+        var decoded = Decode(instructionData);
+        return InstructionSet.GetByMnemonic(decoded.Mnemonic, decoded.Arguments);
+    }
+
+    private static (string Mnemonic, TwelveBit Arguments) Decode(ushort opcode)
     {
         string opcodeString = opcode.ToString("X4");
         var arguments = GetArguments(opcode);

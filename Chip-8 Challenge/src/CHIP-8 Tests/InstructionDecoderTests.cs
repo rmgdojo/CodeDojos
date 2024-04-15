@@ -41,9 +41,10 @@ namespace CHIP_8_Virtual_Machine.Tests
         [TestCase((ushort)0xF065, ExpectedResult = "READ")]
         [TestCase((ushort)0xFFFF, ExpectedResult = "NOP")]
         public string Decode_WhenOpcodeIs0x00E0_ReturnsClear(ushort opcode)
-        {   
-            var result = InstructionDecoder.Decode(opcode);
-            return result.Mnemonic;
+        {
+            //var result = InstructionDecoder.Decode(opcode);
+            //return result.Mnemonic;
+            return null;
         }
     }
 }
