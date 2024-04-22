@@ -10,6 +10,7 @@ namespace CHIP_8_Virtual_Machine
     {
         private RAM _ram;
         private VRegisters _vregisters;
+        private Stack<TwelveBit> _stack;
 
         public TwelveBit PC { get; set; }
         public TwelveBit I { get; set; }
@@ -21,6 +22,7 @@ namespace CHIP_8_Virtual_Machine
         {
             _ram = new RAM();
             _vregisters = new VRegisters();
+            _stack = new Stack<TwelveBit>();
         }
 
         public void Load(byte[] bytes)
@@ -50,6 +52,16 @@ namespace CHIP_8_Virtual_Machine
                 PC = 0x200;
                 _ram[(ushort)(i + PC)] = rom[i];
             }
+        }
+
+        public void PushStack(TwelveBit value)
+        {
+            _stack.Push(value);
+        }
+
+        public TwelveBit PopStack()
+        {
+            return _stack.Pop();
         }
 
         public void Run()

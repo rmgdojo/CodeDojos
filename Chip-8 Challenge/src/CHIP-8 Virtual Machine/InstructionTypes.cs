@@ -26,7 +26,7 @@ public class AddressInstruction : Instruction
 
 public class RegisterWithValueInstruction : Instruction
 {
-    public Nybble RegisterIndex => Arguments.MiddleNybble;
+    public Nybble RegisterIndex => Arguments.HighNybble;
     public byte Value => Arguments.LowByte;
 
     public RegisterWithValueInstruction(TwelveBit arguments)
@@ -36,7 +36,7 @@ public class RegisterWithValueInstruction : Instruction
 
 public class RegisterWithDiscriminatorInstruction : Instruction
 {
-    public Nybble RegisterIndex => Arguments.MiddleNybble;
+    public Nybble RegisterIndex => Arguments.HighNybble;
     public byte Discriminator => Arguments.LowByte;
 
     public RegisterWithDiscriminatorInstruction(TwelveBit arguments)
@@ -46,7 +46,7 @@ public class RegisterWithDiscriminatorInstruction : Instruction
 
 public class TwoRegistersWithDiscriminatorInstruction : Instruction
 {
-    public Nybble RegisterIndex1 => Arguments.MiddleNybble;
+    public Nybble RegisterIndex1 => Arguments.HighNybble;
     public Nybble RegisterIndex2 => Arguments.LowNybble;
     public byte Discriminator => Arguments.LowByte;
 
@@ -57,7 +57,7 @@ public class TwoRegistersWithDiscriminatorInstruction : Instruction
 
 public class TwoRegistersWithValueInstruction : Instruction
 {
-    public Nybble RegisterIndex1 => Arguments.MiddleNybble;
+    public Nybble RegisterIndex1 => Arguments.HighNybble;
     public Nybble RegisterIndex2 => Arguments.LowNybble;
     public byte Value => Arguments.LowByte;
 
