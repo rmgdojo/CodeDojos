@@ -32,3 +32,5 @@ https://www.pong-story.com/chip8/ - David Winter's CHIP-8 Emulator page (which s
 https://www.emutalk.net/threads/chip-8.19894/ - useful (but OLD) thread on EmuTalk about CHIP-8 emulation
 
 https://github.com/craigthomas/Chip8Assembler - CHIP 8 assembler project (useful for list of mnemonics)
+
+http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#00EE - Detail on what each instruction does (note this uses different mnemonics to Craig Thomas's list)
