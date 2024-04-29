@@ -1,9 +1,9 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-    public class MOVE : RegisterWithValueInstruction
+    public class MOVE : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.V[RegisterIndex2] = vm.V[RegisterIndex1];
     }
 
     public MOVE(TwelveBit arguments)

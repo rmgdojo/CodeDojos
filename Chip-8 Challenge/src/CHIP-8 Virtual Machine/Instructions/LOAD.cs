@@ -3,7 +3,7 @@ namespace CHIP_8_Virtual_Machine.Instructions;
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.V[RegisterIndex] = Value;
     }
 
     public LOAD(TwelveBit arguments)
