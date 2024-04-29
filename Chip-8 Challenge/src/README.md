@@ -23,7 +23,7 @@ This list will grow as we go, but here are some useful resources to get started 
 
 https://en.wikipedia.org/wiki/CHIP-8 - the Wikipedia article on CHIP-8 (lists opcodes etc)
 
-https://github.com/rmgdojo/CodeDojos/blob/main/Chip-8%20Challenge/src/OPCODES.md - Opcode list with both opcode 'dialects' for conversion
+[https://github.com/rmgdojo/CodeDojos/blob/main/Chip-8%20Challenge/src/OPCODES.md](OPCODES.md) - Opcode list with both opcode 'dialects' for conversion
 
 https://github.com/badlogic/chip8/tree/master/roms/sources - some CHIP-8 games from badlogic's Kotlin implementation
 
