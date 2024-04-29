@@ -1,5 +1,5 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-    public class SKRNE : TwoRegistersWithDiscriminatorInstruction
+public class SKRNE : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {

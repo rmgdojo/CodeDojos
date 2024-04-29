@@ -1,5 +1,5 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-    public class AND : TwoRegistersWithDiscriminatorInstruction
+public class AND : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {

@@ -1,5 +1,5 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-    public class KEYD : RegisterWithValueInstruction
+public class KEYD : RegisterWithValueInstruction
 {
     public override void Execute(VM vm)
     {
