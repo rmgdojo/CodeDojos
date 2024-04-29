@@ -1,10 +1,18 @@
-﻿namespace CHIP_8_Virtual_Machine
+﻿using System.Windows.Markup;
+
+namespace CHIP_8_Virtual_Machine
 {
     public class VRegisters
     {
         public const int MAX_REGISTERS = 16;
 
+        public byte F
+        {
+            get { return this[0xF]; }
+            set { this[0xF] = value; }
+        }
         private byte[] _values;
+
 
         public byte this[int index]
         {

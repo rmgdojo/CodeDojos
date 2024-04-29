@@ -1,9 +1,9 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-    public class XOR : RegisterWithValueInstruction
+public class XOR : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.V[RegisterIndex2] = (byte)(vm.V[RegisterIndex1] | vm.V[RegisterIndex2]);
     }
 
     public XOR(TwelveBit arguments)

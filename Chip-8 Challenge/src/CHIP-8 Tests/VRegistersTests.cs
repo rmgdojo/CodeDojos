@@ -27,5 +27,14 @@ namespace CHIP_8_Virtual_Machine.Tests
 
             Assert.Throws<ArgumentOutOfRangeException>(() => registers[invalidIndex] = value);
         }
+
+        [Test]
+        public void Overflow_Register_On_Increment_Gives_Correct_Value()
+        {
+            VRegisters registers = new VRegisters();
+            registers[0] = 0xFF;
+            registers[0] += 1;
+            Assert.That(registers[0], Is.EqualTo(0));
+        }
     }
 }

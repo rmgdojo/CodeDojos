@@ -3,7 +3,10 @@ namespace CHIP_8_Virtual_Machine.Instructions;
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        if (vm.V[RegisterIndex] != Value)
+        {
+            vm.PC += 2;
+        }
     }
 
     public SKNE(TwelveBit arguments)
