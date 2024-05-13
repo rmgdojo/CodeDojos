@@ -7,6 +7,6 @@ namespace CHIP_8_Virtual_Machine.Instructions;
         vm.PC = Address;
     }
 
-    public CALL(TwelveBit address)
+    public CALL(Tribble address)
         : base(address) { }
 }

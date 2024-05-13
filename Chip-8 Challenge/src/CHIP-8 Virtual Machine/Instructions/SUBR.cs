@@ -3,9 +3,10 @@ public class SUBR : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.V[Y] -= vm.V[X];
+        vm.V.F = (byte)(vm.V[Y] > vm.V[X] ? 1 : 0);
     }
 
-    public SUBR(TwelveBit arguments)
-        : base(arguments) { }
+    public SUBR(Register X, Register Y)
+        : base(X, Y, 0x7) { }
 }

@@ -6,6 +6,6 @@ namespace CHIP_8_Virtual_Machine.Instructions;
         vm.PC = vm.PopStack();
     }
 
-    public RTS(TwelveBit address)
+    public RTS(Tribble address)
         : base(address) { }
 }

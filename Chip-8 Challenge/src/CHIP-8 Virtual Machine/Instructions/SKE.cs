@@ -3,12 +3,12 @@ public class SKE : RegisterWithValueInstruction
 {
     public override void Execute(VM vm)
     {
-        if (vm.V[RegisterIndex] == Value)
+        if (vm.V[X] == Value)
         {
             vm.PC += 2;
         }
     }
 
-    public SKE(TwelveBit arguments)
-        : base(arguments) { }
+    public SKE(Register X, byte value)
+        : base(X, value) { }
 }

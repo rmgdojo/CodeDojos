@@ -8,13 +8,13 @@ namespace CHIP_8_Virtual_Machine;
 
 public static class InstructionDecoder
 {
-    public static Instruction DecodeInstruction(TwelveBit instructionData)
+    public static Instruction DecodeInstruction(Tribble instructionData)
     {
         var decoded = Decode(instructionData);
         return InstructionSet.GetByMnemonic(decoded.Mnemonic, decoded.Arguments);
     }
 
-    private static (string Mnemonic, TwelveBit Arguments) Decode(ushort opcode)
+    private static (string Mnemonic, Tribble Arguments) Decode(ushort opcode)
     {
         string opcodeString = opcode.ToString("X4");
         var arguments = GetArguments(opcode);
@@ -124,7 +124,7 @@ public static class InstructionDecoder
         return ("NOP", arguments);
     }
 
-    private static TwelveBit GetArguments(ushort opcode) =>
+    private static Tribble GetArguments(ushort opcode) =>
         new((Nybble)((opcode & 0x0F00) >> 8),
             (Nybble)((opcode & 0x00F0) >> 4),
             (Nybble)(opcode & 0x000F));

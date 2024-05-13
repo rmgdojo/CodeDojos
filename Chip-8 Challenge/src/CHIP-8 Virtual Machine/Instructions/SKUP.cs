@@ -6,6 +6,6 @@ public class SKUP : RegisterWithValueInstruction
         throw new NotImplementedException();
     }
 
-    public SKUP(TwelveBit arguments)
-        : base(arguments) { }
+    public SKUP(Register X, byte value)
+        : base(X, value) { }
 }

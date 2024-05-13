@@ -3,9 +3,9 @@ public class OR : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.V[RegisterIndex2] = (byte)(vm.V[RegisterIndex1] | vm.V[RegisterIndex2]) ;
+        vm.V[Y] = (byte)(vm.V[X] | vm.V[Y]) ;
     }
 
-    public OR(TwelveBit arguments)
-        : base(arguments) { }
+    public OR(Register X, Register Y)
+        : base(X, Y, 0x1) { }
 }

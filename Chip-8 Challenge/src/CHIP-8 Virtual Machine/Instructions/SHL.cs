@@ -6,6 +6,6 @@ public class SHL : RegisterWithValueInstruction
         throw new NotImplementedException();
     }
 
-    public SHL(TwelveBit arguments)
-        : base(arguments) { }
+    public SHL(Register X, byte value)
+        : base(X, value) { }
 }

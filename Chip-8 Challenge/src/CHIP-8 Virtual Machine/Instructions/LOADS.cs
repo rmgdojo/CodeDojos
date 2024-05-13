@@ -1,11 +1,11 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-public class LOADS : RegisterWithValueInstruction
+public class LOADS : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
         throw new NotImplementedException();
     }
 
-    public LOADS(TwelveBit arguments)
-        : base(arguments) { }
+    public LOADS(Register X)
+        : base(X, 0x18) { }
 }

@@ -3,9 +3,10 @@ public class RAND : RegisterWithValueInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        Random random = new(DateTime.Now.Millisecond);
+        vm.V[X] = (byte)random.Next(0, Value);
     }
 
-    public RAND(TwelveBit arguments)
-        : base(arguments) { }
+    public RAND(Register X, byte value)
+        : base(X, value) { }
 }

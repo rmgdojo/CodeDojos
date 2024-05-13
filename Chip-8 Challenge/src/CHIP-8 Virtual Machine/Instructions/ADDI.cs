@@ -3,9 +3,9 @@ public class ADDI : RegisterWithValueInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.I += vm.V[X];
     }
 
-    public ADDI(TwelveBit arguments)
-        : base(arguments) { }
+    public ADDI(Register X)
+        : base(X, 0x1E) { }
 }

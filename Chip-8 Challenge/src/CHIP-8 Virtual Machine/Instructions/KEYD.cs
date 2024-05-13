@@ -1,11 +1,11 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-public class KEYD : RegisterWithValueInstruction
+public class KEYD : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
         throw new NotImplementedException();
     }
 
-    public KEYD(TwelveBit arguments)
-        : base(arguments) { }
+    public KEYD(Register X)
+        : base(X, 0x0A) { }
 }

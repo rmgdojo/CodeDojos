@@ -1,6 +1,5 @@
 ﻿namespace CHIP_8_Virtual_Machine
 {
-    // nybble type
     public struct Nybble
     {
         public const int MAX_VALUE = 15;
@@ -19,5 +18,10 @@
     
         public static implicit operator byte(Nybble nybble) => nybble._value;
         public static implicit operator Nybble(byte value) => new Nybble(value);
+    }
+
+    public static class NybbleExtensions
+    {
+        public static (Nybble High, Nybble Low) ToNybbles(this byte value) => (new Nybble((byte)(value >> 4)), new Nybble((byte)(value & 0x0F)));
     }
 }

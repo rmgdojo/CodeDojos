@@ -6,6 +6,6 @@ public class SKPR : RegisterWithValueInstruction
         throw new NotImplementedException();
     }
 
-    public SKPR(TwelveBit arguments)
-        : base(arguments) { }
+    public SKPR(Register X, byte value)
+        : base(X, value) { }
 }
