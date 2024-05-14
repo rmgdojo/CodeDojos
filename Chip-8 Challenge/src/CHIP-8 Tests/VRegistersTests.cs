@@ -10,7 +10,7 @@ namespace CHIP_8_Virtual_Machine.Tests
             VRegisters registers = new VRegisters();
 
             byte value = 0x42;
-            int index = 0;
+            Nybble index = 0;
 
             registers[index] = value;
 
@@ -23,7 +23,7 @@ namespace CHIP_8_Virtual_Machine.Tests
             VRegisters registers = new VRegisters();
 
             byte value = 0x42;
-            int invalidIndex = VRegisters.MAX_REGISTERS;
+            Nybble invalidIndex = VRegisters.MAX_REGISTERS;
 
             Assert.Throws<ArgumentOutOfRangeException>(() => registers[invalidIndex] = value);
         }
