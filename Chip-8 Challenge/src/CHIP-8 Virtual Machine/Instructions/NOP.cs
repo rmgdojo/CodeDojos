@@ -3,9 +3,8 @@ public class NOP : AddressInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
     }
 
-    public NOP(TwelveBit address)
+    public NOP(Tribble address)
         : base(address) { }
 }

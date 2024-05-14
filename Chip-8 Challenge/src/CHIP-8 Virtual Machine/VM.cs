@@ -10,10 +10,11 @@ namespace CHIP_8_Virtual_Machine
     {
         private RAM _ram;
         private VRegisters _vregisters;
-        private Stack<TwelveBit> _stack;
+        private Stack<Tribble> _stack;
 
-        public TwelveBit PC { get; set; }
-        public TwelveBit I { get; set; }
+        public RAM RAM => _ram;
+        public Tribble PC { get; set; }
+        public Tribble I { get; set; }
 
         public VRegisters V => _vregisters;
 
@@ -22,7 +23,7 @@ namespace CHIP_8_Virtual_Machine
         {
             _ram = new RAM();
             _vregisters = new VRegisters();
-            _stack = new Stack<TwelveBit>();
+            _stack = new Stack<Tribble>();
         }
 
         public void Load(byte[] bytes)
@@ -54,12 +55,12 @@ namespace CHIP_8_Virtual_Machine
             }
         }
 
-        public void PushStack(TwelveBit value)
+        public void PushStack(Tribble value)
         {
             _stack.Push(value);
         }
 
-        public TwelveBit PopStack()
+        public Tribble PopStack()
         {
             return _stack.Pop();
         }

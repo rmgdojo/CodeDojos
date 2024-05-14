@@ -1,11 +1,14 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-public class STOR : RegisterWithValueInstruction
+public class STOR : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        for (Nybble i = 0; i < X; i++)
+        {
+            vm.RAM[(Tribble)(vm.I + i)] = vm.V[i];
+        }
     }
 
-    public STOR(TwelveBit arguments)
-        : base(arguments) { }
+    public STOR(Register X)
+        : base(X, 0x55) { }
 }

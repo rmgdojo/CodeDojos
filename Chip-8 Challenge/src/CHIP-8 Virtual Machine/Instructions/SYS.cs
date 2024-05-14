@@ -7,6 +7,6 @@ public class SYS : AddressInstruction
         vm.PC = Address;
     }
 
-    public SYS(TwelveBit address)
+    public SYS(Tribble address)
         : base(address) { }
 }

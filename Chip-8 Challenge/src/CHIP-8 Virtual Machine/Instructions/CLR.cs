@@ -6,6 +6,6 @@ public class CLR : AddressInstruction
         throw new NotImplementedException();
     }
 
-    public CLR(TwelveBit address)
+    public CLR(Tribble address)
         : base(address) { }
 }

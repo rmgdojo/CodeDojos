@@ -1,11 +1,11 @@
 namespace CHIP_8_Virtual_Machine.Instructions;
-public class LDPSR : RegisterWithValueInstruction
+public class LDPSR : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
         throw new NotImplementedException();
     }
 
-    public LDPSR(TwelveBit arguments)
-        : base(arguments) { }
+    public LDPSR(Register X)
+        : base(X, 0x29) { }
 }

@@ -6,6 +6,6 @@ public class JUMP : AddressInstruction
         vm.PC = Address;
     }
 
-    public JUMP(TwelveBit address)
+    public JUMP(Tribble address)
         : base(address) { }
 }

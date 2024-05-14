@@ -3,9 +3,9 @@ public class MOVE : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.V[RegisterIndex2] = vm.V[RegisterIndex1];
+        vm.V[Y] = vm.V[X];
     }
 
-    public MOVE(TwelveBit arguments)
-        : base(arguments) { }
+    public MOVE(Register X, Register Y)
+        : base(X, Y, 0x0) { }
 }

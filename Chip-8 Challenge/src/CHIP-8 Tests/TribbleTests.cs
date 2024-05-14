@@ -2,14 +2,14 @@ using NUnit.Framework;
 
 namespace CHIP_8_Virtual_Machine.Tests
 {
-    public class TwelveBitTests
+    public class TribbleTests
     {
         [Test]
         public void LowByte_GetValue_ReturnsCorrectValue()
         {
-            var twelveBit = new TwelveBit(0xAB3);
+            var Tribble = new Tribble(0xAB3);
 
-            var lowByte = twelveBit.LowByte;
+            var lowByte = Tribble.LowByte;
 
             Assert.That(0xB3, Is.EqualTo(lowByte));
         }
@@ -17,9 +17,9 @@ namespace CHIP_8_Virtual_Machine.Tests
         [Test]
         public void HighByte_GetValue_ReturnsCorrectValue()
         {
-            var twelveBit = new TwelveBit(0xAB3);
+            var Tribble = new Tribble(0xAB3);
 
-            var highByte = twelveBit.HighByte;
+            var highByte = Tribble.HighByte;
 
             Assert.That(0xAB, Is.EqualTo(highByte));
         }
@@ -27,29 +27,29 @@ namespace CHIP_8_Virtual_Machine.Tests
         [Test]
         public void ToString_ReturnsCorrectStringRepresentation()
         {
-            var twelveBit = new TwelveBit(0xAB3);
+            var Tribble = new Tribble(0xAB3);
 
-            var result = twelveBit.ToString();
+            var result = Tribble.ToString();
 
             Assert.That("AB3", Is.EqualTo(result));
         }
 
         [Test]
-        public void ImplicitConversion_FromTwelveBitToUShort_ReturnsCorrectValue()
+        public void ImplicitConversion_FromTribbleToUShort_ReturnsCorrectValue()
         {
-            TwelveBit twelveBit = 0xAB3;
+            Tribble Tribble = 0xAB3;
 
-            ushort result = twelveBit;
+            ushort result = Tribble;
 
-            Assert.That(result == twelveBit);
+            Assert.That(result == Tribble);
         }
 
         [Test]
-        public void ImplicitConversion_FromUShortToTwelveBit_ReturnsCorrectValue()
+        public void ImplicitConversion_FromUShortToTribble_ReturnsCorrectValue()
         {
             ushort value = 0xAB3;
 
-            TwelveBit result = value;
+            Tribble result = value;
 
             Assert.That(result == value);
         }

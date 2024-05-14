@@ -3,12 +3,12 @@ public class SKRNE : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        if (vm.V[RegisterIndex1] != vm.V[RegisterIndex2])
+        if (vm.V[X] != vm.V[Y])
         {
             vm.PC += 2;
         }
     }
 
-    public SKRNE(TwelveBit arguments)
-        : base(arguments) { }
+    public SKRNE(Register X, Register Y)
+        : base(X, Y, 0x0) { }
 }

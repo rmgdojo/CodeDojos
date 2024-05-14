@@ -6,6 +6,6 @@ public class DRAW : TwoRegistersWithDiscriminatorInstruction
         throw new NotImplementedException();
     }
 
-    public DRAW(TwelveBit arguments)
-        : base(arguments) { }
+    public DRAW(Register X, Register Y, Nybble n)
+        : base(X, Y, n) { }
 }

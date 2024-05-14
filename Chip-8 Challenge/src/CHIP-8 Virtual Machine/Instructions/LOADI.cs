@@ -3,9 +3,9 @@ public class LOADI : AddressInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.I = Address;
     }
 
-    public LOADI(TwelveBit address)
+    public LOADI(Tribble address)
         : base(address) { }
 }

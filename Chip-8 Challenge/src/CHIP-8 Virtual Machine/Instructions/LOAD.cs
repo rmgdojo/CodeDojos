@@ -3,9 +3,9 @@ public class LOAD : RegisterWithValueInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.V[RegisterIndex] = Value;
+        vm.V[X] = Value;
     }
 
-    public LOAD(TwelveBit arguments)
-        : base(arguments) { }
+    public LOAD(Register X, byte value)
+        : base(X, value) { }
 }

@@ -1,7 +1,7 @@
 ﻿namespace CHIP_8_Virtual_Machine;
 
 // 12-bit address type
-public struct TwelveBit
+public struct Tribble
 {
     public const int MAX_ADDRESS = 4095;
 
@@ -12,7 +12,7 @@ public struct TwelveBit
     public Nybble LowNybble { get; init; }
     public ushort Value => (ushort)(HighNybble << 8 | MiddleNybble << 4 | LowNybble);
 
-    public TwelveBit(Nybble high, Nybble middle, Nybble low)
+    public Tribble(Nybble high, Nybble middle, Nybble low)
     {
         HighNybble = high;
         MiddleNybble = middle;
@@ -24,7 +24,7 @@ public struct TwelveBit
         }
     }
 
-    public TwelveBit(ushort value)
+    public Tribble(ushort value)
     {
         if (value > MAX_ADDRESS)
         {
@@ -38,6 +38,10 @@ public struct TwelveBit
 
     public override string ToString() => Value.ToString("X3");
 
-    public static implicit operator ushort(TwelveBit twelveBit) => twelveBit.Value;
-    public static implicit operator TwelveBit(ushort value) => new(value);
+    public static implicit operator ushort(Tribble Tribble) => Tribble.Value;
+    public static implicit operator Tribble(ushort value) => new(value);
+    public static Tribble operator +(Tribble a, Tribble b)
+    {
+        return new Tribble((ushort)(a.Value + b.Value));
+    }
 }

@@ -11,7 +11,7 @@
             _memory = new byte[RAM_SIZE];
         }
 
-        public byte this[TwelveBit address]
+        public byte this[Tribble address]
         {
             get
             {
@@ -24,23 +24,23 @@
             }
         }
 
-        public ushort GetWord(TwelveBit address)
+        public ushort GetWord(Tribble address)
         {
             return (ushort)(_memory[address] << 8 | _memory[address + 1]);
         }
 
-        public void SetWord(TwelveBit address, ushort value)
+        public void SetWord(Tribble address, ushort value)
         {
             _memory[address] = (byte)(value >> 8);
             _memory[address + 1] = (byte)value;
         }
 
-        public byte GetByte(TwelveBit address)
+        public byte GetByte(Tribble address)
         {
             return _memory[address];
         }
 
-        public void SetByte(TwelveBit address, byte value)
+        public void SetByte(Tribble address, byte value)
         {
             _memory[address] = value;
         }

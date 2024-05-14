@@ -3,9 +3,9 @@ public class JUMPI : AddressInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.PC = Address + vm.I;
     }
 
-    public JUMPI(TwelveBit address)
+    public JUMPI(Tribble address)
         : base(address) { }
 }
