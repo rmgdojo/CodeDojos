@@ -6,7 +6,7 @@ namespace CHIP_8_Console
     {
         static void Main(string[] args)
         {
-            //Tribble Tribble = 0xABC; 
+            Tribble tribble = new Tribble(0x1345);
             
             
             VM vm = new VM();

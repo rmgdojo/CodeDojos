@@ -15,7 +15,9 @@
 
             _value = value;
         }
-    
+
+        public override string ToString() => _value.ToString("X1");
+
         public static implicit operator byte(Nybble nybble) => nybble._value;
         public static implicit operator Nybble(byte value) => new Nybble(value);
     }
