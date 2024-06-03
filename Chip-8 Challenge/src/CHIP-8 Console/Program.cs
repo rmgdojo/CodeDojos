@@ -6,13 +6,13 @@ namespace CHIP_8_Console
     {
         static void Main(string[] args)
         {
-            Tribble tribble = new Tribble(0x1345);
-            
-            
-            VM vm = new VM();
-            vm.Load(new byte[] { 0x31, 0xEE });
-            //vm.Load("pong.rom");
-            vm.Run();
+            Tribble tribble = new Tribble(0x345);
+            int i = tribble;
+            ushort u = tribble;
+
+            Tribble t2 = tribble + 1;
+            int i2 = t2;
+            ushort u2 = t2;
         }
     }
 }

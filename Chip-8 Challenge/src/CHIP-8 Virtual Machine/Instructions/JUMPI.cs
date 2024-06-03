@@ -3,7 +3,7 @@ public class JUMPI : AddressInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.PC = (Tribble)(Address + vm.I);
+        vm.PC = Address + vm.I;
     }
 
     public JUMPI(Tribble address)

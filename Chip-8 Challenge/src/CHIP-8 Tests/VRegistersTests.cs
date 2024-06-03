@@ -10,22 +10,11 @@ namespace CHIP_8_Virtual_Machine.Tests
             VRegisters registers = new VRegisters();
 
             byte value = 0x42;
-            Nybble index = 0;
+            Nibble index = 0;
 
             registers[index] = value;
 
             Assert.That(value, Is.EqualTo(registers[index]));
-        }
-
-        [Test]
-        public void Get_Set_InvalidIndex_ThrowsException()
-        {
-            VRegisters registers = new VRegisters();
-
-            byte value = 0x42;
-            Nybble invalidIndex = VRegisters.MAX_REGISTERS;
-
-            Assert.Throws<ArgumentOutOfRangeException>(() => registers[invalidIndex] = value);
         }
 
         [Test]

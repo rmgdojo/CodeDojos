@@ -29,7 +29,7 @@ namespace CHIP_8_Virtual_Machine.Tests
         {
             var Tribble = new Tribble(0xAB3);
 
-            var result = Tribble.ToString();
+            var result = Tribble.ToHexString();
 
             Assert.That("AB3", Is.EqualTo(result));
         }

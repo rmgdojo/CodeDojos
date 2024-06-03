@@ -18,7 +18,6 @@ namespace CHIP_8_Virtual_Machine
 
         public VRegisters V => _vregisters;
 
-
         public VM()
         {
             _ram = new RAM();
@@ -36,7 +35,7 @@ namespace CHIP_8_Virtual_Machine
             for (ushort i = 0; i < bytes.Length; i++)
             {
                 PC = 0x200;
-                _ram[(ushort)(i + PC)] = bytes[i];
+                _ram[i + PC] = bytes[i];
             }
         }
 
@@ -51,7 +50,7 @@ namespace CHIP_8_Virtual_Machine
             for (ushort i = 0; i < rom.Length; i++)
             {
                 PC = 0x200;
-                _ram[(ushort)(i + PC)] = rom[i];
+                _ram[i + PC] = rom[i];
             }
         }
 

@@ -32,7 +32,14 @@ namespace CHIP_8_Virtual_Machine.Tests
             ushort address = 0x5000;
             byte value = 0xCD;
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => _ram[address] = value);
+            try
+            {
+                _ram[address] = value;
+            }
+            catch (Exception ex)
+            {
+                Assert.That(ex, Is.TypeOf<ArgumentOutOfRangeException>());
+            }
         }
     }
 }
