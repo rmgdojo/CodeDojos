@@ -125,7 +125,7 @@ public static class InstructionDecoder
     }
 
     private static Tribble GetArguments(ushort opcode) =>
-        new((Nybble)((opcode & 0x0F00) >> 8),
-            (Nybble)((opcode & 0x00F0) >> 4),
-            (Nybble)(opcode & 0x000F));
+        new((Nibble)((opcode & 0x0F00) >> 8),
+            (Nibble)((opcode & 0x00F0) >> 4),
+            (Nibble)(opcode & 0x000F));
 }

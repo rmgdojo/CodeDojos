@@ -3,7 +3,7 @@ public class STOR : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        for (Nybble i = 0; i < X; i++)
+        for (Nibble i = 0; i < X; i++)
         {
             vm.RAM[(Tribble)(vm.I + i)] = vm.V[i];
         }

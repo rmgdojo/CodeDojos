@@ -10,14 +10,14 @@ public abstract class Instruction
         throw new System.NotImplementedException();
     }
 
-    public Instruction(Nybble high, Nybble middle, Nybble low)
+    public Instruction(Nibble high, Nibble middle, Nibble low)
         : this(new Tribble(high, middle, low))
     { }
 
-    public Instruction(Nybble high, byte lowByte)
+    public Instruction(Nibble high, byte lowByte)
     {
-        var lowByteNybbles = lowByte.ToNybbles();
-        Arguments = new Tribble(high, lowByteNybbles.High, lowByteNybbles.Low);
+        var lowByteNibbles = lowByte.ToNibbles();
+        Arguments = new Tribble(high, lowByteNibbles.High, lowByteNibbles.Low);
     }
 
     public Instruction(Tribble arguments)
@@ -36,7 +36,7 @@ public class AddressInstruction : Instruction
 
 public class RegisterWithDiscriminatorInstruction : Instruction
 {
-    public Register X => Arguments.HighNybble;
+    public Register X => Arguments.HighNibble;
     public RegisterWithDiscriminatorInstruction(Register X, byte discriminator)
         : base(X, discriminator)
     { }
@@ -44,7 +44,7 @@ public class RegisterWithDiscriminatorInstruction : Instruction
 
 public class RegisterWithValueInstruction : Instruction
 {
-    public Register X => Arguments.HighNybble;
+    public Register X => Arguments.HighNibble;
     public byte Value => Arguments.LowByte;
 
     public RegisterWithValueInstruction(Register X, byte value)
@@ -54,11 +54,11 @@ public class RegisterWithValueInstruction : Instruction
 
 public class TwoRegistersWithDiscriminatorInstruction : Instruction
 {
-    public Register X => Arguments.HighNybble;
-    public Register Y => Arguments.MiddleNybble;
-    public Nybble Discriminator => Arguments.LowNybble;
+    public Register X => Arguments.HighNibble;
+    public Register Y => Arguments.MiddleNibble;
+    public Nibble Discriminator => Arguments.LowNibble;
 
-    public TwoRegistersWithDiscriminatorInstruction(Register X, Register Y, Nybble discriminator)
+    public TwoRegistersWithDiscriminatorInstruction(Register X, Register Y, Nibble discriminator)
         : base(X, Y, discriminator)
     { }
 }

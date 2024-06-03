@@ -1,23 +1,23 @@
 ﻿namespace CHIP_8_Virtual_Machine;
 
-// 12-bit type
+// 12-bit integer type
 public struct Tribble
 {
     public const int MAX_VALUE = 4095;
 
-    public byte HighByte => (byte)(HighNybble << 4 | MiddleNybble);
-    public byte LowByte => (byte)(MiddleNybble << 4 | LowNybble);
-    public Nybble HighNybble { get; init; }
-    public Nybble MiddleNybble { get; init; }
-    public Nybble LowNybble { get; init; }
-    
-    private ushort Value => (ushort)(HighNybble << 8 | MiddleNybble << 4 | LowNybble);
+    public byte HighByte { get; init; }
+    public byte LowByte { get; init; }
+    public Nibble HighNibble { get; init; }
+    public Nibble MiddleNibble { get; init; }
+    public Nibble LowNibble { get; init; }
 
-    public Tribble(Nybble high, Nybble middle, Nybble low)
+    private ushort Value { get; init; }
+
+    public Tribble(Nibble high, Nibble middle, Nibble low)
     {
-        HighNybble = high;
-        MiddleNybble = middle;
-        LowNybble = low;
+        HighNibble = high;
+        MiddleNibble = middle;
+        LowNibble = low;
 
         if (Value > MAX_VALUE)
         {
@@ -30,13 +30,26 @@ public struct Tribble
         // remove lowest 4 bits of value so it will fit in 12 bits
         value = (ushort)(value & 0xFFF);
        
-        HighNybble = (byte)(value >> 8);
-        MiddleNybble = (byte)((value >> 4) & 0x0F);
-        LowNybble = (byte)((byte)value & 0x0F);
+        HighNibble = (byte)(value >> 8);
+        MiddleNibble = (byte)((value >> 4) & 0x0F);
+        LowNibble = (byte)((byte)value & 0x0F);
+
+        HighByte = (byte)(HighNibble << 4 | MiddleNibble);
+        LowByte = (byte)(MiddleNibble << 4 | LowNibble);
+
+        Value = (ushort)(HighNibble << 8 | MiddleNibble << 4 | LowNibble);
     }
 
-    public override string ToString() => Value.ToString("X3");
+    public override string ToString() => Value.ToString();
+    public string ToHexString() => Value.ToString("X3");
 
+    // implicit conversion operators (same width or larger only, no implicit shortening)
     public static implicit operator ushort(Tribble Tribble) => Tribble.Value;
     public static implicit operator Tribble(ushort value) => new(value);
+    public static implicit operator int(Tribble Tribble) => Tribble.Value;
+
+    // implicit arithmetic operators (avoid casting on every addition or subtraction)
+    public static Tribble operator +(Tribble Tribble, int value) => new((ushort)(Tribble.Value + value));
+    public static Tribble operator -(Tribble Tribble, int value) => new((ushort)(Tribble.Value - value));
+
 }

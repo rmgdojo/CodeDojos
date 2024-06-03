@@ -3,7 +3,7 @@ public class READ : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        for (Nybble i = 0; i < X; i++)
+        for (Nibble i = 0; i < X; i++)
         {
             vm.V[i] = vm.RAM[(Tribble)(vm.I + i)];
         }
