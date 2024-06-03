@@ -17,7 +17,7 @@ public abstract class Instruction
     public Instruction(Nybble high, byte lowByte)
     {
         var lowByteNybbles = lowByte.ToNybbles();
-        Tribble arguments = new Tribble(high, lowByteNybbles.High, lowByteNybbles.Low);
+        Arguments = new Tribble(high, lowByteNybbles.High, lowByteNybbles.Low);
     }
 
     public Instruction(Tribble arguments)
@@ -61,8 +61,4 @@ public class TwoRegistersWithDiscriminatorInstruction : Instruction
     public TwoRegistersWithDiscriminatorInstruction(Register X, Register Y, Nybble discriminator)
         : base(X, Y, discriminator)
     { }
-
-    //public TwoRegistersWithDiscriminatorInstruction(Tribble arguments)
-    //    : base(arguments)
-    //{ }
 }
