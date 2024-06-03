@@ -16,7 +16,8 @@
             _value = value;
         }
 
-        public override string ToString() => _value.ToString("X1");
+        public override string ToString() => _value.ToString();
+        public string ToHexString() => _value.ToString("X1");
 
         public static implicit operator byte(Nibble nibble) => nibble._value;
         public static implicit operator Nibble(byte value) => new Nibble(value);

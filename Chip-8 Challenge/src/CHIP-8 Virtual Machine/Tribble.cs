@@ -10,8 +10,8 @@ public struct Tribble
     public Nibble HighNibble { get; init; }
     public Nibble MiddleNibble { get; init; }
     public Nibble LowNibble { get; init; }
-    
-    private ushort Value => (ushort)(HighNibble << 8 | MiddleNibble << 4 | LowNibble);
+
+    private ushort Value { get; init; }
 
     public Tribble(Nibble high, Nibble middle, Nibble low)
     {
@@ -36,6 +36,8 @@ public struct Tribble
 
         HighByte = (byte)(HighNibble << 4 | MiddleNibble);
         LowByte = (byte)(MiddleNibble << 4 | LowNibble);
+
+        Value = (ushort)(HighNibble << 8 | MiddleNibble << 4 | LowNibble);
     }
 
     public override string ToString() => Value.ToString();
