@@ -4,14 +4,11 @@ public class BCD : RegisterWithDiscriminatorInstruction
     public override void Execute(VM vm)
     {
         ushort value = vm.V[X];
-
         Tribble index = vm.I;
-        Tribble index1 = (Tribble)(index + 1);
-        Tribble index2 = (Tribble)(index + 2);
 
         vm.RAM[index] = (byte)((value / 100) % 10);
-        vm.RAM[index1] = (byte)((value / 10) % 10);
-        vm.RAM[index2] = (byte)(value % 10);
+        vm.RAM[index + 1] = (byte)((value / 10) % 10);
+        vm.RAM[index + 2] = (byte)(value % 10);
     }
 
     public BCD(Register X)

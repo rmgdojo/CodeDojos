@@ -14,12 +14,10 @@ namespace CHIP_8_Virtual_Machine.Instructions.Tests
             instruction.Execute(vm);
 
             Tribble index = vm.I;
-            Tribble index1 = (Tribble)(index + 1);
-            Tribble index2 = (Tribble)(index + 2);
 
             Assert.That(vm.RAM[index], Is.EqualTo(1));
-            Assert.That(vm.RAM[index1], Is.EqualTo(2));
-            Assert.That(vm.RAM[index2], Is.EqualTo(3));
+            Assert.That(vm.RAM[index + 1], Is.EqualTo(2));
+            Assert.That(vm.RAM[index + 2], Is.EqualTo(3));
         }
     }
 }
