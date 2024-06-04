@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine
 {
@@ -15,6 +16,7 @@ namespace CHIP_8_Virtual_Machine
         public RAM RAM => _ram;
         public Tribble PC { get; set; }
         public Tribble I { get; set; }
+        public byte F { get { return V[0xF]; } set { V[0xF] = value; } }
 
         public VRegisters V => _vregisters;
 

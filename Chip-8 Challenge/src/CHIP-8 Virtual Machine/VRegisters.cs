@@ -6,12 +6,6 @@ namespace CHIP_8_Virtual_Machine
     {       
         private byte[] _values;
 
-        public byte F
-        {
-            get { return this[0xF]; }
-            set { this[0xF] = value; }
-        }
-
         public byte this[Nibble index]
         {
             get

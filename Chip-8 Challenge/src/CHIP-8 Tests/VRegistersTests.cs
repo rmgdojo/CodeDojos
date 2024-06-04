@@ -18,12 +18,23 @@ namespace CHIP_8_Virtual_Machine.Tests
         }
 
         [Test]
-        public void Overflow_Register_On_Increment_Gives_Correct_Value()
+        public void Register_Overflows_On_Increment()
         {
             VRegisters registers = new VRegisters();
             registers[0] = 0xFF;
             registers[0] += 1;
+
             Assert.That(registers[0], Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Register_Underflows_On_Decrement()
+        {
+            VRegisters registers = new VRegisters();
+            registers[0] = 0x00;
+            registers[0] -= 1;
+
+            Assert.That(registers[0], Is.EqualTo(0xFF));
         }
     }
 }

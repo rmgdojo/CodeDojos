@@ -1,3 +1,5 @@
+using CHIP_8_Virtual_Machine.InstructionBases;
+
 namespace CHIP_8_Virtual_Machine.Instructions;
 public class ADDR : TwoRegistersWithDiscriminatorInstruction
 {
@@ -5,7 +7,7 @@ public class ADDR : TwoRegistersWithDiscriminatorInstruction
     {
         byte previousValue = vm.V[X];
         vm.V[X] += vm.V[Y];
-        vm.V.F = (byte)((previousValue > vm.V[X])?1:0);
+        vm.F = (byte)((previousValue > vm.V[X])?1:0);
     }
 
     public ADDR(Register X, Register Y)

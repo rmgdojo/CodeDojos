@@ -1,9 +1,11 @@
+using CHIP_8_Virtual_Machine.InstructionBases;
+
 namespace CHIP_8_Virtual_Machine.Instructions;
 public class BCD : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        ushort value = vm.V[X];
+        byte value = vm.V[X];
         Tribble index = vm.I;
 
         vm.RAM[index] = (byte)((value / 100) % 10);

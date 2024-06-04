@@ -1,4 +1,6 @@
-﻿namespace CHIP_8_Virtual_Machine.Instructions;
+﻿using CHIP_8_Virtual_Machine.InstructionBases;
+
+namespace CHIP_8_Virtual_Machine.Instructions;
 
 public class SYS : AddressInstruction
 {

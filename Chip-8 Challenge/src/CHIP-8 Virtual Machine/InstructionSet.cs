@@ -1,4 +1,6 @@
 ﻿namespace CHIP_8_Virtual_Machine;
+
+using CHIP_8_Virtual_Machine.InstructionBases;
 using Instructions;
 using System.Runtime.Intrinsics.X86;
 

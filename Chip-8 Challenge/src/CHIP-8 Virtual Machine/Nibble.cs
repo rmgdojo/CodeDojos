@@ -23,8 +23,9 @@
         public static implicit operator Nibble(byte value) => new Nibble(value);
     }
 
-    public static class NibbleExtensions
+    public static class ByteExtensions
     {
-        public static (Nibble High, Nibble Low) ToNibbles(this byte value) => (new Nibble((byte)(value >> 4)), new Nibble((byte)(value & 0x0F)));
+        public static Nibble LowNibble(this byte value) => new Nibble((byte)(value & 0x0F));
+        public static Nibble HighNibble(this byte value) => new Nibble((byte)(value >> 4));
     }
 }
