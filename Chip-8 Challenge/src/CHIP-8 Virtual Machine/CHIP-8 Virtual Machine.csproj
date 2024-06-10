@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="pong.rom">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

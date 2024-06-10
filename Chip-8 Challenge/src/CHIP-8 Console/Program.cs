@@ -6,13 +6,30 @@ namespace CHIP_8_Console
     {
         static void Main(string[] args)
         {
-            Tribble tribble = new Tribble(0x345);
-            int i = tribble;
-            ushort u = tribble;
+            Keypad keypad = new();
+            while (true)
+            {
+                try
+                {
+                    var key = Console.ReadKey(false);
 
-            Tribble t2 = tribble + 1;
-            int i2 = t2;
-            ushort u2 = t2;
+                    keypad.KeyDown(key.KeyChar.ToString());
+                    if (keypad.IsDown(0x01))
+                    {
+                        Console.WriteLine("Key is down!");
+                    }
+
+                    keypad.KeyUp(key.KeyChar.ToString());
+                    if (!keypad.IsDown(0x01))
+                    {
+                        Console.WriteLine("Key is up!");
+                    }
+                }
+                catch (KeyNotFoundException)
+                {
+                    Console.WriteLine("Key is not mapped.");
+                }
+            }
         }
     }
 }
