@@ -19,10 +19,10 @@ public struct Tribble
         MiddleNibble = middle;
         LowNibble = low;
 
-        if (Value > MAX_VALUE)
-        {
-            throw new ArgumentOutOfRangeException($"Value is greater than {MAX_VALUE}");
-        }
+        HighByte = (byte)(HighNibble << 4 | MiddleNibble);
+        LowByte = (byte)(MiddleNibble << 4 | LowNibble);
+
+        Value = (ushort)(HighNibble << 8 | MiddleNibble << 4 | LowNibble);
     }
 
     public Tribble(ushort value)
