@@ -43,7 +43,7 @@ public struct Tribble
     public override string ToString() => Value.ToString();
     public string ToHexString() => Value.ToString("X3");
 
-    // implicit conversion operators (same width or larger only, no implicit shortening)
+    // implicit conversion operators
     public static implicit operator ushort(Tribble Tribble) => Tribble.Value;
     public static implicit operator Tribble(ushort value) => new(value);
     public static implicit operator int(Tribble Tribble) => Tribble.Value;
