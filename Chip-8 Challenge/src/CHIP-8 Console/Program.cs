@@ -14,16 +14,7 @@ namespace CHIP_8_Console
                     var key = Console.ReadKey(false);
 
                     keypad.KeyDown(key.KeyChar.ToString());
-                    if (keypad.IsDown(0x01))
-                    {
-                        Console.WriteLine("Key is down!");
-                    }
 
-                    keypad.KeyUp(key.KeyChar.ToString());
-                    if (!keypad.IsDown(0x01))
-                    {
-                        Console.WriteLine("Key is up!");
-                    }
                 }
                 catch (KeyNotFoundException)
                 {
