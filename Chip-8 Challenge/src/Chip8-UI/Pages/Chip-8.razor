@@ -1,0 +1,41 @@
+﻿@page "/chip-8"
+@using System.Reflection.Emit
+@using CHIP_8_Virtual_Machine
+@inject IJSRuntime JS
+
+
+<div tabindex="0" @ref="keyDownDiv" @onkeydown="KeyDown" @onkeyup="KeyUp" @onkeypress="KeyPress">
+
+    <h3>Canvas for Chip-8</h3>
+
+    <canvas id="myCanvas" width="800" height="600" style="border:1px solid #000000;"></canvas>
+
+</div>
+
+@code {
+    private Keypad _keypad = new();
+    private ElementReference keyDownDiv;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await keyDownDiv.FocusAsync();
+        }
+    }
+
+    private void KeyDown(KeyboardEventArgs e)
+    {
+        _keypad.KeyDown(e.Key.ToUpper());
+    }
+
+    private void KeyUp(KeyboardEventArgs e)
+    {
+
+        _keypad.KeyUp(e.Key.ToUpper());
+    }
+
+    private void KeyPress(KeyboardEventArgs e) { }
+
+
+}
