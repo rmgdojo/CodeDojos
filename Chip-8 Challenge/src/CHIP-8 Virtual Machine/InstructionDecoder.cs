@@ -9,7 +9,7 @@ namespace CHIP_8_Virtual_Machine;
 
 public static class InstructionDecoder
 {
-    public static Instruction DecodeInstruction(Tribble instructionData)
+    public static Instruction DecodeInstruction(ushort instructionData)
     {
         var decoded = Decode(instructionData);
         return InstructionSet.GetByMnemonic(decoded.Mnemonic, decoded.Arguments);
