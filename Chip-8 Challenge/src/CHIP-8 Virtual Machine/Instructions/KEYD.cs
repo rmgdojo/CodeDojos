@@ -5,7 +5,7 @@ public class KEYD : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.V[X] = vm.Keypad.WaitForKeyPress();
     }
 
     public KEYD(Register X)

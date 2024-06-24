@@ -7,16 +7,20 @@ using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine
 {
-    public class VM
+    public class VM : IDisposable
     {
         private RAM _ram;
         private VRegisters _vregisters;
         private Stack<Tribble> _stack;
+        private Keypad _keypad;
+        private bool _running;
+        private Thread _instructionThread;
 
         public RAM RAM => _ram;
         public Tribble PC { get; set; }
         public Tribble I { get; set; }
         public byte F { get { return V[0xF]; } set { V[0xF] = value; } }
+        public Keypad Keypad => _keypad;
 
         public VRegisters V => _vregisters;
 
@@ -25,6 +29,7 @@ namespace CHIP_8_Virtual_Machine
             _ram = new RAM();
             _vregisters = new VRegisters();
             _stack = new Stack<Tribble>();
+            _keypad = new Keypad();
         }
 
         public void Load(byte[] bytes)
@@ -56,19 +61,19 @@ namespace CHIP_8_Virtual_Machine
             }
         }
 
-        public void PushStack(Tribble value)
+        internal void PushStack(Tribble value)
         {
             _stack.Push(value);
         }
 
-        public Tribble PopStack()
+        internal Tribble PopStack()
         {
             return _stack.Pop();
         }
 
-        public void Run()
+        private void InstructionCycle()
         {
-            while (true)
+            while (_running)
             {
                 Instruction instruction = InstructionDecoder.DecodeInstruction(_ram.GetWord(PC));
                 instruction.Execute(this);
@@ -78,6 +83,18 @@ namespace CHIP_8_Virtual_Machine
 
                 PC += 2;
             }
+        }
+
+        public void Run()
+        {
+            _instructionThread = new Thread(InstructionCycle);
+            _running = true;
+            _instructionThread.Start();
+        }
+
+        public void Dispose()
+        {
+            _running = false;
         }
     }
 }

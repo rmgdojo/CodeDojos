@@ -10,11 +10,15 @@
 
     <canvas id="myCanvas" width="800" height="600" style="border:1px solid #000000;"></canvas>
 
+    <p>@KeypadState</p>
+
 </div>
 
 @code {
     private Keypad _keypad = new();
     private ElementReference keyDownDiv;
+
+    public string KeypadState => _keypad.ToString();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -26,16 +30,29 @@
 
     private void KeyDown(KeyboardEventArgs e)
     {
-        _keypad.WindowsKeyDown(e.Key.ToUpper());
+        try
+        {
+            _keypad.WindowsKeyDown(e.Key.ToUpper());
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     private void KeyUp(KeyboardEventArgs e)
     {
-
-        _keypad.WindowsKeyDown(e.Key.ToUpper());
+        try
+        {
+            _keypad.WindowsKeyUp(e.Key.ToUpper());
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     private void KeyPress(KeyboardEventArgs e) { }
-
-
 }

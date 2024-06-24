@@ -8,6 +8,7 @@ namespace CHIP_8_Virtual_Machine
 {
     public class Keypad
     {
+        private bool _waitingForKeyPress = false;
         private bool[] _state = new bool[16];
         private Dictionary<string, Nibble> _map = new();
 
@@ -15,6 +16,23 @@ namespace CHIP_8_Virtual_Machine
 
         public event EventHandler<Nibble> OnKeyDown;
         public event EventHandler<Nibble> OnKeyUp;
+
+        public Nibble WaitForKeyPress()
+        {
+            _waitingForKeyPress = true;
+            while (_waitingForKeyPress) ;
+            return (Nibble)Array.IndexOf(_state, true);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new();
+            foreach (bool key in _state)
+            {
+                sb.Append(key ? "1" : "0");
+            }
+            return sb.ToString();
+        }
 
         public void WindowsKeyDown(char key)
         {
@@ -25,9 +43,11 @@ namespace CHIP_8_Virtual_Machine
         {
             if (_map.ContainsKey(windowsKeyName))
             {
+                _waitingForKeyPress = false;
+
                 Nibble key = _map[windowsKeyName];
                 _state[key] = true;
-                OnKeyDown?.Invoke(this, key);
+                Task.Run(() => OnKeyDown?.Invoke(this, key));
             }
             else
             {
@@ -46,7 +66,7 @@ namespace CHIP_8_Virtual_Machine
             {
                 Nibble key = _map[windowsKeyName];
                 _state[key] = false;
-                OnKeyUp?.Invoke(this, key);
+                Task.Run(() => OnKeyUp?.Invoke(this, key));
             }
             else
             {
