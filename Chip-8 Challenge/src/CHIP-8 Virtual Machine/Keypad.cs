@@ -31,7 +31,7 @@ namespace CHIP_8_Virtual_Machine
             }
             else
             {
-                Console.WriteLine($"Key {windowsKey} not found in mapping");
+                throw new KeyNotFoundException($"Key {windowsKeyName} not found in mapping");
             }
         }
 
@@ -50,7 +50,7 @@ namespace CHIP_8_Virtual_Machine
             }
             else
             {
-                Console.WriteLine($"Key {windowsKey} not found in mapping");
+                throw new KeyNotFoundException($"Key {windowsKeyName} not found in mapping");
             }
         }
 
