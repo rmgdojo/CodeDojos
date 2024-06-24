@@ -9,7 +9,7 @@ namespace CHIP_8_Virtual_Machine;
 
 public static class InstructionDecoder
 {
-    public static Instruction DecodeInstruction(Tribble instructionData)
+    public static Instruction DecodeInstruction(ushort instructionData)
     {
         var decoded = Decode(instructionData);
         return InstructionSet.GetByMnemonic(decoded.Mnemonic, decoded.Arguments);
@@ -17,106 +17,106 @@ public static class InstructionDecoder
 
     private static (string Mnemonic, Tribble Arguments) Decode(ushort opcode)
     {
-        string opcodeString = opcode.ToString("X4");
-        var arguments = GetArguments(opcode);
+        Tribble arguments = (ushort)(opcode & 0x0FFF);
+        Nibble opcodePrefix = (byte)(opcode >> 12);
 
-        switch (opcodeString[0])
+        switch (opcodePrefix)
         {
-            case '0':
+            case 0x0:
                 {
-                    return opcodeString[1..^0] switch
+                    return opcode switch
                     {
-                        "0E0" => ("CLR", arguments),
-                        "0EE" => ("RTS", arguments),
+                        0x00E0 => ("CLR", arguments),
+                        0x00EE => ("RTS", arguments),
                         _ => ("SYS", arguments)
                     };
                 }
-            case '1':
+            case 0x1:
                 {
                     return ("JUMP", arguments);
                 }
-            case '2':
+            case 0x2:
                 {
                     return ("CALL", arguments);
                 }
-            case '3':
+            case 0x3:
                 {
                     return ("SKE", arguments);
                 }
-            case '4':
+            case 0x4:
                 {
                     return ("SKNE", arguments);
                 }
-            case '5':
+            case 0x5:
                 {
                     return ("SKRE", arguments);
                 }
-            case '6':
+            case 0x6:
                 {
                     return ("LOAD", arguments);
                 }
-            case '7':
+            case 0x7:
                 {
                     return ("ADD", arguments);
                 }
-            case '8':
+            case 0x8:
                 {
-                    return opcodeString[3] switch
+                    return (byte)arguments.LowNibble switch
                     {
-                        '0' => ("MOVE", arguments),
-                        '1' => ("OR", arguments),
-                        '2' => ("AND", arguments),
-                        '3' => ("XOR", arguments),
-                        '4' => ("ADDR", arguments),
-                        '5' => ("SUB", arguments),
-                        '6' => ("SHR", arguments),
-                        '7' => ("SUBR", arguments),
-                        'E' => ("SHL", arguments),
+                        0x0 => ("MOVE", arguments),
+                        0x1 => ("OR", arguments),
+                        0x2 => ("AND", arguments),
+                        0x3 => ("XOR", arguments),
+                        0x4 => ("ADDR", arguments),
+                        0x5 => ("SUB", arguments),
+                        0x6 => ("SHR", arguments),
+                        0x7 => ("SUBR", arguments),
+                        0xE => ("SHL", arguments),
                         _ => ("NOP", arguments)
                     };
                 }
-            case '9':
+            case 0x9:
                 {
                     return ("SKRNE", arguments);
                 }
-            case 'A':
+            case 0xA:
                 {
                     return ("LOADI", arguments);
                 }
-            case 'B':
+            case 0xB:
                 {
                     return ("JUMPI", arguments);
                 }
-            case 'C':
+            case 0xC:
                 {
                     return ("RAND", arguments);
                 }
-            case 'D':
+            case 0xD:
                 {
                     return ("DRAW", arguments);
                 }
-            case 'E':
+            case 0xE:
                 {
-                    return opcodeString[2..^0] switch
+                    return arguments.LowByte switch
                     {
-                        "9E" => ("SKPR", arguments),
-                        "A1" => ("SKUP", arguments),
+                        0x9E => ("SKPR", arguments),
+                        0xA1 => ("SKUP", arguments),
                         _ => ("NOP", arguments)
                     };
                 }
-            case 'F':
+            case 0xF:
                 {
-                    return opcodeString[2..^0] switch
+                    return arguments.LowByte switch
                     {
-                        "07" => ("MOVED", arguments),
-                        "0A" => ("KEYD", arguments),
-                        "15" => ("LOADD", arguments),
-                        "18" => ("LOADS", arguments),
-                        "1E" => ("ADDI", arguments),
-                        "29" => ("LDSPR", arguments),
-                        "33" => ("BCD", arguments),
-                        "55" => ("STOR", arguments),
-                        "65" => ("READ", arguments),
+                        0x07 => ("MOVED", arguments),
+                        0x0A => ("KEYD", arguments),
+                        0x15 => ("LOADD", arguments),
+                        0x18 => ("LOADS", arguments),
+                        0x1E => ("ADDI", arguments),
+                        0x29 => ("LDSPR", arguments),
+                        0x33 => ("BCD", arguments),
+                        0x55 => ("STOR", arguments),
+                        0x65 => ("READ", arguments),
                         _ => ("NOP", arguments)
                     };
                 }
@@ -124,9 +124,4 @@ public static class InstructionDecoder
 
         return ("NOP", arguments);
     }
-
-    private static Tribble GetArguments(ushort opcode) =>
-        new((Nibble)((opcode & 0x0F00) >> 8),
-            (Nibble)((opcode & 0x00F0) >> 4),
-            (Nibble)(opcode & 0x000F));
 }

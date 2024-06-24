@@ -8,42 +8,49 @@ namespace CHIP_8_Virtual_Machine
 {
     public class Keypad
     {
-        private Dictionary<string, Nibble> _map = new Dictionary<string, Nibble>();
-        private Dictionary<Nibble, bool> _state = new Dictionary<Nibble, bool>();
+        private bool[] _state = new bool[16];
+        private Dictionary<string, Nibble> _map = new();
 
-        public bool IsDown(Nibble key)
+        public bool this[Nibble key] => _state[key];
+
+        public event EventHandler<Nibble> OnKeyDown;
+        public event EventHandler<Nibble> OnKeyUp;
+
+        public void WindowsKeyDown(char key)
         {
-            if (_state.TryGetValue(key, out bool value))
-            {
-                return value;
-            }
-
-            return false;
+            WindowsKeyDown(key.ToString());
         }
 
-        public void KeyDown(string windowsKey)
+        public void WindowsKeyDown(string windowsKeyName)
         {
-            if (_map.ContainsKey(windowsKey))
+            if (_map.ContainsKey(windowsKeyName))
             {
-                Nibble key = _map[windowsKey];
+                Nibble key = _map[windowsKeyName];
                 _state[key] = true;
+                OnKeyDown?.Invoke(this, key);
             }
             else
             {
-                Console.WriteLine($"Key {windowsKey} not found in mapping");
+                throw new KeyNotFoundException($"Key {windowsKeyName} not found in mapping");
             }
         }
 
-        public void KeyUp(string windowsKey)
+        public void WindowsKeyUp(char key)
         {
-            if (_map.ContainsKey(windowsKey))
+            WindowsKeyUp(key.ToString());
+        }
+
+        public void WindowsKeyUp(string windowsKeyName)
+        {
+            if (_map.ContainsKey(windowsKeyName))
             {
-                Nibble key = _map[windowsKey];
+                Nibble key = _map[windowsKeyName];
                 _state[key] = false;
+                OnKeyUp?.Invoke(this, key);
             }
             else
             {
-                Console.WriteLine($"Key {windowsKey} not found in mapping");
+                throw new KeyNotFoundException($"Key {windowsKeyName} not found in mapping");
             }
         }
 
@@ -51,28 +58,31 @@ namespace CHIP_8_Virtual_Machine
         {
             _map = new Dictionary<string, Nibble>
             {
-                // map to standard Windows key names
-                { "1", 0x1 },
-                { "2", 0x2 },
-                { "3", 0x3 },
-                { "4", 0xC },
+                // map to standard Windows key names as chars
+                // keypad square top left of keyboard
+                { "1", 0x0 },
+                { "2", 0x1 },
+                { "3", 0x2 },
+                { "4", 0x3 },
                 { "Q", 0x4 },
                 { "W", 0x5 },
                 { "E", 0x6 },
-                { "R", 0xD },
-                { "A", 0x7 },
-                { "S", 0x8 },
-                { "D", 0x9 },
-                { "F", 0xE },
-                { "Z", 0xA },
-                { "X", 0x0 },
-                { "C", 0xB },
+                { "R", 0x7 },
+                { "A", 0x8 },
+                { "S", 0x9 },
+                { "D", 0xA },
+                { "F", 0xB },
+                { "Z", 0xC },
+                { "X", 0xD },
+                { "C", 0xE },
                 { "V", 0xF }
             };
         }
 
         public Keypad(params string[] mappings)
         {
+            if (mappings.Length != 16) throw new ArgumentOutOfRangeException("Mappings must contain 16 entries.");   
+
             for (int i = 0; i < mappings.Length; i++)
             {
                 _map.Add(mappings[i], (Nibble)i);

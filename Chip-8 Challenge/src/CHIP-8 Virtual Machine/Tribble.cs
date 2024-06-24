@@ -19,10 +19,10 @@ public struct Tribble
         MiddleNibble = middle;
         LowNibble = low;
 
-        if (Value > MAX_VALUE)
-        {
-            throw new ArgumentOutOfRangeException($"Value is greater than {MAX_VALUE}");
-        }
+        HighByte = (byte)(HighNibble << 4 | MiddleNibble);
+        LowByte = (byte)(MiddleNibble << 4 | LowNibble);
+
+        Value = (ushort)(HighNibble << 8 | MiddleNibble << 4 | LowNibble);
     }
 
     public Tribble(ushort value)
@@ -43,7 +43,7 @@ public struct Tribble
     public override string ToString() => Value.ToString();
     public string ToHexString() => Value.ToString("X3");
 
-    // implicit conversion operators (same width or larger only, no implicit shortening)
+    // implicit conversion operators
     public static implicit operator ushort(Tribble Tribble) => Tribble.Value;
     public static implicit operator Tribble(ushort value) => new(value);
     public static implicit operator int(Tribble Tribble) => Tribble.Value;
