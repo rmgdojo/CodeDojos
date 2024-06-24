@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\rmgdojo\Chip-8 Challenge\src\CHIP-8 Virtual Machine\CHIP-8 Virtual Machine.csproj" />
+    <ProjectReference Include="..\CHIP-8 Virtual Machine\CHIP-8 Virtual Machine.csproj" />
   </ItemGroup>
 
 </Project>
