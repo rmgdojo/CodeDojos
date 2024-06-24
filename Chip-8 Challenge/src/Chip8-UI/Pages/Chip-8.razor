@@ -26,13 +26,13 @@
 
     private void KeyDown(KeyboardEventArgs e)
     {
-        _keypad.KeyDown(e.Key.ToUpper());
+        _keypad.WindowsKeyDown(e.Key.ToUpper());
     }
 
     private void KeyUp(KeyboardEventArgs e)
     {
 
-        _keypad.KeyUp(e.Key.ToUpper());
+        _keypad.WindowsKeyDown(e.Key.ToUpper());
     }
 
     private void KeyPress(KeyboardEventArgs e) { }
