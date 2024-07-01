@@ -13,4 +13,5 @@ public class SKPR : RegisterWithValueInstruction
 
     public SKPR(Register X, byte value)
         : base(X, value) { }
+
 }

@@ -13,4 +13,5 @@ public class SKUP : RegisterWithDiscriminatorInstruction
 
     public SKUP(Register X)
         : base(X, 0xA1) { }
+
 }
