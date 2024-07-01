@@ -5,7 +5,10 @@ public class SKPR : RegisterWithValueInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        if (vm.Keypad[X])
+        {
+            vm.PC += 2;
+        }
     }
 
     public SKPR(Register X, byte value)
