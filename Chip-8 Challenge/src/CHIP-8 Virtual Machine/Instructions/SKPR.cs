@@ -1,7 +1,7 @@
 using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine.Instructions;
-public class SKPR : RegisterWithValueInstruction
+public class SKPR : RegisterWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
@@ -11,7 +11,7 @@ public class SKPR : RegisterWithValueInstruction
         }
     }
 
-    public SKPR(Register X, byte value)
-        : base(X, value) { }
+    public SKPR(Register X)
+        : base(X, 0x9E) { }
 
 }
