@@ -76,12 +76,16 @@ namespace CHIP_8_Virtual_Machine
             while (_running)
             {
                 Instruction instruction = InstructionDecoder.DecodeInstruction(_ram.GetWord(PC));
-                instruction.Execute(this);
-
+                ushort pcUshort = PC;
+                pcUshort += 2;
                 // if at the end of memory, stop    
-                if (PC == 0xFFF) return;
+                if (pcUshort < 0xFFF)
+                {
+                    PC += 2;
+                }
 
-                PC += 2;
+                instruction.Execute(this);
+                if (PC == 0xFFF) return;
             }
         }
 
