@@ -7,8 +7,22 @@ namespace CHIP_8_Tests
     [TestFixture]
     public class InstructionTests
     {
+        public string WINKEY_1 = "1";
+        public Nibble KEYPAD_0 = 0;
 
         public VM VM { get; set; }
+        
+        public void KeyOp(bool down, string keyCode)
+        {
+            if (down)
+            {
+                VM.Keypad.WindowsKeyDown(keyCode);
+            }
+            else
+            {
+                VM.Keypad.WindowsKeyUp(keyCode);
+            }
+        }
 
         [SetUp]
         public void Setup()
@@ -21,42 +35,41 @@ namespace CHIP_8_Tests
         {
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SKUP(bool keyUp)
+        [TestCase(true, ExpectedResult = 2)]
+        [TestCase(false, ExpectedResult = 0)]
+        public int SKUP(bool keyUp)
         {
-            Tribble pc = VM.PC;
+            KeyOp(!keyUp, WINKEY_1);
 
-            if (keyUp)
-            {
-                VM.Keypad.WindowsKeyUp("1");
-            }
-            else
-            {
-                VM.Keypad.WindowsKeyDown("1");
-            }
-
-            SKUP instruction = new SKUP(0);
+            SKUP instruction = new SKUP(KEYPAD_0);
             instruction.Execute(VM);
-            Tribble expectedPC = pc + (keyUp ? 2 : 0);
+            
+            return VM.PC;
+        }
 
-            Assert.That(VM.PC, Is.EqualTo(expectedPC));
+        [TestCase(true, ExpectedResult = 2)]
+        [TestCase(false, ExpectedResult = 0)]
+        public int SKPR(bool keyDown)
+        {
+            KeyOp(keyDown, WINKEY_1);
+
+            SKPR instruction = new SKPR(KEYPAD_0);
+            instruction.Execute(VM);
+
+            return VM.PC;
         }
 
         [Test]
         public void BCD()
         {
-
             VM.V[1] = 123;
 
             BCD instruction = new BCD(1);
             instruction.Execute(VM);
 
-            Tribble index = VM.I;
-
-            Assert.That(VM.RAM[index], Is.EqualTo(1));
-            Assert.That(VM.RAM[index + 1], Is.EqualTo(2));
-            Assert.That(VM.RAM[index + 2], Is.EqualTo(3));
+            Assert.That(VM.RAM[VM.I], Is.EqualTo(1));
+            Assert.That(VM.RAM[VM.I + 1], Is.EqualTo(2));
+            Assert.That(VM.RAM[VM.I + 2], Is.EqualTo(3));
         }
     }
 }

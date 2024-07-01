@@ -38,7 +38,7 @@ public static class InstructionSet
         _instructions.Add("JUMPI", (arguments) => new JUMPI(arguments));
         _instructions.Add("RAND", (arguments) => new RAND(arguments.HighNibble, arguments.LowByte));
         _instructions.Add("DRAW", (arguments) => new DRAW(arguments.HighNibble, arguments.MiddleNibble, arguments.LowNibble));
-        _instructions.Add("SKPR", (arguments) => new SKPR(arguments.HighNibble, arguments.LowByte));
+        _instructions.Add("SKPR", (arguments) => new SKPR(arguments.HighNibble));
         _instructions.Add("SKUP", (arguments) => new SKUP(arguments.HighNibble));
         _instructions.Add("MOVED", (arguments) => new MOVED(arguments.HighNibble));
         _instructions.Add("KEYD", (arguments) => new KEYD(arguments.HighNibble));
