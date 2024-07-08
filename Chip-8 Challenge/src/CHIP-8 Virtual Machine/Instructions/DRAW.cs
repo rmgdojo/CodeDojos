@@ -5,7 +5,8 @@ public class DRAW : TwoRegistersWithDiscriminatorInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        byte[] bytes = vm.RAM.GetBytes(vm.I, (byte)Discriminator);
+        vm.F = (byte)(vm.Display.DisplaySprite(X, Y, bytes) ? 1 : 0);
     }
 
     public DRAW(Register X, Register Y, Nibble n)

@@ -40,9 +40,19 @@
             return _memory[address];
         }
 
+        public byte[] GetBytes(Tribble address, Tribble bytes)
+        {
+            return _memory[(int)address..(int)(address + bytes)];
+        }
+
         public void SetByte(Tribble address, byte value)
         {
             _memory[address] = value;
+        }
+
+        public void SetBytes(Tribble address, byte[] bytes)
+        {
+            Array.Copy(bytes, address, _memory, address, bytes.Length);
         }
     }
 }

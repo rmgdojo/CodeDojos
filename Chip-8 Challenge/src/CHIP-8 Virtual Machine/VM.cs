@@ -15,12 +15,14 @@ namespace CHIP_8_Virtual_Machine
         private Keypad _keypad;
         private bool _running;
         private Thread _instructionThread;
+        private Display _display;
 
         public RAM RAM => _ram;
         public Tribble PC { get; set; }
         public Tribble I { get; set; }
         public byte F { get { return V[0xF]; } set { V[0xF] = value; } }
         public Keypad Keypad => _keypad;
+        public Display Display => _display;
 
         public VRegisters V => _vregisters;
 
@@ -30,6 +32,7 @@ namespace CHIP_8_Virtual_Machine
             _vregisters = new VRegisters();
             _stack = new Stack<Tribble>();
             _keypad = new Keypad();
+            _display = new Display();
         }
 
         public void Load(byte[] bytes)
