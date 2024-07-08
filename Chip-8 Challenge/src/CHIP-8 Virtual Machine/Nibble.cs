@@ -21,6 +21,7 @@
 
         public static implicit operator byte(Nibble nibble) => nibble._value;
         public static implicit operator Nibble(byte value) => new Nibble(value);
+        public static implicit operator Tribble(Nibble value) => new Tribble(value);
     }
 
     public static class ByteExtensions
