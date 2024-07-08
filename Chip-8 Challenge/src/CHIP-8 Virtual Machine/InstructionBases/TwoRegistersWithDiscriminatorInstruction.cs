@@ -10,3 +10,4 @@ public class TwoRegistersWithDiscriminatorInstruction : Instruction
         : base(X, Y, discriminator)
     { }
 }
+
