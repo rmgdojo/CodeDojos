@@ -15,25 +15,27 @@ public class Display
         _pixels = new bool[64, 32];
     }
 
-    public bool DisplaySprite(int x, int y, byte[] bytes)
+    public bool DisplaySprite(int x, int y, byte[] spriteBytes)
     {
         bool pixelErased = false;
-        for (int i = 0; i < bytes.Length; i++)
+        for (int i = 0; i < spriteBytes.Length; i++)
         {
             for (int j = 0; j < 7; j++)
             {
-                byte @byte = bytes[i];
+                byte spriteByte = spriteBytes[i];
+                int localX = (x + j) % 64; // wraps the X coordinate (super-smart thinking from Garry)
 
-                int pixelIndex = (x + j) % 64;
-
-                bool currentPixelState = _pixels[pixelIndex, y];
-                bool shouldDisplay = (@byte & (1 << j)) != 0;
+                bool currentPixelState = _pixels[localX, y];
+                bool shouldDisplay = (spriteByte & (1 << j)) != 0;
                 if (currentPixelState && shouldDisplay)
                 {
                     pixelErased = true;
                     shouldDisplay = false;
                 }
+
+                _pixels[localX, y] = shouldDisplay;
             }
+            
             y++;
         }
 
