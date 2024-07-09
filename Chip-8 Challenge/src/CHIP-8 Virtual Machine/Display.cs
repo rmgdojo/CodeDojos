@@ -26,7 +26,7 @@ public class Display
                 int localX = (x + j) % 64; // wraps the X coordinate (super-smart thinking from Garry)
 
                 bool currentPixelState = _pixels[localX, y];
-                bool shouldDisplay = (spriteByte & (1 << j)) != 0;
+                bool shouldDisplay = (spriteByte & (0x1 << j)) != 0; // checks if bit j is set
                 if (currentPixelState && shouldDisplay)
                 {
                     pixelErased = true;

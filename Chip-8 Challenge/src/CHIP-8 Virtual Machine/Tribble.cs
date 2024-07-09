@@ -30,14 +30,14 @@ public struct Tribble
         // remove lowest 4 bits of value so it will fit in 12 bits
         value = (ushort)(value & 0xFFF);
        
-        HighNibble = (byte)(value >> 8);
-        MiddleNibble = (byte)((value >> 4) & 0x0F);
-        LowNibble = (byte)((byte)value & 0x0F);
+        HighNibble = (byte)(value >> 8); 
+        MiddleNibble = (byte)((value >> 4) & 0x0F); 
+        LowNibble = (byte)(value & 0x0F);
 
         HighByte = (byte)(HighNibble << 4 | MiddleNibble);
         LowByte = (byte)(MiddleNibble << 4 | LowNibble);
 
-        Value = (ushort)(HighNibble << 8 | MiddleNibble << 4 | LowNibble);
+        Value = value;
     }
 
     public override string ToString() => Value.ToString();
