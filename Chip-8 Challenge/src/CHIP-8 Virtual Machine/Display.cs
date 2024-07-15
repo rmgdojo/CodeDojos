@@ -7,13 +7,15 @@ public class Display
     public bool this[int x, int y] 
     { 
         get => _pixels[x, y]; 
-        set => _pixels[x, y] = value;
+        set { _pixels[x, y] = value; OnDisplayUpdated?.Invoke(this, _pixels); }
     }
+
+    public event EventHandler<bool[,]> OnDisplayUpdated;
 
     public Display()
     {
         _pixels = new bool[64, 32];
-    }
+    }    
 
     public bool DisplaySprite(int x, int y, byte[] spriteBytes)
     {
@@ -35,12 +37,11 @@ public class Display
                 }
 
                 _pixels[localX, localY] = shouldDisplay;
-            }
-            
-            y++;
+            }       
         }
+
+        OnDisplayUpdated?.Invoke(this, _pixels);    
 
         return pixelErased;
     }
-
 }

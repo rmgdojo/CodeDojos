@@ -1,5 +1,7 @@
 ﻿@page "/chip-8"
 @using System.Reflection.Emit
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas.Canvas2D
 @using CHIP_8_Virtual_Machine
 @inject IJSRuntime JS
 
@@ -8,23 +10,68 @@
 
     <h3>Canvas for Chip-8</h3>
 
-    <canvas id="myCanvas" width="800" height="600" style="border:1px solid #000000;"></canvas>
+    <BECanvas @ref="_canvas" Width=640 Height=320></BECanvas>
 
     <p>@KeypadState</p>
 
 </div>
 
 @code {
+    private VM _vm;
     private Keypad _keypad = new();
     private ElementReference keyDownDiv;
+    private BECanvasComponent _canvas;
+    private Canvas2DContext _2dContext;
 
     public string KeypadState => _keypad.ToString();
+
+    protected override void OnInitialized()
+    {
+        _vm = new VM();
+        _vm.Display.OnDisplayUpdated += DisplayUpdated;
+
+        base.OnInitialized();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            _2dContext = await _canvas.CreateCanvas2DAsync();
+
+            for (int i = 10; i < 20; i++)
+            {
+                //int i = 10;
+                //await _2dContext.SetFillStyleAsync("black");
+                //await _2dContext.FillRectAsync(i, i, 10, 10);
+                _vm.Display.DisplaySprite(i, i, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+            }
+
             await keyDownDiv.FocusAsync();
+        }
+    }
+
+    private async void DisplayUpdated(object sender, bool[,] pixels)
+    {
+        await _2dContext.SetFillStyleAsync("white");
+        await _2dContext.FillRectAsync(0, 0, 640, 320);
+
+        int xExtent = pixels.GetLength(0);
+        int yExtent = pixels.GetLength(1);
+        int magnification = 10;
+
+        for (int y = 0; y < yExtent; y++)
+        {
+            for (int x = 0; x < xExtent; x++)
+            {
+                bool on = pixels[x, y];
+                int rectX = magnification * x;
+                int rectY = magnification * y;
+
+                await _2dContext.SetFillStyleAsync(on ? "black" : "white");
+                await _2dContext.FillRectAsync(rectX, rectY, magnification, magnification);
+                StateHasChanged();
+            }
         }
     }
 
