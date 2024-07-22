@@ -44,7 +44,12 @@
                 //int i = 10;
                 //await _2dContext.SetFillStyleAsync("black");
                 //await _2dContext.FillRectAsync(i, i, 10, 10);
+                if (i > 10)
+                {
+                    _vm.Display.DisplaySprite(i-1, i-1, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }); // clear the previous displayed sprite
+                }
                 _vm.Display.DisplaySprite(i, i, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+                await Task.Delay(TimeSpan.FromMilliseconds(20));
             }
 
             await keyDownDiv.FocusAsync();
@@ -53,6 +58,7 @@
 
     private async void DisplayUpdated(object sender, bool[,] pixels)
     {
+        await _2dContext.BeginBatchAsync();
         await _2dContext.SetFillStyleAsync("white");
         await _2dContext.FillRectAsync(0, 0, 640, 320);
 
@@ -73,6 +79,7 @@
                 StateHasChanged();
             }
         }
+        await _2dContext.EndBatchAsync();
     }
 
     private void KeyDown(KeyboardEventArgs e)
