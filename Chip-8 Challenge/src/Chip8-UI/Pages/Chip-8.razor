@@ -6,7 +6,7 @@
 @inject IJSRuntime JS
 
 
-<div tabindex="0" @ref="keyDownDiv" @onkeydown="KeyDown" @onkeyup="KeyUp" @onkeypress="KeyPress">
+<div tabindex="0" @ref="_keyDownDiv" @onkeydown="KeyDown" @onkeyup="KeyUp" @onkeypress="KeyPress">
 
     <h3>Canvas for Chip-8</h3>
 
@@ -19,7 +19,7 @@
 @code {
     private VM _vm;
     private Keypad _keypad = new();
-    private ElementReference keyDownDiv;
+    private ElementReference _keyDownDiv;
     private BECanvasComponent _canvas;
     private Canvas2DContext _2dContext;
 
@@ -37,22 +37,22 @@
     {
         if (firstRender)
         {
+            byte[] sprite = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
             _2dContext = await _canvas.CreateCanvas2DAsync();
 
             for (int i = 10; i < 20; i++)
             {
-                //int i = 10;
-                //await _2dContext.SetFillStyleAsync("black");
-                //await _2dContext.FillRectAsync(i, i, 10, 10);
                 if (i > 10)
                 {
-                    _vm.Display.DisplaySprite(i-1, i-1, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }); // clear the previous displayed sprite
+                    _vm.Display.DisplayChar(i-1, i-1, '0');
+                    //_vm.Display.DisplaySprite(i-1, i-1, sprite); // clear the previous displayed sprite
                 }
-                _vm.Display.DisplaySprite(i, i, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+                _vm.Display.DisplayChar(i, i, '0');
+                //_vm.Display.DisplaySprite(i, i, sprite);
                 await Task.Delay(TimeSpan.FromMilliseconds(20));
             }
 
-            await keyDownDiv.FocusAsync();
+            await _keyDownDiv.FocusAsync();
         }
     }
 

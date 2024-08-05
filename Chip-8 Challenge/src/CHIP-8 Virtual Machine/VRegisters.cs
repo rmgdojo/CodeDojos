@@ -6,7 +6,7 @@ namespace CHIP_8_Virtual_Machine
     {       
         private byte[] _values;
 
-        public byte this[Nibble index]
+        public byte this[Register index]
         {
             get
             {

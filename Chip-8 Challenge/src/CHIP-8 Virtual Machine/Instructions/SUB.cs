@@ -1,7 +1,7 @@
 using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine.Instructions;
-public class SUB : TwoRegistersWithDiscriminatorInstruction
+public class SUB : TwoRegistersInstruction
 {
     public override void Execute(VM vm)
     {

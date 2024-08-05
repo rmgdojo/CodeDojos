@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine
@@ -12,10 +14,14 @@ namespace CHIP_8_Virtual_Machine
         private RAM _ram;
         private VRegisters _vregisters;
         private Stack<Tribble> _stack;
-        private Keypad _keypad;
+
         private bool _running;
         private Thread _instructionThread;
+
+        private Keypad _keypad;
         private Display _display;
+        private Timer _delayTimer;
+        private Timer _soundTimer;
 
         public RAM RAM => _ram;
         public Tribble PC { get; set; }
@@ -23,6 +29,8 @@ namespace CHIP_8_Virtual_Machine
         public byte F { get { return V[0xF]; } set { V[0xF] = value; } }
         public Keypad Keypad => _keypad;
         public Display Display => _display;
+        public Timer DelayTimer => _delayTimer;
+        public Timer SoundTimer => _soundTimer;
 
         public VRegisters V => _vregisters;
 
@@ -33,6 +41,9 @@ namespace CHIP_8_Virtual_Machine
             _stack = new Stack<Tribble>();
             _keypad = new Keypad();
             _display = new Display();
+
+            // load system font into memory
+            _ram.SetBytes(SystemFont.Address, SystemFont.Bytes);
         }
 
         public void Load(byte[] bytes)

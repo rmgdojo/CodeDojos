@@ -15,14 +15,28 @@ public class Display
     public Display()
     {
         _pixels = new bool[64, 32];
-    }    
+    }
+
+    public bool DisplayChar(int x, int y, char c)
+    {
+        if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))
+        {
+            int charIndex = c - '0';
+            byte[] sprite = SystemFont.Bytes[charIndex..(charIndex + 5)];
+            return DisplaySprite(x, y, sprite);
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException("Character must be between 0 and F");
+        }
+    }
 
     public bool DisplaySprite(int x, int y, byte[] spriteBytes)
     {
         bool pixelErased = false;
         for (int i = 0; i < spriteBytes.Length; i++)
         {
-            for (int j = 0; j < 7; j++)
+            for (int j = 0; j < 8; j++)
             {
                 byte spriteByte = spriteBytes[i];
                 int localX = (x + j) % 64; // wraps the X coordinate (super-smart thinking from Garry)

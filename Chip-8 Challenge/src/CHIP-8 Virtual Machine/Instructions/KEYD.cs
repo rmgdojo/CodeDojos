@@ -1,7 +1,7 @@
 using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine.Instructions;
-public class KEYD : RegisterWithDiscriminatorInstruction
+public class KEYD : RegisterInstruction
 {
     public override void Execute(VM vm)
     {

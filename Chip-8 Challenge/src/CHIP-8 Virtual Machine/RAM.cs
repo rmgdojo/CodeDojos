@@ -52,7 +52,7 @@
 
         public void SetBytes(Tribble address, byte[] bytes)
         {
-            Array.Copy(bytes, address, _memory, address, bytes.Length);
+            Array.Copy(bytes, 0, _memory, address, bytes.Length);
         }
     }
 }
