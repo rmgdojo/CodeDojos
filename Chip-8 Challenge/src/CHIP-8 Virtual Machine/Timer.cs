@@ -1,6 +1,4 @@
-﻿using Timer = System.Timers.Timer;
-
-namespace CHIP_8_Virtual_Machine
+﻿namespace CHIP_8_Virtual_Machine
 {
     public class Timer
     {
@@ -9,19 +7,19 @@ namespace CHIP_8_Virtual_Machine
         private const int FAST_THRESHOLD = 40;
         private const int STANDARD_THRESHOLD = 60;
 
-        private System.Timers.Timer _timer;
+        private System.Timers.Timer _windowsTimer;
         private int _cyclesSoFar;
         private int _targetCycles;
         
         public void Start(int cycles)
         {
-            _timer.Start();
+            _windowsTimer.Start();
         }
 
         private void HandleIntervalChange(object sender, EventArgs e)
         {
             _cyclesSoFar++;
-            _timer.Interval = _cyclesSoFar switch
+            _windowsTimer.Interval = _cyclesSoFar switch
             {
                 >= STANDARD_THRESHOLD => STANDARD_INTERVAL,
                 >= FAST_THRESHOLD => FAST_INTERVAL,
@@ -30,7 +28,7 @@ namespace CHIP_8_Virtual_Machine
 
             if (_cyclesSoFar == _targetCycles)
             {
-                _timer.Stop();
+                _windowsTimer.Stop();
                 // do something, not quite sure what yet
             }
         }
@@ -42,9 +40,9 @@ namespace CHIP_8_Virtual_Machine
 
         public Timer()
         {
-            _timer = new System.Timers.Timer(STANDARD_INTERVAL);
-            _timer.Elapsed += TimerElapsed;
-            _timer.Elapsed += HandleIntervalChange;
+            _windowsTimer = new System.Timers.Timer(STANDARD_INTERVAL);
+            _windowsTimer.Elapsed += TimerElapsed;
+            _windowsTimer.Elapsed += HandleIntervalChange;
         }
     }
 }
