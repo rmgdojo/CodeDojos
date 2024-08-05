@@ -41,6 +41,8 @@ namespace CHIP_8_Virtual_Machine
             _stack = new Stack<Tribble>();
             _keypad = new Keypad();
             _display = new Display();
+            _delayTimer = new Timer();
+            _soundTimer = new Timer();
 
             // load system font into memory
             _ram.SetBytes(SystemFont.Address, SystemFont.Bytes);
