@@ -1,10 +1,9 @@
 ﻿namespace CHIP_8_Virtual_Machine
 {
-    public static class SystemFont
+    public class SystemFont
     {
-        public static Tribble Address => 0x050;
-
-        public static byte[] Bytes = new byte[]
+        private Tribble _address = 0x050;
+        private byte[] _bytes = new byte[]
         {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -23,5 +22,26 @@
             0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
+
+        public byte[] this[char c]
+        {
+            get
+            {
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))
+                {
+                    int charIndex = c - '0';
+                    return _bytes[charIndex..(charIndex + 5)];
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Character must be between 0 and F");
+                }
+            }
+        }
+
+        public void InstallTo(RAM ram)
+        {
+            ram.SetBytes(_address, _bytes);
+        }
     }
 }

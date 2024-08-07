@@ -13,6 +13,7 @@
         
         public void Start(int cycles)
         {
+            _targetCycles = cycles;
             _windowsTimer.Start();
         }
 

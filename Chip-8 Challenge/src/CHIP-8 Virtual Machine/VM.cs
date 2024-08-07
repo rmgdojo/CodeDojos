@@ -14,6 +14,7 @@ namespace CHIP_8_Virtual_Machine
         private RAM _ram;
         private VRegisters _vregisters;
         private Stack<Tribble> _stack;
+        private SystemFont _systemFont;
 
         private bool _running;
         private Thread _instructionThread;
@@ -31,6 +32,7 @@ namespace CHIP_8_Virtual_Machine
         public Display Display => _display;
         public Timer DelayTimer => _delayTimer;
         public Timer SoundTimer => _soundTimer;
+        public SystemFont SystemFont => _systemFont;
 
         public VRegisters V => _vregisters;
 
@@ -40,12 +42,13 @@ namespace CHIP_8_Virtual_Machine
             _vregisters = new VRegisters();
             _stack = new Stack<Tribble>();
             _keypad = new Keypad();
-            _display = new Display();
+            _display = new Display(this);
             _delayTimer = new Timer();
             _soundTimer = new Timer();
 
             // load system font into memory
-            _ram.SetBytes(SystemFont.Address, SystemFont.Bytes);
+            _systemFont = new SystemFont();
+            _systemFont.InstallTo(_ram);
         }
 
         public void Load(byte[] bytes)

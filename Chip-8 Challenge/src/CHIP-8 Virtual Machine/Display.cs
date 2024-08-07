@@ -2,6 +2,7 @@
 
 public class Display
 {
+    private VM _vm;
     private bool[,] _pixels;
 
     public bool this[int x, int y] 
@@ -12,23 +13,16 @@ public class Display
 
     public event EventHandler<bool[,]> OnDisplayUpdated;
 
-    public Display()
+    public Display(VM vm)
     {
         _pixels = new bool[64, 32];
+        _vm = vm;
     }
 
     public bool DisplayChar(int x, int y, char c)
     {
-        if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))
-        {
-            int charIndex = c - '0';
-            byte[] sprite = SystemFont.Bytes[charIndex..(charIndex + 5)];
-            return DisplaySprite(x, y, sprite);
-        }
-        else
-        {
-            throw new ArgumentOutOfRangeException("Character must be between 0 and F");
-        }
+        byte[] sprite = _vm.SystemFont[c];
+        return DisplaySprite(x, y, sprite);
     }
 
     public bool DisplaySprite(int x, int y, byte[] spriteBytes)
