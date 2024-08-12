@@ -5,7 +5,7 @@ public class MOVED : RegisterInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.V[X] = vm.DelayTimer.GetCyclesRemaining();
     }
 
     public MOVED(Register X)

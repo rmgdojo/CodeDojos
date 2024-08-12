@@ -7,7 +7,7 @@ public class ADDR : TwoRegistersInstruction
     {
         byte previousValue = vm.V[X];
         vm.V[X] += vm.V[Y];
-        vm.F = (byte)((previousValue > vm.V[X])?1:0);
+        vm.SetFlag(previousValue > vm.V[X]);
     }
 
     public ADDR(Register X, Register Y)

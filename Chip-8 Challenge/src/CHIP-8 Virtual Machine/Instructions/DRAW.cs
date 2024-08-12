@@ -7,7 +7,8 @@ public class DRAW : TwoRegistersWithValueInstruction
     public override void Execute(VM vm)
     {
         byte[] bytes = vm.RAM.GetBytes(vm.I, Value);
-        vm.F = (byte)(vm.Display.DisplaySprite(X, Y, bytes) ? 1 : 0);
+        bool erased = vm.Display.DisplaySprite(X, Y, bytes);
+        vm.SetFlag(erased);
     }
 
     public DRAW(Register X, Register Y, Nibble n)

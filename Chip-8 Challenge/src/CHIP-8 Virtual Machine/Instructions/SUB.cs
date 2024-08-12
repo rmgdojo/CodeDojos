@@ -6,7 +6,7 @@ public class SUB : TwoRegistersInstruction
     public override void Execute(VM vm)
     {
         vm.V[X] -= vm.V[Y];
-        vm.F = (byte)(vm.V[X] > vm.V[Y] ? 1 : 0);
+        vm.SetFlag(vm.V[X] > vm.V[Y]);
     }
 
     public SUB(Register X, Register Y)

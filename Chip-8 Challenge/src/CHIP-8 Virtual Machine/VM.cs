@@ -14,20 +14,17 @@ namespace CHIP_8_Virtual_Machine
         private RAM _ram;
         private VRegisters _vregisters;
         private Stack<Tribble> _stack;
-        private SystemFont _systemFont;
 
         private bool _running;
         private Thread _instructionThread;
 
         private Keypad _keypad;
         private Display _display;
+        private SystemFont _systemFont;
         private Timer _delayTimer;
         private Timer _soundTimer;
 
         public RAM RAM => _ram;
-        public Tribble PC { get; set; }
-        public Tribble I { get; set; }
-        public byte F { get { return V[0xF]; } set { V[0xF] = value; } }
         public Keypad Keypad => _keypad;
         public Display Display => _display;
         public Timer DelayTimer => _delayTimer;
@@ -35,6 +32,10 @@ namespace CHIP_8_Virtual_Machine
         public SystemFont SystemFont => _systemFont;
 
         public VRegisters V => _vregisters;
+
+        public Tribble PC { get; set; }
+        public Tribble I { get; set; }
+        public byte F { get { return V[0xF]; } }
 
         public VM()
         {
@@ -78,6 +79,11 @@ namespace CHIP_8_Virtual_Machine
                 PC = 0x200;
                 _ram[i + PC] = rom[i];
             }
+        }
+
+        internal void SetFlag(bool value)
+        {
+            V[0xF] = (byte)(value ? 1 : 0);
         }
 
         internal void PushStack(Tribble value)

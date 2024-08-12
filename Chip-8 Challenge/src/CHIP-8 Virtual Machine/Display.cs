@@ -19,6 +19,12 @@ public class Display
         _vm = vm;
     }
 
+    public void Clear()
+    {
+        _pixels = new bool[64, 32];
+        OnDisplayUpdated?.Invoke(this, _pixels);
+    }
+
     public bool DisplayChar(int x, int y, char c)
     {
         byte[] sprite = _vm.SystemFont[c];

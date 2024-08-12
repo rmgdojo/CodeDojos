@@ -5,7 +5,7 @@ public class CLR : AddressInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.Display.Clear();
     }
 
     public CLR(Tribble address)

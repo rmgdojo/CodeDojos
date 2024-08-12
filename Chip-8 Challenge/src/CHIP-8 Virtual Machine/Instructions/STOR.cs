@@ -7,7 +7,7 @@ public class STOR : RegisterInstruction
     {
         for (Nibble i = 0; i < X; i++)
         {
-            vm.RAM[(Tribble)(vm.I + i)] = vm.V[i];
+            vm.RAM[vm.I + i] = vm.V[i];
         }
     }
 
