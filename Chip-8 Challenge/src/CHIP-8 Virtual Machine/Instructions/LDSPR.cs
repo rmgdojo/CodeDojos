@@ -5,7 +5,8 @@ public class LDSPR : RegisterInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.I = vm.SystemFont.AddressOf((char)((byte)X));
+        char c = (char)(((byte)X) + '0');
+        vm.I = vm.SystemFont.AddressOf(c);
     }
 
     public LDSPR(Register X)
