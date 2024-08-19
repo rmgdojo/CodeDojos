@@ -1,0 +1,13 @@
+﻿<Window x:Class="Chip8.UI.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Name="Main"
+        Title="Chip-8 Emulator Test UI" Height="320" Width="640"
+        >
+    <Grid RenderOptions.BitmapScalingMode="HighQuality">
+        <Image x:Name="Display" Grid.Column="0" Margin ="10" Stretch="Fill" Visibility="Visible" />
+    </Grid>
+</Window>

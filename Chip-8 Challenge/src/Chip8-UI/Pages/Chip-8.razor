@@ -4,6 +4,7 @@
 @using Blazor.Extensions.Canvas.Canvas2D
 @using CHIP_8_Virtual_Machine
 @inject IJSRuntime JS
+@inject HttpClient Http
 
 
 <div tabindex="0" @ref="_keyDownDiv" @onkeydown="KeyDown" @onkeyup="KeyUp" @onkeypress="KeyPress">
@@ -25,16 +26,13 @@
 
     public string KeypadState => _keypad.ToString();
 
-    protected override void OnInitialized()
+    protected async override void OnInitialized()
     {
         _vm = new VM(new WindowsKeypadMap());
         _keypad = _vm.Keypad;
         _vm.Display.OnDisplayUpdated += DisplayUpdated;
 
-        // TODO: Garry fix this
-        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        string path = Path.Combine(baseDirectory, "wwwroot", "pong.rom");
-        byte[] pong = File.ReadAllBytes(path);
+        byte[] pong = await Http.GetByteArrayAsync("/pong.rom");
         _vm.Load(pong);
         _vm.Run();
 

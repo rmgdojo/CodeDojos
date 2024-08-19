@@ -115,6 +115,11 @@ namespace CHIP_8_Virtual_Machine
             _instructionThread.Start();
         }
 
+        public void Stop()
+        {
+            _running = false; 
+        }
+
         public void Dispose()
         {
             _running = false;
