@@ -39,6 +39,19 @@
             }
         }
 
+        public Tribble AddressOf(char c)
+        {
+            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))
+            {
+                int charIndex = c - '0';
+                return _address + (charIndex * 5);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("Character must be between 0 and F");
+            }
+        }
+
         public void InstallTo(RAM ram)
         {
             ram.SetBytes(_address, _bytes);

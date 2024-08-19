@@ -18,7 +18,7 @@
 
 @code {
     private VM _vm;
-    private Keypad _keypad = new();
+    private Keypad _keypad;
     private ElementReference _keyDownDiv;
     private BECanvasComponent _canvas;
     private Canvas2DContext _2dContext;
@@ -27,7 +27,8 @@
 
     protected  override void OnInitialized()
     {
-        _vm = new VM();
+        _vm = new VM(new WindowsKeypadMap());
+        _keypad = _vm.Keypad;
         _vm.Display.OnDisplayUpdated += DisplayUpdated;
         Task.Run(async () =>
         {
@@ -43,6 +44,13 @@
             }
          
         });
+
+        // TODO: Garry fix this
+        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        string path = Path.Combine(baseDirectory, "wwwroot", "pong.rom");
+        byte[] pong = File.ReadAllBytes(path);
+        _vm.Load(pong);
+        _vm.Run();
 
         base.OnInitialized();
     }
@@ -100,7 +108,7 @@
     {
         try
         {
-            _keypad.WindowsKeyDown(e.Key.ToUpper());
+            _keypad.KeyDown(e.Key.ToUpper());
             StateHasChanged();
         }
         catch (Exception ex)
@@ -113,7 +121,7 @@
     {
         try
         {
-            _keypad.WindowsKeyUp(e.Key.ToUpper());
+            _keypad.KeyUp(e.Key.ToUpper());
             StateHasChanged();
         }
         catch (Exception ex)

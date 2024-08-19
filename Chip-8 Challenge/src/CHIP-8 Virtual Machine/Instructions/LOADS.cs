@@ -5,7 +5,7 @@ public class LOADS : RegisterInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.SoundTimer.Start(X);
     }
 
     public LOADS(Register X)

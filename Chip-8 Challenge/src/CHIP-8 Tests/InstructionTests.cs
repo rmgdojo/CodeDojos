@@ -16,11 +16,11 @@ namespace CHIP_8_Tests
         {
             if (down)
             {
-                VM.Keypad.WindowsKeyDown(keyCode);
+                VM.Keypad.KeyDown(keyCode);
             }
             else
             {
-                VM.Keypad.WindowsKeyUp(keyCode);
+                VM.Keypad.KeyUp(keyCode);
             }
         }
 
