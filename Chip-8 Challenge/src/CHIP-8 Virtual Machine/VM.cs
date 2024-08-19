@@ -108,17 +108,29 @@ namespace CHIP_8_Virtual_Machine
                 {
                     PC += 2;
                 }
-
+                Console.WriteLine($"Executing {instruction.GetType().Name} at {PC:X}");
                 instruction.Execute(this);
-                if (PC == 0xFFF) return;
+                if (PC == 0xFFF)
+                {
+                    Console.WriteLine("End of memory reached");
+                    return;
+                }
             }
         }
 
-        public void Run()
+        public void Run(bool threading = true)
         {
-            _instructionThread = new Thread(InstructionCycle);
-            _running = true;
-            _instructionThread.Start();
+            _running=true;   
+            if (threading)
+            {
+                _instructionThread = new Thread(InstructionCycle);
+                 _instructionThread.Start();
+            }
+            else
+            {
+                InstructionCycle();
+            }
+            
         }
 
         public void Dispose()

@@ -4,7 +4,7 @@
 @using Blazor.Extensions.Canvas.Canvas2D
 @using CHIP_8_Virtual_Machine
 @inject IJSRuntime JS
-
+@inject HttpClient Http
 
 <div tabindex="0" @ref="_keyDownDiv" @onkeydown="KeyDown" @onkeyup="KeyUp" @onkeypress="KeyPress">
 
@@ -25,10 +25,24 @@
 
     public string KeypadState => _keypad.ToString();
 
-    protected override void OnInitialized()
+    protected  override void OnInitialized()
     {
         _vm = new VM();
         _vm.Display.OnDisplayUpdated += DisplayUpdated;
+        Task.Run(async () =>
+        {
+            try
+            {
+            var bytes=await Http.GetByteArrayAsync("pong.rom");
+             _vm.Load(bytes);
+             _vm.Run(false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+         
+        });
 
         base.OnInitialized();
     }
@@ -39,7 +53,7 @@
         {
             byte[] sprite = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
             _2dContext = await _canvas.CreateCanvas2DAsync();
-
+/*
             for (int i = 10; i < 20; i++)
             {
                 if (i > 10)
@@ -51,7 +65,7 @@
                 //_vm.Display.DisplaySprite(i, i, sprite);
                 await Task.Delay(TimeSpan.FromMilliseconds(20));
             }
-
+*/
             await _keyDownDiv.FocusAsync();
         }
     }

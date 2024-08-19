@@ -16,4 +16,10 @@
     <ProjectReference Include="..\CHIP-8 Virtual Machine\CHIP-8 Virtual Machine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\pong.rom">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
