@@ -14,5 +14,5 @@ public class SHL : TwoRegistersInstruction
     }
 
     public SHL(Register X, Register Y)
-        : base(X, Y, 0x6) { }
+        : base(X, Y, 0xE) { }
 }

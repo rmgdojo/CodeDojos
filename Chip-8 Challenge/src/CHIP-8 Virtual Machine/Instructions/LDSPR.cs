@@ -1,13 +1,13 @@
 using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine.Instructions;
-public class LDPSR : RegisterInstruction
+public class LDSPR : RegisterInstruction
 {
     public override void Execute(VM vm)
     {
-        throw new NotImplementedException();
+        vm.I = vm.SystemFont.AddressOf((char)((byte)X));
     }
 
-    public LDPSR(Register X)
+    public LDSPR(Register X)
         : base(X, 0x29) { }
 }

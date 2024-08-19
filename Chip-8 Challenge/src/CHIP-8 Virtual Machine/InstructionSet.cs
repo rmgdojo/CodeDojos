@@ -45,7 +45,7 @@ public static class InstructionSet
         _instructions.Add("LOADD", (arguments) => new LOADD(arguments.HighNibble));
         _instructions.Add("LOADS", (arguments) => new LOADS(arguments.HighNibble));
         _instructions.Add("ADDI", (arguments) => new ADDI(arguments.HighNibble));
-        _instructions.Add("LDSPR", (arguments) => new LDPSR(arguments.HighNibble));
+        _instructions.Add("LDSPR", (arguments) => new LDSPR(arguments.HighNibble));
         _instructions.Add("BCD", (arguments) => new BCD(arguments.HighNibble));
         _instructions.Add("STOR", (arguments) => new STOR(arguments.HighNibble));
         _instructions.Add("READ", (arguments) => new READ(arguments.HighNibble));

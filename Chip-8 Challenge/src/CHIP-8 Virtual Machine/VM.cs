@@ -37,12 +37,12 @@ namespace CHIP_8_Virtual_Machine
         public Tribble I { get; set; }
         public byte F { get { return V[0xF]; } }
 
-        public VM()
+        public VM(IKeypadMap keypadMap = null)
         {
             _ram = new RAM();
             _vregisters = new VRegisters();
             _stack = new Stack<Tribble>();
-            _keypad = new Keypad();
+            _keypad = new Keypad(keypadMap);
             _display = new Display(this);
             _delayTimer = new Timer();
             _soundTimer = new Timer();
@@ -101,13 +101,7 @@ namespace CHIP_8_Virtual_Machine
             while (_running)
             {
                 Instruction instruction = InstructionDecoder.DecodeInstruction(_ram.GetWord(PC));
-                ushort pcUshort = PC;
-                pcUshort += 2;
-                // if at the end of memory, stop    
-                if (pcUshort < 0xFFF)
-                {
-                    PC += 2;
-                }
+                PC += (PC + 2 < 0xFFF) ? 2 : 0;
 
                 instruction.Execute(this);
                 if (PC == 0xFFF) return;
