@@ -30,28 +30,6 @@
         _vm = new VM(new WindowsKeypadMap());
         _keypad = _vm.Keypad;
         _vm.Display.OnDisplayUpdated += DisplayUpdated;
-        Task.Run(async () =>
-        {
-            try
-            {
-            var bytes=await Http.GetByteArrayAsync("pong.rom");
-             _vm.Load(bytes);
-             _vm.Run(false);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-         
-        });
-
-        // TODO: Garry fix this
-        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        string path = Path.Combine(baseDirectory, "wwwroot", "pong.rom");
-        byte[] pong = File.ReadAllBytes(path);
-        _vm.Load(pong);
-        _vm.Run();
-
         base.OnInitialized();
     }
 
@@ -59,49 +37,53 @@
     {
         if (firstRender)
         {
-            byte[] sprite = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
-            _2dContext = await _canvas.CreateCanvas2DAsync();
-/*
-            for (int i = 10; i < 20; i++)
-            {
-                if (i > 10)
-                {
-                    _vm.Display.DisplayChar(i-1, i-1, '0');
-                    //_vm.Display.DisplaySprite(i-1, i-1, sprite); // clear the previous displayed sprite
-                }
-                _vm.Display.DisplayChar(i, i, '0');
-                //_vm.Display.DisplaySprite(i, i, sprite);
-                await Task.Delay(TimeSpan.FromMilliseconds(20));
-            }
-*/
             await _keyDownDiv.FocusAsync();
+            _2dContext = await _canvas.CreateCanvas2DAsync();
+            var bytes = System.IO.File.ReadAllBytes("pomg.rom");
+             for (int i = 9; i >= 0; i--)
+            {
+               
+                _vm.Display.DisplayChar(0, 12, i.ToString()[0]);
+                StateHasChanged();
+                await Task.Delay(1);
+                _vm.Display.DisplayChar(0, 12, i.ToString()[0]);
+
+            }
+
+
+            _vm.Load(bytes);
+            _vm.Run(false);
         }
     }
-
+    
     private async void DisplayUpdated(object sender, bool[,] pixels)
     {
-        await _2dContext.BeginBatchAsync();
-        await _2dContext.SetFillStyleAsync("white");
-        await _2dContext.FillRectAsync(0, 0, 640, 320);
-
-        int xExtent = pixels.GetLength(0);
-        int yExtent = pixels.GetLength(1);
-        int magnification = 10;
-
-        for (int y = 0; y < yExtent; y++)
+        await InvokeAsync(async () =>
         {
-            for (int x = 0; x < xExtent; x++)
-            {
-                bool on = pixels[x, y];
-                int rectX = magnification * x;
-                int rectY = magnification * y;
+            
+            await _2dContext.BeginBatchAsync();
+            await _2dContext.SetFillStyleAsync("yellow");
+            await _2dContext.FillRectAsync(0, 0, 640, 320);
 
-                await _2dContext.SetFillStyleAsync(on ? "black" : "white");
-                await _2dContext.FillRectAsync(rectX, rectY, magnification, magnification);
-                StateHasChanged();
+            int xExtent = pixels.GetLength(0);
+            int yExtent = pixels.GetLength(1);
+            int magnification = 10;
+
+            for (int y = 0; y < yExtent; y++)
+            {
+                for (int x = 0; x < xExtent; x++)
+                {
+                    bool on = pixels[x, y];
+                    int rectX = magnification * x;
+                    int rectY = magnification * y;
+
+                    await _2dContext.SetFillStyleAsync(on ? "black" : "yellow");
+                    await _2dContext.FillRectAsync(rectX, rectY, magnification, magnification);
+                }
             }
-        }
-        await _2dContext.EndBatchAsync();
+            await _2dContext.EndBatchAsync();
+        });
+        StateHasChanged();
     }
 
     private void KeyDown(KeyboardEventArgs e)
