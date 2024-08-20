@@ -21,12 +21,14 @@ namespace CHIP_8_Virtual_Machine
         private Keypad _keypad;
         private Display _display;
         private SystemFont _systemFont;
+        private System.Timers.Timer _clockTick;
         private Timer _delayTimer;
         private Timer _soundTimer;
 
         public RAM RAM => _ram;
         public Keypad Keypad => _keypad;
         public Display Display => _display;
+        public System.Timers.Timer ClockTick => _clockTick;
         public Timer DelayTimer => _delayTimer;
         public Timer SoundTimer => _soundTimer;
         public SystemFont SystemFont => _systemFont;
@@ -46,7 +48,8 @@ namespace CHIP_8_Virtual_Machine
             _display = new Display(this);
             _delayTimer = new Timer();
             _soundTimer = new Timer();
-
+            _clockTick = new System.Timers.Timer();
+            _clockTick.Stop();
             // load system font into memory
             _systemFont = new SystemFont();
             _systemFont.InstallTo(_ram);
@@ -96,10 +99,17 @@ namespace CHIP_8_Virtual_Machine
             return _stack.Pop();
         }
 
-        private void InstructionCycle()
+        private void InstructionCycles()
         {
             while (_running)
             {
+                InstructionCycle();
+            }
+        }
+
+        private void InstructionCycle()
+        {
+            _ticks += 1;
                 Instruction instruction = InstructionDecoder.DecodeInstruction(_ram.GetWord(PC));
                 PC += (PC + 2 < 0xFFF) ? 2 : 0;
 
@@ -117,12 +127,17 @@ namespace CHIP_8_Virtual_Machine
             _running=true;   
             if (threading)
             {
-                _instructionThread = new Thread(InstructionCycle);
+                _instructionThread = new Thread(InstructionCycles);
+                _instructionThread.IsBackground = true;
                  _instructionThread.Start();
             }
             else
             {
-                InstructionCycle();
+                ClockTick.Interval = 1;
+                _ticks = 0;
+                ClockTick.Elapsed += (s,e) => Task.Run(InstructionCycle);
+                ClockTick.Elapsed += (s, e) => { if (_running) ClockTick.Start(); };
+                ClockTick.Start();
             }
             
         }
