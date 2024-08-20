@@ -6,8 +6,8 @@
 | JUMP   | JP     | nnn       | 1NNN | 1    | Jump to address NNN                                                  |
 | CALL   | CALL   | nnn       | 2NNN | 1    | Call routine at address NNN                                          |
 | SKE    | SE     | Vx, n     | 3XNN | 2    | Skip next instruction if register X equals NN                        |
-| SKNE   | SNE    | Vx, n     | 4XNN | 2    | Do not skip next instruction if register X equals NN                 |
-| SKRE   | SE     | Vx, Vy    | 5XY0 | 2    | Skip if register X equals register T                                 |
+| SKNE   | SNE    | Vx, n     | 4XNN | 2    | Skip next instruction if register X does not equal NN                |
+| SKRE   | SE     | Vx, Vy    | 5XY0 | 2    | Skip if register X equals register Y                                 |
 | LOAD   | LD     | Vx, n     | 6XNN | 2    | Load register X with value NN                                        |
 | ADD    | ADD    | Vx, n     | 7XNN | 2    | Add value NN to register X                                           |
 | MOVE   | LD     | Vx, Vy    | 8XY0 | 2    | Move value from register X to register Y                             |
