@@ -39,7 +39,7 @@
         {
             await _keyDownDiv.FocusAsync();
             _2dContext = await _canvas.CreateCanvas2DAsync();
-            var bytes = System.IO.File.ReadAllBytes("pomg.rom");
+            byte[] bytes = await Http.GetByteArrayAsync("pong.rom");
              for (int i = 9; i >= 0; i--)
             {
                
