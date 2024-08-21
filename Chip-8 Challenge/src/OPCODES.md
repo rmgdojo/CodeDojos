@@ -6,8 +6,8 @@
 | JUMP   | JP     | nnn       | 1NNN | 1    | Jump to address NNN                                                  |
 | CALL   | CALL   | nnn       | 2NNN | 1    | Call routine at address NNN                                          |
 | SKE    | SE     | Vx, n     | 3XNN | 2    | Skip next instruction if register X equals NN                        |
-| SKNE   | SNE    | Vx, n     | 4XNN | 2    | Do not skip next instruction if register X equals NN                 |
-| SKRE   | SE     | Vx, Vy    | 5XY0 | 2    | Skip if register X equals register T                                 |
+| SKNE   | SNE    | Vx, n     | 4XNN | 2    | Skip next instruction if register X does not equal NN                |
+| SKRE   | SE     | Vx, Vy    | 5XY0 | 2    | Skip if register X equals register Y                                 |
 | LOAD   | LD     | Vx, n     | 6XNN | 2    | Load register X with value NN                                        |
 | ADD    | ADD    | Vx, n     | 7XNN | 2    | Add value NN to register X                                           |
 | MOVE   | LD     | Vx, Vy    | 8XY0 | 2    | Move value from register X to register Y                             |
@@ -17,7 +17,7 @@
 | ADDR   | ADD    | Vx, Vy    | 8XY4 | 2    | Add X to Y and store in Y - register F set on carry                  |
 | SUB    | SUB    | Vx, Vy    | 8XY5 | 2    | Subtract Y from X and store in X - register F set on !borrow         |
 | SHR    | SHR    | Vx, Vy    | 8XY6 | 2    | Shift bits in X 1 bit right, store in Y - bit 0 shifts to register F |
-| ??     | SUBN   | Vx, Vy    | 8XY7 | 2    | Subtract X from Y and store in X - register F set on !borrow         |
+| SUBR   | SUBN   | Vx, Vy    | 8XY7 | 2    | Subtract X from Y and store in X - register F set on !borrow         |
 | SHL    | SHL    | Vx, Vy    | 8XYE | 2    | Shift bits in X 1 bit left, store in Y - bit 7 shifts to register F  |
 | SKRNE  | SNE    | Vx, Vy    | 9XY0 | 2    | Skip next instruction if register X not equal register Y             |
 | LOADI  | LD     | I, nnn    | ANNN | 1    | Load index with value NNN                                            |

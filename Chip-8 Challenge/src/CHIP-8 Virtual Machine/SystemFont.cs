@@ -48,7 +48,7 @@
             }
             else
             {
-                throw new ArgumentOutOfRangeException("Character must be between 0 and F");
+                throw new ArgumentOutOfRangeException($"Character must be between 0 and F, was {c}");
             }
         }
 

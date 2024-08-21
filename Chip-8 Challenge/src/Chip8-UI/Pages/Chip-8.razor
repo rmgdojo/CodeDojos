@@ -30,6 +30,7 @@
         _vm = new VM(new WindowsKeypadMap());
         _keypad = _vm.Keypad;
         _vm.Display.OnDisplayUpdated += DisplayUpdated;
+
         base.OnInitialized();
     }
 
@@ -39,19 +40,10 @@
         {
             await _keyDownDiv.FocusAsync();
             _2dContext = await _canvas.CreateCanvas2DAsync();
-            byte[] bytes = await Http.GetByteArrayAsync("pong.rom");
-             for (int i = 9; i >= 0; i--)
-            {
-               
-                _vm.Display.DisplayChar(0, 12, i.ToString()[0]);
-                StateHasChanged();
-                await Task.Delay(1);
-                _vm.Display.DisplayChar(0, 12, i.ToString()[0]);
 
-            }
+            var bytes = System.IO.File.ReadAllBytes("pong.rom");
 
-
-            _vm.Load(bytes);
+_vm.Load(bytes);
             _vm.Run(false);
         }
     }
