@@ -38,3 +38,5 @@ https://github.com/craigthomas/Chip8Assembler - CHIP 8 assembler project (useful
 http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#00EE - Detail on what each instruction does (note this uses different mnemonics to Craig Thomas's list)
 
 https://github.com/jamesmcm/chip8go - Some great detail on this page (including the need for a built-in font)
+
+NEW: https://github.com/Timendus/chip8-test-suite - a set of Chip-8 test ROMs. This is critical for emulator testing, plus additional docs.

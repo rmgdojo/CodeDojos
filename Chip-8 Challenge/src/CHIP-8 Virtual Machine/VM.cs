@@ -142,6 +142,11 @@ namespace CHIP_8_Virtual_Machine
             
         }
 
+        public void Stop()
+        {
+            _running = false; 
+        }
+
         public void Dispose()
         {
             _running = false;
