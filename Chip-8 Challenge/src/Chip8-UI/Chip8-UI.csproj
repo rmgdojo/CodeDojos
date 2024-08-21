@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <Content Update="wwwroot\pong.rom">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
