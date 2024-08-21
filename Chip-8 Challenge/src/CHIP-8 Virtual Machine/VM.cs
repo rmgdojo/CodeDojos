@@ -109,7 +109,6 @@ namespace CHIP_8_Virtual_Machine
 
         private void InstructionCycle()
         {
-            _ticks += 1;
                 Instruction instruction = InstructionDecoder.DecodeInstruction(_ram.GetWord(PC));
                 PC += (PC + 2 < 0xFFF) ? 2 : 0;
 
@@ -120,7 +119,6 @@ namespace CHIP_8_Virtual_Machine
                     _running = false; 
                     return;
                 }
-            }
         }
 
         public void Run(bool threading = true)
@@ -135,7 +133,6 @@ namespace CHIP_8_Virtual_Machine
             else
             {
                 ClockTick.Interval = 1;
-                _ticks = 0;
                 ClockTick.Elapsed += (s,e) => Task.Run(InstructionCycle);
                 ClockTick.Elapsed += (s, e) => { if (_running) ClockTick.Start(); };
                 ClockTick.Start();

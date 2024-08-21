@@ -40,8 +40,10 @@
         {
             await _keyDownDiv.FocusAsync();
             _2dContext = await _canvas.CreateCanvas2DAsync();
+
             var bytes = System.IO.File.ReadAllBytes("pong.rom");
-            _vm.Load(bytes);
+
+_vm.Load(bytes);
             _vm.Run(false);
         }
     }
