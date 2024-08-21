@@ -117,6 +117,7 @@ namespace CHIP_8_Virtual_Machine
                 if (PC == 0xFFF)
                 {
                     Console.WriteLine("End of memory reached");
+                    _running = false; 
                     return;
                 }
             }
