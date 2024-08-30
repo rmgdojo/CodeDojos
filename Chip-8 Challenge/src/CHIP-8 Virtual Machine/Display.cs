@@ -39,8 +39,8 @@ public class Display
             for (int j = 0; j < 8; j++)
             {
                 byte spriteByte = spriteBytes[i];
-                int localX = (x + j) % 64; // wraps the X coordinate (super-smart thinking from Garry)
-                int localY = (y + i) % 32; // wraps the Y coordinate
+                int localX = (x + (7 - j)); 
+                int localY = (y + i);
 
                 bool currentPixelState = _pixels[localX, localY];
                 bool shouldDisplay = (spriteByte & (0x1 << j)) != 0; // checks if bit j is set
