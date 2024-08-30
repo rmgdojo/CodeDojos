@@ -46,7 +46,6 @@
             // and reset the cycle count
             if (_cyclesSoFar == _targetCycles)
             {
-                _cyclesSoFar = 0;
                 _windowsTimer.Stop();
                 // do something, not quite sure what yet?
             }

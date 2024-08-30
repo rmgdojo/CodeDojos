@@ -5,10 +5,10 @@
         public IDictionary<string, Nibble> Map => new Dictionary<string, Nibble> {
                     // map to standard Windows key names as chars
                     // keypad square top left of keyboard
-                    { "1", 0x0 },
-                    { "2", 0x1 },
-                    { "3", 0x2 },
-                    { "4", 0x3 },
+                    { "D1", 0x0 },
+                    { "D2", 0x1 },
+                    { "D3", 0x2 },
+                    { "D4", 0x3 },
                     { "Q", 0x4 },
                     { "W", 0x5 },
                     { "E", 0x6 },

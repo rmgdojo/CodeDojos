@@ -34,11 +34,6 @@ namespace CHIP_8_Virtual_Machine
             return sb.ToString();
         }
 
-        public void KeyDown(char key)
-        {
-            KeyDown(key.ToString());
-        }
-
         public void KeyDown(string keyName)
         {
             if (_map.ContainsKey(keyName))
@@ -53,11 +48,6 @@ namespace CHIP_8_Virtual_Machine
             {
                 throw new KeyNotFoundException($"Key {keyName} not found in mapping");
             }
-        }
-
-        public void KeyUp(char key)
-        {
-            KeyUp(key.ToString());
         }
 
         public void KeyUp(string keyName)

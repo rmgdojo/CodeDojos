@@ -2,6 +2,9 @@
 
 public class Display
 {
+    public const int DISPLAY_WIDTH = 64;
+    public const int DISPLAY_HEIGHT = 32;
+
     private VM _vm;
     private bool[,] _pixels;
 
@@ -34,24 +37,34 @@ public class Display
     public bool DisplaySprite(int x, int y, byte[] spriteBytes)
     {
         bool pixelErased = false;
-        for (int i = 0; i < spriteBytes.Length; i++)
+
+        try
         {
-            for (int j = 0; j < 8; j++)
+            for (int i = 0; i < spriteBytes.Length; i++)
             {
-                byte spriteByte = spriteBytes[i];
-                int localX = (x + (7 - j)); 
-                int localY = (y + i);
-
-                bool currentPixelState = _pixels[localX, localY];
-                bool shouldDisplay = (spriteByte & (0x1 << j)) != 0; // checks if bit j is set
-                if (currentPixelState && shouldDisplay)
+                for (int j = 0; j < 8; j++)
                 {
-                    pixelErased = true;
-                    shouldDisplay = false;
-                }
+                    byte spriteByte = spriteBytes[i];
+                    int localX = (x + (7 - j));
+                    int localY = (y + i);
 
-                _pixels[localX, localY] = shouldDisplay;
-            }       
+                    if (localX >= DISPLAY_WIDTH || localY >= DISPLAY_HEIGHT) continue;
+
+                    bool currentPixelState = _pixels[localX, localY];
+                    bool shouldDisplay = (spriteByte & (0x1 << j)) != 0; // checks if bit j is set
+                    if (currentPixelState && shouldDisplay)
+                    {
+                        pixelErased = true;
+                        shouldDisplay = false;
+                    }
+
+                    _pixels[localX, localY] = shouldDisplay;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
         }
 
         OnDisplayUpdated?.Invoke(this, _pixels);    
