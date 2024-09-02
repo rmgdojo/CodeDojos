@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Timers;
 using CHIP_8_Virtual_Machine.InstructionBases;
 
+using Timer = System.Timers.Timer;
+
 namespace CHIP_8_Virtual_Machine
 {
     public class VM : IDisposable, IDebugVM
@@ -16,20 +18,16 @@ namespace CHIP_8_Virtual_Machine
         private VRegisters _vregisters;
         private Stack<Tribble> _stack;
 
-        private bool _running;
-        private Thread _instructionThread;
-
+        private Clock _clock;
         private Keypad _keypad;
         private Display _display;
         private SystemFont _systemFont;
-        private System.Timers.Timer _clockTick;
         private ITimer _delayTimer;
         private ITimer _soundTimer;
 
         public RAM RAM => _ram;
         public Keypad Keypad => _keypad;
         public Display Display => _display;
-        public System.Timers.Timer ClockTick => _clockTick;
         public ITimer DelayTimer => _delayTimer;
         public ITimer SoundTimer => _soundTimer;
         public SystemFont SystemFont => _systemFont;
@@ -49,19 +47,28 @@ namespace CHIP_8_Virtual_Machine
             _stack = new Stack<Tribble>();
             _keypad = new Keypad(keypadMap);
             _display = new Display(this);
-            _delayTimer = new Timer();
-            _soundTimer = new Timer();
-            _clockTick = new System.Timers.Timer();
-            _clockTick.Stop();
+            _delayTimer = new HardwareTimer();
+            _soundTimer = new HardwareTimer();
+
             // load system font into memory
             _systemFont = new SystemFont();
             _systemFont.InstallTo(_ram);
         }
 
-        void IDebugVM.ReplaceTimers(CHIP_8_Virtual_Machine.ITimer delayTimer, CHIP_8_Virtual_Machine.ITimer soundTimer)
+        void IDebugVM.ReplaceTimers(ITimer delayTimer, ITimer soundTimer)
         {
             _delayTimer = delayTimer;
             _soundTimer = soundTimer;
+        }
+
+        void IDebugVM.Pause()
+        {
+            _clock?.Pause();
+        }
+
+        void IDebugVM.Resume()
+        {
+            _clock?.Resume();
         }
 
         public void Load(byte[] bytes)
@@ -108,14 +115,6 @@ namespace CHIP_8_Virtual_Machine
             return _stack.Pop();
         }
 
-        private void InstructionCycles()
-        {
-            while (_running)
-            {
-                InstructionCycle();
-            }
-        }
-
         private void InstructionCycle()
         {
             ushort opcode = _ram.GetWord(PC);
@@ -130,38 +129,25 @@ namespace CHIP_8_Virtual_Machine
             if (PC == 0xFFF)
             {
                 Console.WriteLine("End of memory reached");
-                _running = false; 
+                _clock.Stop();
                 return;
             }
         }
 
-        public void Run(bool threading = true)
+        public void Run(ClockMode clockMode)
         {
-            _running=true;   
-            if (threading)
-            {
-                _instructionThread = new Thread(InstructionCycles);
-                _instructionThread.IsBackground = true;
-                 _instructionThread.Start();
-            }
-            else
-            {
-                ClockTick.Interval = 2;
-                ClockTick.Elapsed += (s,e) => Task.Run(InstructionCycle);
-                ClockTick.Elapsed += (s, e) => { if (_running) ClockTick.Start(); };
-                ClockTick.Start();
-            }
-            
+            _clock = new Clock(clockMode, InstructionCycle);
+            _clock.Start();
         }
 
         public void Stop()
         {
-            _running = false; 
+            _clock?.Stop();
         }
 
         public void Dispose()
         {
-            _running = false;
+            _clock?.Stop();
         }
     }
 }

@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         x:Name="Main"
-        Title="Chip-8 Emulator Test UI" Height="320" Width="640"
+        Title="Chip-8 Emulator Test UI" Height="840" Width="1320"
         >
     <Grid RenderOptions.BitmapScalingMode="HighQuality">
-        <Image x:Name="Display" Grid.Column="0" Margin ="10" Stretch="Fill" Visibility="Visible" />
+        <Image x:Name="Screen" Grid.Row="0" Grid.Column="0" Margin ="0" Width="1280" Height="640" VerticalAlignment="Top" Stretch="None" Visibility="Visible" />
+        <TextBlock x:Name="Keymap" Grid.Row="1" Grid.Column="0" Width="640" Height="20" VerticalAlignment="Bottom" Margin="10">Keymap:</TextBlock>
     </Grid>
 </Window>

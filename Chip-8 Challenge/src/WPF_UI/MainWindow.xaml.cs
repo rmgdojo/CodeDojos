@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CHIP_8_Virtual_Machine;
 using System;
+using System.Threading.Tasks;
 
 namespace Chip8.UI.Wpf
 {
@@ -27,54 +28,66 @@ namespace Chip8.UI.Wpf
             KeyDown += MainWindow_KeyDown;
             KeyUp += MainWindow_KeyUp;
 
-            _vm.Display.OnDisplayUpdated += UpdateDisplay;
-
-            _vm.Load("c:\\temp\\pong.rom");
-            _vm.Run();
+            OpenFileDialog dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                string imagePath = dialog.FileName;
+                _vm.Load(imagePath);
+                _vm.Display.OnDisplayUpdated += UpdateDisplay;
+                _vm.Run(ClockMode.Threaded);
+            }
+            else
+            {
+                this.Close();
+            }
         }
 
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)
         {
             _vm.Keypad.KeyUp(e.Key.ToString());
+            Keymap.Text = "Keymap: " + _vm.Keypad.ToString();
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
             _vm.Keypad.KeyDown(e.Key.ToString());
+            Keymap.Text = "Keymap: " + _vm.Keypad.ToString();
         }
 
-        public void UpdateDisplay(object sender, bool[,] pixels)
+        private void UpdateDisplay(object sender, bool[,] pixels)
         {
-            Random random = new Random(DateTime.Now.Millisecond);
-            if (!_isClosing)
+            Task.Run(() =>
             {
-                Dispatcher.InvokeAsync(() =>
+                if (!_isClosing)
                 {
-                    int magnification = 10;
-                    int xExtent = pixels.GetLength(0) * magnification;
-                    int yExtent = pixels.GetLength(1) * magnification;
-
-                    byte[] pixelBytes = new byte[xExtent * yExtent * 4];
-                    int pixelIndex = 0;
-
-                    // x left to right, add 4 byte per pixel (RGBA), then next line
-                    for (int y = 0; y < yExtent; y++)
+                    Dispatcher.InvokeAsync(() =>
                     {
-                        for (int x = 0; x < xExtent; x++)
-                        {
-                            byte pixel = (byte)(pixels[x / magnification, y / magnification] ? 0 : 255);
-                            pixelBytes[pixelIndex++] = pixel;
-                            pixelBytes[pixelIndex++] = pixel;
-                            pixelBytes[pixelIndex++] = pixel;
-                            pixelBytes[pixelIndex++] = 255;
-                        }
-                    }
+                        int magnification = 20;
+                        int xExtent = pixels.GetLength(0) * magnification;
+                        int yExtent = pixels.GetLength(1) * magnification;
 
-                    var bitmap = BitmapFactory.New(640, 320).FromByteArray(pixelBytes);
-                    Display.Stretch = Stretch.Fill;
-                    Display.Source = bitmap;
-                });
-            }
+                        byte[] pixelBytes = new byte[xExtent * yExtent * 4];
+                        int pixelIndex = 0;
+
+                        // x left to right, add 4 bytes per pixel (RGBA), then next line
+                        for (int y = 0; y < yExtent; y++)
+                        {
+                            for (int x = 0; x < xExtent; x++)
+                            {
+                                byte pixel = (byte)(pixels[x / magnification, y / magnification] ? 255 : 0);
+                                pixelBytes[pixelIndex++] = pixel; // Red
+                                pixelBytes[pixelIndex++] = pixel; // Green
+                                pixelBytes[pixelIndex++] = pixel; // Blue
+                                pixelBytes[pixelIndex++] = 255;   // Alpha (always 0xFF)
+                            }
+                        }
+
+                        var bitmap = BitmapFactory.New(xExtent, yExtent).FromByteArray(pixelBytes);
+                        Screen.Stretch = Stretch.None;
+                        Screen.Source = bitmap;
+                    });
+                }
+            });
         }
         
         protected override void OnClosing(CancelEventArgs e)
