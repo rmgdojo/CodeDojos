@@ -9,6 +9,11 @@
             Index = index;
         }
 
+        public override string ToString()
+        {
+            return Index.ToHexString();
+        }
+
         public static implicit operator Nibble(Register register) => register.Index;
         public static implicit operator Register(Nibble index) => new Register(index);
         public static implicit operator byte(Register register) => register.Index;
