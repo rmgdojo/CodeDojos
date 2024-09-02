@@ -45,10 +45,13 @@ namespace CHIP_8_Virtual_Machine
 
         private void MainThread()
         {
-            while (_running && !_paused)
+            while (_running)
             {
-                // more timing stuff will go here
-                _callback();
+                if (!_paused)
+                {
+                    // more timing stuff will go here
+                    _callback();
+                }
             }
         }
 
