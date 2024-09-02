@@ -5,7 +5,7 @@ public class SKUP : RegisterInstruction
 {
     public override void Execute(VM vm)
     {
-        if (!vm.Keypad[X])
+        if (!vm.Keypad[vm.V[X]])
         {
             vm.PC += 2;
         }
