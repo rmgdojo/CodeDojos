@@ -41,6 +41,7 @@ public struct Tribble
     }
 
     public override string ToString() => Value.ToString();
+    public string ToString(string format) => Value.ToString(format);
     public string ToHexString() => Value.ToString("X3");
 
     // implicit conversion operators

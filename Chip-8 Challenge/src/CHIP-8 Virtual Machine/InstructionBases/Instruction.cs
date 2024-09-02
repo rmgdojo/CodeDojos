@@ -10,6 +10,11 @@ public abstract class Instruction
         throw new NotImplementedException();
     }
 
+    public virtual string Disassemble(VM vm)
+    {
+        return $"{Mnemonic.PadRight(5)} {Arguments.HighNibble.ToHexString()},{Arguments.MiddleNibble.ToHexString()},{Arguments.LowNibble.ToHexString()}";
+    }
+
     public Instruction(Nibble high, Nibble middle, Nibble low)
         : this(new Tribble(high, middle, low))
     { }

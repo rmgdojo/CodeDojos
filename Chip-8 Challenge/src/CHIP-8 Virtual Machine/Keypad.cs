@@ -17,6 +17,8 @@ namespace CHIP_8_Virtual_Machine
         public event EventHandler<Nibble> OnKeyDown;
         public event EventHandler<Nibble> OnKeyUp;
 
+        public bool[] State => _state;
+
         public Nibble WaitForKeyPress()
         {
             _waitingForKeyPress = true;

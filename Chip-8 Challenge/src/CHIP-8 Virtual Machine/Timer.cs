@@ -1,6 +1,6 @@
 ﻿namespace CHIP_8_Virtual_Machine
 {
-    public class Timer
+    public class Timer : ITimer
     {
         private const int STANDARD_INTERVAL = 17;
         private const int FAST_INTERVAL = 16;

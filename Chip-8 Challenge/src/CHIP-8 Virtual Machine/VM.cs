@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -9,7 +10,7 @@ using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine
 {
-    public class VM : IDisposable
+    public class VM : IDisposable, IDebugVM
     {
         private RAM _ram;
         private VRegisters _vregisters;
@@ -22,15 +23,15 @@ namespace CHIP_8_Virtual_Machine
         private Display _display;
         private SystemFont _systemFont;
         private System.Timers.Timer _clockTick;
-        private Timer _delayTimer;
-        private Timer _soundTimer;
+        private ITimer _delayTimer;
+        private ITimer _soundTimer;
 
         public RAM RAM => _ram;
         public Keypad Keypad => _keypad;
         public Display Display => _display;
         public System.Timers.Timer ClockTick => _clockTick;
-        public Timer DelayTimer => _delayTimer;
-        public Timer SoundTimer => _soundTimer;
+        public ITimer DelayTimer => _delayTimer;
+        public ITimer SoundTimer => _soundTimer;
         public SystemFont SystemFont => _systemFont;
 
         public VRegisters V => _vregisters;
@@ -38,6 +39,8 @@ namespace CHIP_8_Virtual_Machine
         public Tribble PC { get; set; }
         public Tribble I { get; set; }
         public byte F { get { return V[0xF]; } }
+
+        public event EventHandler<ExecutionResult> OnAfterExecution;
 
         public VM(IKeypadMap keypadMap = null)
         {
@@ -53,6 +56,12 @@ namespace CHIP_8_Virtual_Machine
             // load system font into memory
             _systemFont = new SystemFont();
             _systemFont.InstallTo(_ram);
+        }
+
+        void IDebugVM.ReplaceTimers(CHIP_8_Virtual_Machine.ITimer delayTimer, CHIP_8_Virtual_Machine.ITimer soundTimer)
+        {
+            _delayTimer = delayTimer;
+            _soundTimer = soundTimer;
         }
 
         public void Load(byte[] bytes)
@@ -109,16 +118,21 @@ namespace CHIP_8_Virtual_Machine
 
         private void InstructionCycle()
         {
-                Instruction instruction = InstructionDecoder.DecodeInstruction(_ram.GetWord(PC));
-                PC += (PC + 2 < 0xFFF) ? 2 : 0;
+            ushort opcode = _ram.GetWord(PC);
+            Instruction instruction = InstructionDecoder.DecodeInstruction(opcode);
+            ushort pc = PC;
+            PC += (PC + 2 < 0xFFF) ? 2 : 0;
 
-                instruction.Execute(this);
-                if (PC == 0xFFF)
-                {
-                    Console.WriteLine("End of memory reached");
-                    _running = false; 
-                    return;
-                }
+            instruction.Execute(this);
+            ExecutionResult result = new ExecutionResult(instruction, opcode, pc, I, F, V, _stack, _keypad.State);
+            OnAfterExecution?.Invoke(this, result);
+
+            if (PC == 0xFFF)
+            {
+                Console.WriteLine("End of memory reached");
+                _running = false; 
+                return;
+            }
         }
 
         public void Run(bool threading = true)

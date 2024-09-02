@@ -23,5 +23,10 @@ namespace CHIP_8_Virtual_Machine
         {
             _values = new byte[16];
         }
+
+        public VRegisters(VRegisters source)
+        {
+            _values = source._values;
+        }
     }
 }
