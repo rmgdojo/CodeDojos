@@ -5,7 +5,7 @@ public class LOADS : RegisterInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.SoundTimer.Start(X);
+        vm.SoundTimer.Start(vm.V[X]);
     }
 
     public LOADS(Register X)

@@ -5,7 +5,7 @@ public class STOR : RegisterInstruction
 {
     public override void Execute(VM vm)
     {
-        for (Nibble i = 0; i < X; i++)
+        for (Nibble i = 0; i <= X; i++)
         {
             vm.RAM[vm.I + i] = vm.V[i];
         }

@@ -146,7 +146,7 @@ namespace CHIP_8_Virtual_Machine
             }
             else
             {
-                ClockTick.Interval = 1;
+                ClockTick.Interval = 2;
                 ClockTick.Elapsed += (s,e) => Task.Run(InstructionCycle);
                 ClockTick.Elapsed += (s, e) => { if (_running) ClockTick.Start(); };
                 ClockTick.Start();

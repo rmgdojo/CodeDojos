@@ -51,14 +51,15 @@ public class Display
                     if (localX >= DISPLAY_WIDTH || localY >= DISPLAY_HEIGHT) continue;
 
                     bool currentPixelState = _pixels[localX, localY];
-                    bool shouldDisplay = (spriteByte & (0x1 << j)) != 0; // checks if bit j is set
-                    if (currentPixelState && shouldDisplay)
+                    bool newPixelState = (spriteByte & (0x1 << j)) != 0; // checks if bit j is set
+
+                    if (currentPixelState && newPixelState)
                     {
                         pixelErased = true;
-                        shouldDisplay = false;
                     }
 
-                    _pixels[localX, localY] = shouldDisplay;
+
+                    _pixels[localX, localY] = currentPixelState ^ newPixelState;
                 }
             }
         }
