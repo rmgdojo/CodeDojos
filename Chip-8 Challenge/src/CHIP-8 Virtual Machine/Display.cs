@@ -8,12 +8,6 @@ public class Display
     private VM _vm;
     private bool[,] _pixels;
 
-    public bool this[int x, int y] 
-    { 
-        get => _pixels[x, y]; 
-        set { _pixels[x, y] = value; OnDisplayUpdated?.Invoke(this, _pixels); }
-    }
-
     public event EventHandler<bool[,]> OnDisplayUpdated;
 
     public Display(VM vm)
@@ -25,13 +19,18 @@ public class Display
     public void Clear()
     {
         _pixels = new bool[64, 32];
-        OnDisplayUpdated?.Invoke(this, _pixels);
+        UpdateDisplay();
     }
 
     public bool DisplayChar(int x, int y, char c)
     {
         byte[] sprite = _vm.SystemFont[c];
         return DisplaySprite(x, y, sprite);
+    }
+
+    private void UpdateDisplay()
+    {
+        Task.Run(() => OnDisplayUpdated?.Invoke(this, _pixels));
     }
 
     public bool DisplaySprite(int x, int y, byte[] spriteBytes)
@@ -68,7 +67,7 @@ public class Display
             throw;
         }
 
-        OnDisplayUpdated?.Invoke(this, _pixels);    
+        UpdateDisplay();
 
         return pixelErased;
     }

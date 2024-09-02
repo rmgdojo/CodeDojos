@@ -12,19 +12,25 @@ namespace CHIP_8_Console
             ((IDebugVM)_vm).ReplaceTimers(new DebugTimer(_vm), new DebugTimer(_vm));
             _vm.Load("pong.rom");
             _vm.OnAfterExecution += OnAfterExecution;
-            _vm.Run();
+            _vm.Run(ClockMode.Threaded);
             while (true) ;
         }
 
         private static void OnAfterExecution(object sender, ExecutionResult e)
         {
+            ((IDebugVM)_vm).Pause();
+
             Console.WriteLine($"PC:{e.PC.ToString("X3")}\t{GetOpcodeAndMnemonic()}\tI:{e.I.ToHexString()}\tF:{e.F.ToString("X2")}");
             while (true)
             {
                 if (Console.KeyAvailable)
                 {
                     char c = Console.ReadKey(true).KeyChar;
-                    if (c == '\r') break;
+                    if (c == '\r')
+                    {
+                        ((IDebugVM)_vm).Resume(); 
+                        break;
+                    }
                 }
             }
 

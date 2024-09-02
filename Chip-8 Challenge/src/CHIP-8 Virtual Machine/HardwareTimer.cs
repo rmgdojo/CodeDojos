@@ -1,13 +1,15 @@
-﻿namespace CHIP_8_Virtual_Machine
+﻿using Timer = System.Timers.Timer;
+
+namespace CHIP_8_Virtual_Machine
 {
-    public class Timer : ITimer
+    public class HardwareTimer : ITimer
     {
         private const int STANDARD_INTERVAL = 17;
         private const int FAST_INTERVAL = 16;
         private const int FAST_THRESHOLD = 40;
         private const int STANDARD_THRESHOLD = 60;
 
-        private System.Timers.Timer _windowsTimer;
+        private Timer _windowsTimer;
         private int _cyclesSoFar;
         private int _targetCycles;
         
@@ -56,9 +58,9 @@
             // do something on each tick of the timer (do we need this?)
         }
 
-        public Timer()
+        public HardwareTimer()
         {
-            _windowsTimer = new System.Timers.Timer(STANDARD_INTERVAL);
+            _windowsTimer = new Timer(STANDARD_INTERVAL);
             _windowsTimer.Elapsed += WindowsTimerElapsed;
             _windowsTimer.Elapsed += HandleIntervalChange;
         }
