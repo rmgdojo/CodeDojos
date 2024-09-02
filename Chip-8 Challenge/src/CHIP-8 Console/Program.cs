@@ -28,7 +28,8 @@ namespace CHIP_8_Console
                     char c = Console.ReadKey(true).KeyChar;
                     if (c == '\r')
                     {
-                        ((IDebugVM)_vm).Resume(); break;
+                        ((IDebugVM)_vm).Resume(); 
+                        break;
                     }
                 }
             }
