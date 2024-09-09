@@ -1,5 +1,7 @@
 ﻿namespace CHIP_8_Virtual_Machine;
 
+public record SpriteInfo(int X, int Y, bool[,] Pixels);
+
 public class Display
 {
     public const int DISPLAY_WIDTH = 64;
@@ -9,6 +11,10 @@ public class Display
     private bool[,] _pixels;
 
     public event EventHandler<bool[,]> OnDisplayUpdated;
+    public event EventHandler<SpriteInfo> OnSpriteDisplayed;
+    public event EventHandler OnDisplayCleared;
+
+    public bool[,] Pixels => _pixels;
 
     public Display(VM vm)
     {
@@ -19,7 +25,8 @@ public class Display
     public void Clear()
     {
         _pixels = new bool[64, 32];
-        UpdateDisplay();
+        OnDisplayCleared?.Invoke(this, EventArgs.Empty);
+        OnDisplayUpdated?.Invoke(this, _pixels);
     }
 
     public bool DisplayChar(int x, int y, char c)
@@ -28,14 +35,10 @@ public class Display
         return DisplaySprite(x, y, sprite);
     }
 
-    private void UpdateDisplay()
-    {
-        Task.Run(() => OnDisplayUpdated?.Invoke(this, _pixels));
-    }
-
     public bool DisplaySprite(int x, int y, byte[] spriteBytes)
     {
         bool pixelErased = false;
+        bool[,] spritePixels = new bool[8, spriteBytes.Length];
 
         try
         {
@@ -57,8 +60,8 @@ public class Display
                         pixelErased = true;
                     }
 
-
                     _pixels[localX, localY] = currentPixelState ^ newPixelState;
+                    spritePixels[(7 - j), i] = _pixels[localX, localY];
                 }
             }
         }
@@ -67,7 +70,8 @@ public class Display
             throw;
         }
 
-        UpdateDisplay();
+        OnSpriteDisplayed?.Invoke(this, new SpriteInfo(x, y, spritePixels));
+        OnDisplayUpdated?.Invoke(this, _pixels);
 
         return pixelErased;
     }

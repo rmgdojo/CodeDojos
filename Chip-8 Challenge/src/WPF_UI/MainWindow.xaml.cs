@@ -62,6 +62,7 @@ namespace Chip8.UI.Wpf
                 {
                     Dispatcher.InvokeAsync(() =>
                     {
+
                         int magnification = 20;
                         int xExtent = pixels.GetLength(0) * magnification;
                         int yExtent = pixels.GetLength(1) * magnification;
@@ -83,6 +84,7 @@ namespace Chip8.UI.Wpf
                         }
 
                         var bitmap = BitmapFactory.New(xExtent, yExtent).FromByteArray(pixelBytes);
+
                         Screen.Stretch = Stretch.None;
                         Screen.Source = bitmap;
                     });

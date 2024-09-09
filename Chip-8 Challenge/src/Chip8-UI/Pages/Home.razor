@@ -1,7 +1,123 @@
 ﻿@page "/"
+@using System.Reflection.Emit
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas.Canvas2D
+@using CHIP_8_Virtual_Machine
+@inject IJSRuntime JS
+@inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
+<div tabindex="0" @ref="_keyDownDiv" @onkeydown="KeyDown" @onkeyup="KeyUp" @onkeypress="KeyPress">
 
-<h1>Hello, world!</h1>
+    <h3>Canvas for Chip-8</h3>
 
-Welcome to your new app.
+    <BECanvas @ref="_canvas" Width=640 Height=320></BECanvas>
+
+    <p>@KeypadState</p>
+
+</div>
+
+@code {
+    private VM _vm;
+    private Keypad _keypad;
+    private ElementReference _keyDownDiv;
+    private BECanvasComponent _canvas;
+    private Canvas2DContext _2dContext;
+
+    public string KeypadState => _keypad.ToString();
+
+    protected override void OnInitialized()
+    {
+        _vm = new VM(new BlazorKeypadMap());
+        _keypad = _vm.Keypad;
+        _vm.Display.OnSpriteDisplayed += SpriteDrawn;
+        _vm.Display.OnDisplayCleared += ClearDisplay;
+
+        base.OnInitialized();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _keyDownDiv.FocusAsync();
+            _2dContext = await _canvas.CreateCanvas2DAsync();
+
+            await _2dContext.BeginBatchAsync();
+            await _2dContext.SetFillStyleAsync("yellow");
+            await _2dContext.FillRectAsync(0, 0, 640, 320);
+            await _2dContext.EndBatchAsync();
+
+            var bytes = await Http.GetByteArrayAsync("pong.rom");
+
+            _vm.Load(bytes);
+            _vm.Run(ClockMode.Timer);
+        }
+    }
+
+    private async void ClearDisplay(object sender, EventArgs e)
+    {
+        await InvokeAsync(async () =>
+        {
+            await _2dContext.BeginBatchAsync();
+            await _2dContext.SetFillStyleAsync("yellow");
+            await _2dContext.FillRectAsync(0, 0, 640, 320);
+            await _2dContext.EndBatchAsync();
+        });
+        StateHasChanged();
+    }
+
+    private async void SpriteDrawn(object sender, SpriteInfo info)
+    {
+        await InvokeAsync(async () =>
+        {
+            await _2dContext.BeginBatchAsync();
+
+            int xExtent = info.Pixels.GetLength(0);
+            int yExtent = info.Pixels.GetLength(1);
+            int magnification = 10;
+
+            for (int y = 0; y < yExtent; y++)
+            {
+                for (int x = 0; x < xExtent; x++)
+                {
+                    bool on = info.Pixels[x, y];
+                    int rectX = magnification * (info.X + x);
+                    int rectY = magnification * (info.Y + y);
+
+                    await _2dContext.SetFillStyleAsync(on ? "black" : "yellow");
+                    await _2dContext.FillRectAsync(rectX, rectY, magnification, magnification);
+                }
+            }
+            await _2dContext.EndBatchAsync();
+        });
+        StateHasChanged();
+    }
+
+    private void KeyDown(KeyboardEventArgs e)
+    {
+        try
+        {
+            _keypad.KeyDown(e.Key.ToUpper());
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void KeyUp(KeyboardEventArgs e)
+    {
+        try
+        {
+            _keypad.KeyUp(e.Key.ToUpper());
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void KeyPress(KeyboardEventArgs e) { }
+}
