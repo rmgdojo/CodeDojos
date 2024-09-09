@@ -8,10 +8,7 @@
 
 <div tabindex="0" @ref="_keyDownDiv" @onkeydown="KeyDown" @onkeyup="KeyUp" @onkeypress="KeyPress">
 
-    <h3>Canvas for Chip-8</h3>
-
-    <BECanvas @ref="_canvas" Width=640 Height=320></BECanvas>
-
+    <BECanvas @ref="_canvas" Width="640" Height="320"></BECanvas>
     <p>@KeypadState</p>
 
 </div>
@@ -42,10 +39,7 @@
             await _keyDownDiv.FocusAsync();
             _2dContext = await _canvas.CreateCanvas2DAsync();
 
-            await _2dContext.BeginBatchAsync();
-            await _2dContext.SetFillStyleAsync("yellow");
-            await _2dContext.FillRectAsync(0, 0, 640, 320);
-            await _2dContext.EndBatchAsync();
+            ClearDisplay();
 
             var bytes = await Http.GetByteArrayAsync("pong.rom");
 
@@ -54,7 +48,7 @@
         }
     }
 
-    private async void ClearDisplay(object sender, EventArgs e)
+    private async void ClearDisplay(object sender = null, EventArgs e = null)
     {
         await InvokeAsync(async () =>
         {
@@ -63,7 +57,6 @@
             await _2dContext.FillRectAsync(0, 0, 640, 320);
             await _2dContext.EndBatchAsync();
         });
-        StateHasChanged();
     }
 
     private async void SpriteDrawn(object sender, SpriteInfo info)
@@ -90,7 +83,6 @@
             }
             await _2dContext.EndBatchAsync();
         });
-        StateHasChanged();
     }
 
     private void KeyDown(KeyboardEventArgs e)
@@ -98,7 +90,6 @@
         try
         {
             _keypad.KeyDown(e.Key.ToUpper());
-            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -111,7 +102,6 @@
         try
         {
             _keypad.KeyUp(e.Key.ToUpper());
-            StateHasChanged();
         }
         catch (Exception ex)
         {
