@@ -56,40 +56,36 @@ namespace Chip8.UI.Wpf
 
         private void UpdateDisplay(object sender, bool[,] pixels)
         {
-            Task.Run(() =>
+            if (!_isClosing)
             {
-                if (!_isClosing)
+                int magnification = 20;
+                int xExtent = pixels.GetLength(0) * magnification;
+                int yExtent = pixels.GetLength(1) * magnification;
+
+                byte[] pixelBytes = new byte[xExtent * yExtent * 4];
+                int pixelIndex = 0;
+
+                // x left to right, add 4 bytes per pixel (RGBA), then next line
+                for (int y = 0; y < yExtent; y++)
                 {
-                    Dispatcher.InvokeAsync(() =>
+                    for (int x = 0; x < xExtent; x++)
                     {
-
-                        int magnification = 20;
-                        int xExtent = pixels.GetLength(0) * magnification;
-                        int yExtent = pixels.GetLength(1) * magnification;
-
-                        byte[] pixelBytes = new byte[xExtent * yExtent * 4];
-                        int pixelIndex = 0;
-
-                        // x left to right, add 4 bytes per pixel (RGBA), then next line
-                        for (int y = 0; y < yExtent; y++)
-                        {
-                            for (int x = 0; x < xExtent; x++)
-                            {
-                                byte pixel = (byte)(pixels[x / magnification, y / magnification] ? 255 : 0);
-                                pixelBytes[pixelIndex++] = pixel; // Red
-                                pixelBytes[pixelIndex++] = pixel; // Green
-                                pixelBytes[pixelIndex++] = pixel; // Blue
-                                pixelBytes[pixelIndex++] = 255;   // Alpha (always 0xFF)
-                            }
-                        }
-
-                        var bitmap = BitmapFactory.New(xExtent, yExtent).FromByteArray(pixelBytes);
-
-                        Screen.Stretch = Stretch.None;
-                        Screen.Source = bitmap;
-                    });
+                        byte pixel = (byte)(pixels[x / magnification, y / magnification] ? 255 : 0);
+                        pixelBytes[pixelIndex++] = pixel; // Red
+                        pixelBytes[pixelIndex++] = pixel; // Green
+                        pixelBytes[pixelIndex++] = pixel; // Blue
+                        pixelBytes[pixelIndex++] = 255;   // Alpha (always 0xFF)
+                    }
                 }
-            });
+
+                Dispatcher.InvokeAsync(() =>
+                {
+                    var bitmap = BitmapFactory.New(xExtent, yExtent).FromByteArray(pixelBytes);
+
+                    Screen.Stretch = Stretch.None;
+                    Screen.Source = bitmap;
+                });
+            }
         }
         
         protected override void OnClosing(CancelEventArgs e)
