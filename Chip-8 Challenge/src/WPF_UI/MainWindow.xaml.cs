@@ -35,7 +35,7 @@ namespace Chip8.UI.Wpf
                 _vm.Load(imagePath);
                 _vm.Display.OnDisplayUpdated += UpdateDisplay;
                 _vm.SoundTimer.OnStart += StartSound;
-                _vm.Run(ClockMode.Threaded);
+                _vm.Run(ClockMode.Threaded, 1);
             }
             else
             {

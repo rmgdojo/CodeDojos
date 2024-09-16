@@ -44,7 +44,7 @@
             var bytes = await Http.GetByteArrayAsync("pong.rom");
 
             _vm.Load(bytes);
-            _vm.Run(ClockMode.Timer);
+            _vm.Run(ClockMode.Timer, 1);
         }
     }
 

@@ -46,10 +46,6 @@ namespace CHIP_8_Virtual_Machine
                 _state[key] = true;
                 Task.Run(() => OnKeyDown?.Invoke(this, key));
             }
-            else
-            {
-                throw new KeyNotFoundException($"Key {keyName} not found in mapping");
-            }
         }
 
         public void KeyUp(string keyName)
@@ -59,10 +55,6 @@ namespace CHIP_8_Virtual_Machine
                 Nibble key = _map[keyName];
                 _state[key] = false;
                 Task.Run(() => OnKeyUp?.Invoke(this, key));
-            }
-            else
-            {
-                throw new KeyNotFoundException($"Key {keyName} not found in mapping");
             }
         }
 

@@ -12,7 +12,7 @@ namespace CHIP_8_Console
             ((IDebugVM)_vm).ReplaceTimers(new DebugTimer(_vm), new DebugTimer(_vm));
             _vm.Load("pong.rom");
             _vm.OnAfterExecution += OnAfterExecution;
-            _vm.Run(ClockMode.Threaded);
+            _vm.Run(ClockMode.Threaded, 0);
             while (true) ;
         }
 

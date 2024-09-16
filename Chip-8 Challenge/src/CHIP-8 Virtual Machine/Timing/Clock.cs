@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +11,12 @@ namespace CHIP_8_Virtual_Machine
     public class Clock
     {
         private Timer _timer;
+        private Stopwatch _stopwatch;
         private Thread _thread;
         private Action _callback;
         private bool _running;
         private bool _paused;
+        private int _cycleTime;
 
         public ClockMode Mode { get; init; }
 
@@ -49,21 +52,32 @@ namespace CHIP_8_Virtual_Machine
             {
                 if (!_paused)
                 {
-                    // more timing stuff will go here
-                    _callback();
+                    if (_cycleTime > 0)
+                    {
+                        _stopwatch.Start();
+                        _callback();
+                        while (_stopwatch.ElapsedMilliseconds < _cycleTime) ;
+                        _stopwatch.Reset();
+                    }
+                    else
+                    {
+                        _callback();
+                    }
                 }
             }
         }
 
-        public Clock(ClockMode mode, Action callback)
+        public Clock(ClockMode mode, Action callback, int cycleTimeInMilliseconds)
         {
             Mode = mode;
             _callback = callback;
+            _cycleTime = cycleTimeInMilliseconds;
+            _stopwatch = new Stopwatch();
 
             if (mode == ClockMode.Timer)
             {
                 _timer = new Timer();
-                _timer.Interval = 1;
+                _timer.Interval = cycleTimeInMilliseconds;
                 _timer.Elapsed += (sender, e) => callback();
             }
             else

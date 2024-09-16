@@ -134,9 +134,9 @@ namespace CHIP_8_Virtual_Machine
             }
         }
 
-        public void Run(ClockMode clockMode)
+        public void Run(ClockMode clockMode, int cycleTimeInMilliseconds)
         {
-            _clock = new Clock(clockMode, InstructionCycle);
+            _clock = new Clock(clockMode, InstructionCycle, cycleTimeInMilliseconds);
             _clock.Start();
         }
 
