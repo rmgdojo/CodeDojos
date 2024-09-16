@@ -1,17 +1,13 @@
 using Microsoft.Win32;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using CHIP_8_Virtual_Machine;
 using System;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
-using System.Windows.Media.Media3D;
+using CHIP_8_Virtual_Machine;
+using CHIP_8_Anti_Flicker;
 
 namespace Chip8.UI.Wpf
 {
@@ -22,6 +18,7 @@ namespace Chip8.UI.Wpf
     {
         private bool _isClosing = false;
         private VM _vm;
+        private AntiFlickerDisplay _display;
         private string _imagePath;
 
         public MainWindow()
@@ -54,8 +51,9 @@ namespace Chip8.UI.Wpf
         {
             _vm = new VM(new WindowsKeypadMap());
             _vm.Load(_imagePath);
-            _vm.Display.OnDisplayUpdated += (sender, info) => UpdateDisplay(info);
-            _vm.Run(ClockMode.Threaded, 2);
+            _display = new AntiFlickerDisplay(_vm.Display, true, 20);
+            _display.OnDisplayUpdatedAsBitmap += UpdateDisplay;
+            _vm.Run(ClockMode.Threaded, 100);
         }
 
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)
@@ -68,36 +66,15 @@ namespace Chip8.UI.Wpf
             _vm.Keypad.KeyDown(e.Key.ToString());
         }
 
-        private void UpdateDisplay(DisplayUpdateInfo info)
+        private void UpdateDisplay(object sender, BitmapDisplayUpdateInfo info)
         {
-            Task.Run(() =>
+            var bitmap = BitmapFactory.New(info.Width, info.Height);
+            bitmap = bitmap.FromByteArray(info.Pixels, info.Width, info.Height);
+
+            Dispatcher.InvokeAsync(() =>
             {
-                int magnification = 20;
-                int width = info.Width * magnification;
-                int height = info.Height * magnification;
-
-                byte[] pixelBytes = new byte[width * height * 4];
-                int pixelIndex = 0;
-
-                // x left to right, add 4 bytes per pixel (RGBA), then next line
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        byte pixel = (byte)(info.Pixels[x / magnification, y / magnification] ? 255 : 0);
-                        pixelBytes[pixelIndex++] = pixel;// pixel; // Red
-                        pixelBytes[pixelIndex++] = pixel; // Green
-                        pixelBytes[pixelIndex++] = pixel;// pixel; // Blue
-                        pixelBytes[pixelIndex++] = 255;   // Alpha (always 0xFF)
-                    }
-                }
-
-                Dispatcher.InvokeAsync(() =>
-                {
-                    var bitmap = BitmapFactory.New(width, height).FromByteArray(pixelBytes);
-                    Screen.Stretch = Stretch.None;
-                    Screen.Source = bitmap;
-                });
+                Screen.Stretch = Stretch.None;
+                Screen.Source = bitmap;
             });
         }
         
