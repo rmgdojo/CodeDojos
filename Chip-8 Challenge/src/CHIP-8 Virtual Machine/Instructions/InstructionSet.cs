@@ -29,9 +29,9 @@ public static class InstructionSet
         _instructions.Add("ADDR", (arguments) => new ADDR(arguments.HighNibble, arguments.MiddleNibble));
         _instructions.Add("XOR", (arguments) => new XOR(arguments.HighNibble, arguments.MiddleNibble));
         _instructions.Add("SUB", (arguments) => new SUB(arguments.HighNibble, arguments.MiddleNibble));
-        _instructions.Add("SHR", (arguments) => new SHR(arguments.HighNibble, arguments.LowByte));
+        _instructions.Add("SHR", (arguments) => new SHR(arguments.HighNibble, arguments.MiddleNibble));
         _instructions.Add("SUBR", (arguments) => new SUBR(arguments.HighNibble, arguments.MiddleNibble));
-        _instructions.Add("SHL", (arguments) => new SHL(arguments.HighNibble, arguments.LowByte));
+        _instructions.Add("SHL", (arguments) => new SHL(arguments.HighNibble, arguments.MiddleNibble));
         _instructions.Add("NOP", (arguments) => new NOP(arguments));
         _instructions.Add("SKRNE", (arguments) => new SKRNE(arguments.HighNibble, arguments.MiddleNibble));
         _instructions.Add("LOADI", (arguments) => new LOADI(arguments));

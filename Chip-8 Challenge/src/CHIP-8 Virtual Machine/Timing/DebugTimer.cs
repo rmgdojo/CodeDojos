@@ -1,10 +1,14 @@
-﻿namespace CHIP_8_Virtual_Machine
+﻿
+namespace CHIP_8_Virtual_Machine
 {
     public class DebugTimer : ITimer
     {
         private int _cyclesSoFar;
         private int _targetCycles;
         private bool _started;
+
+        public event EventHandler<int> OnStart;
+        public event EventHandler OnElapsed;
 
         public byte GetCyclesRemaining()
         {

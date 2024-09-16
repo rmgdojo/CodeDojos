@@ -5,7 +5,7 @@ public class MOVE : TwoRegistersInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.V[Y] = vm.V[X];
+        vm.V[X] = vm.V[Y];
     }
 
     public MOVE(Register X, Register Y)

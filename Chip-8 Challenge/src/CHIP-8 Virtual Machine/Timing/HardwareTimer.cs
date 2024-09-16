@@ -12,12 +12,16 @@ namespace CHIP_8_Virtual_Machine
         private Timer _windowsTimer;
         private int _cyclesSoFar;
         private int _targetCycles;
+
+        public event EventHandler<int> OnStart;
+        public event EventHandler OnElapsed;
         
         public void Start(int cycles)
         {
             _targetCycles = cycles;
             _cyclesSoFar = 0;
             _windowsTimer.Start();
+            Task.Run(() => OnStart?.Invoke(this, cycles));
         }
 
         public byte GetCyclesRemaining()
@@ -49,7 +53,7 @@ namespace CHIP_8_Virtual_Machine
             if (_cyclesSoFar == _targetCycles)
             {
                 _windowsTimer.Stop();
-                // do something, not quite sure what yet?
+                Task.Run(() => OnElapsed?.Invoke(this, EventArgs.Empty));
             }
         }
 

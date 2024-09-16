@@ -34,12 +34,18 @@ namespace Chip8.UI.Wpf
                 string imagePath = dialog.FileName;
                 _vm.Load(imagePath);
                 _vm.Display.OnDisplayUpdated += UpdateDisplay;
+                _vm.SoundTimer.OnStart += StartSound;
                 _vm.Run(ClockMode.Threaded);
             }
             else
             {
                 this.Close();
             }
+        }
+
+        private void StartSound(object sender, int cycles)
+        {
+            Console.Beep(500, (1000 / 60) * cycles);
         }
 
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)

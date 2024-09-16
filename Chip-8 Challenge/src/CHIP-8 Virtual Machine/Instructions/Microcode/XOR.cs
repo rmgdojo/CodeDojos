@@ -5,7 +5,7 @@ public class XOR : TwoRegistersInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.V[Y] = (byte)(vm.V[X] ^ vm.V[Y]);
+        vm.V[X] = (byte)(vm.V[X] ^ vm.V[Y]);
     }
 
     public XOR(Register X, Register Y)
