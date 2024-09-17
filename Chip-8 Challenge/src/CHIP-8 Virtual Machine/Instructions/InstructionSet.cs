@@ -15,7 +15,6 @@ public static class InstructionSet
     {
         _instructions.Add("CLR", (arguments) => new CLR(arguments));
         _instructions.Add("RTS", (arguments) => new RTS(arguments));
-        _instructions.Add("SYS", (arguments) => new SYS(arguments));
         _instructions.Add("JUMP", (arguments) => new JUMP(arguments));
         _instructions.Add("CALL", (arguments) => new CALL(arguments));
         _instructions.Add("SKE", (arguments) => new SKE(arguments.HighNibble, arguments.LowByte));
