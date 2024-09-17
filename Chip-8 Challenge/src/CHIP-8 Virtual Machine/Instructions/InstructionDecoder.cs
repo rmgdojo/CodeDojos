@@ -28,7 +28,7 @@ public static class InstructionDecoder
                     {
                         0x00E0 => ("CLR", arguments),
                         0x00EE => ("RTS", arguments),
-                        _ => ("NOP", arguments) // SYS is invalid for emulation
+                        _ => ("SYS", arguments)
                     };
                 }
             case 0x1:
