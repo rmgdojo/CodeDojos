@@ -51,13 +51,11 @@ namespace Chip8.UI.Wpf
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)
         {
             _vm.Keypad.KeyUp(e.Key.ToString());
-            Keymap.Text = "Keymap: " + _vm.Keypad.ToString();
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
             _vm.Keypad.KeyDown(e.Key.ToString());
-            Keymap.Text = "Keymap: " + _vm.Keypad.ToString();
         }
 
         private void UpdateDisplay(object sender, bool[,] pixels)

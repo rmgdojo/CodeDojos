@@ -5,8 +5,11 @@ public class SUBR : TwoRegistersInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.SetFlag(vm.V[Y] > vm.V[X]);
-        vm.V[X] = (byte)(vm.V[Y] - vm.V[X]);
+        int result = vm.V[Y] - vm.V[X];
+        bool underflow = result < 0;
+
+        vm.V[X] = (byte)result;
+        vm.SetFlag(!underflow);
     }
 
     public SUBR(Register X, Register Y)
