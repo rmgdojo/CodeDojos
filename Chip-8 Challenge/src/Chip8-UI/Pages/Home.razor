@@ -26,7 +26,7 @@
     {
         _vm = new VM(new BlazorKeypadMap());
         _keypad = _vm.Keypad;
-        _vm.Display.OnSpriteDisplayed += SpriteDrawn;
+        _vm.Display.OnDisplayUpdated += DisplayUpdated;
         _vm.Display.OnDisplayCleared += ClearDisplay;
 
         base.OnInitialized();
@@ -59,23 +59,23 @@
         });
     }
 
-    private async void SpriteDrawn(object sender, SpriteInfo info)
+    private async void DisplayUpdated(object sender, bool[,] pixels)
     {
         await InvokeAsync(async () =>
         {
             await _2dContext.BeginBatchAsync();
 
-            int xExtent = info.Pixels.GetLength(0);
-            int yExtent = info.Pixels.GetLength(1);
+            int xExtent = pixels.GetLength(0);
+            int yExtent = pixels.GetLength(1);
             int magnification = 10;
 
             for (int y = 0; y < yExtent; y++)
             {
                 for (int x = 0; x < xExtent; x++)
                 {
-                    bool on = info.Pixels[x, y];
-                    int rectX = magnification * (info.X + x);
-                    int rectY = magnification * (info.Y + y);
+                    bool on = pixels[x, y];
+                    int rectX = magnification * x;
+                    int rectY = magnification * y;
 
                     await _2dContext.SetFillStyleAsync(on ? "black" : "yellow");
                     await _2dContext.FillRectAsync(rectX, rectY, magnification, magnification);
