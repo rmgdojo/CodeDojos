@@ -1,0 +1,23 @@
+﻿@if (SoundPlaying)
+{
+    <audio autoplay loop preload="auto" src="/beep.wav" />
+}
+else
+{
+    <audio muted loop preload="auto" src="/beep.wav" />
+}
+@code {
+    public bool SoundPlaying { get; set; } = false;
+    
+    public void Start()
+    {
+        SoundPlaying = true;
+        StateHasChanged();
+    }
+    
+    public void Stop()
+    {
+        SoundPlaying = false;
+        StateHasChanged();
+    }   
+}

@@ -8,16 +8,15 @@
 @inject HttpClient Http
 
 <div tabindex="0" @ref="_keyDownDiv" @onkeydown="KeyDown" @onkeyup="KeyUp" @onkeypress="KeyPress">
-    <BECanvas @ref="_canvas" Width="640" Height="320"></BECanvas>
+    <BECanvas @ref="_canvas" Width="640" Height="320"/>
     <p>@KeypadState</p>
-    <Beep @ref="_beep" Playing="@SoundPlaying" />
+    <Beeper @ref="_beeper"/>
 </div>
 
 @code {
-    private bool SoundPlaying { get; set; } = false;
-    private VM _vm;
+     private VM _vm;
     private Keypad _keypad;
-    private Beep _beep;
+    private Beeper _beeper;
     private ElementReference _keyDownDiv;
     private BECanvasComponent _canvas;
     private Canvas2DContext _2dContext;
@@ -30,8 +29,8 @@
         _keypad = _vm.Keypad;
         _vm.Display.OnSpriteDisplayed += SpriteUpdated;
         _vm.Display.OnDisplayCleared += ClearDisplay;
-        _vm.SoundTimer.OnStart += (sender, e) => { SoundPlaying = true; StateHasChanged(); };
-        _vm.SoundTimer.OnElapsed += (sender, e) => { SoundPlaying = false; StateHasChanged(); };
+        _vm.SoundTimer.OnStart += (sender, e) => { _beeper.Start(); };
+        _vm.SoundTimer.OnElapsed += (sender, e) => { _beeper.Stop(); };
 
         base.OnInitialized();
     } 
