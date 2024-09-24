@@ -17,6 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="wwwroot\beep.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\pong.rom">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
