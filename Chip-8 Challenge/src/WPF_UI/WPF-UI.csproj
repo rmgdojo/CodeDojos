@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CHIP-8 Anti-Flicker\CHIP-8 Anti-Flicker.csproj" />
     <ProjectReference Include="..\CHIP-8 Virtual Machine\CHIP-8 Virtual Machine.csproj" />
   </ItemGroup>
 

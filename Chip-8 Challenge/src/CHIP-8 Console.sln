@@ -18,9 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chip8-UI", "Chip8-UI\Chip8-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WPF-UI", "WPF_UI\WPF-UI.csproj", "{6C24D8C8-2E0E-4566-AF6D-EFD6CB76F241}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CHIP-8 Disassembler", "CHIP-8 Disassembler\CHIP-8 Disassembler.csproj", "{18357C90-CBCB-4C9C-B021-525DA6771D4F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CHIP-8 Anti-Flicker", "CHIP-8 Anti-Flicker\CHIP-8 Anti-Flicker.csproj", "{9BAD59A6-B386-4C85-A635-31A0677B522F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CHIP-8 Disassembler", "CHIP-8 Disassembler\CHIP-8 Disassembler.csproj", "{18357C90-CBCB-4C9C-B021-525DA6771D4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,10 +50,6 @@ Global
 		{18357C90-CBCB-4C9C-B021-525DA6771D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18357C90-CBCB-4C9C-B021-525DA6771D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18357C90-CBCB-4C9C-B021-525DA6771D4F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9BAD59A6-B386-4C85-A635-31A0677B522F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9BAD59A6-B386-4C85-A635-31A0677B522F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9BAD59A6-B386-4C85-A635-31A0677B522F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9BAD59A6-B386-4C85-A635-31A0677B522F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
