@@ -7,7 +7,7 @@ namespace CHIP_8_Tests.Instructions
     [TestFixture]
     public abstract class InstructionTestsBase
     {
-        public string WINKEY_1 = "D1";
+        public string WINKEY_1 = "1";
         public Nibble KEYPAD_0 = 0;
 
         public VM VM { get; set; }
@@ -27,7 +27,7 @@ namespace CHIP_8_Tests.Instructions
         [SetUp]
         public void Setup()
         {
-            VM = new VM(new WindowsKeypadMap());
+            VM = new VM();
         }
     }
 }

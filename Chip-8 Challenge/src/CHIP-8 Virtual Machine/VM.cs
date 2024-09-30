@@ -40,12 +40,12 @@ namespace CHIP_8_Virtual_Machine
 
         public event EventHandler<ExecutionResult> OnAfterExecution;
 
-        public VM(IKeypadMap keypadMap = null)
+        public VM()
         {
             _ram = new RAM();
             _vregisters = new VRegisters();
             _stack = new Stack<Tribble>();
-            _keypad = new Keypad(keypadMap ?? new WindowsKeypadMap());
+            _keypad = new Keypad(new DefaultKeypadMap());
             _display = new Display(this);
             _delayTimer = new HardwareTimer();
             _soundTimer = new HardwareTimer();

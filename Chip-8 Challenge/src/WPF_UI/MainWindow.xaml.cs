@@ -23,7 +23,8 @@ namespace Chip8.UI.Wpf
 
         public MainWindow()
         {
-            _vm = new VM(new WindowsKeypadMap());
+            _vm = new VM();
+            _vm.Keypad.MapKeys(new WindowsKeypadMap());
 
             KeyDown += MainWindow_KeyDown;
             KeyUp += MainWindow_KeyUp;

@@ -69,13 +69,9 @@ namespace CHIP_8_Virtual_Machine
             }
         }
 
-        public Keypad()
+        public Keypad(IKeypadMap map)
         {
             _map = new Dictionary<string, Nibble>();
-        }
-
-        public Keypad(IKeypadMap map) : this()
-        {
             MapKeys(map);
         }
     }
