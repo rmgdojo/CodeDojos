@@ -8,8 +8,8 @@ public class SUBR : TwoRegistersInstruction
         int result = vm.V[Y] - vm.V[X];
         bool underflow = result < 0;
 
-        vm.V[X] = (byte)result;
         vm.SetFlag(!underflow);
+        vm.V[X] = (byte)result;
     }
 
     public SUBR(Register X, Register Y)
