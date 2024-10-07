@@ -53,6 +53,7 @@ namespace CHIP_8_Tests.Instructions
             _keyboardMap.Map.Returns(_mockKeyboardMapValues);
 
             VM = new VM();
+            VM.Keypad.MapKeys(_keyboardMap);
         }
     }
 }
