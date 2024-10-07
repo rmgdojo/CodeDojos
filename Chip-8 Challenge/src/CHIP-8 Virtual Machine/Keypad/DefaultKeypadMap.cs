@@ -1,9 +1,9 @@
 ﻿namespace CHIP_8_Virtual_Machine
 {
-    public class BlazorKeypadMap : IKeypadMap
+    public class DefaultKeypadMap : IKeypadMap
     {
         public IDictionary<string, Nibble> Map => new Dictionary<string, Nibble> {
-                    // map to standard Windows key names as chars
+                    // assume key code is the same as the key name
                     // keypad square top left of keyboard
                     { "1", 0x0 },
                     { "2", 0x1 },

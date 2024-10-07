@@ -52,9 +52,7 @@ namespace CHIP_8_Tests.Instructions
             _keyboardMap = Substitute.For<IKeypadMap>();
             _keyboardMap.Map.Returns(_mockKeyboardMapValues);
 
-            VM = new VM(_keyboardMap);
+            VM = new VM();
         }
-
-
     }
 }

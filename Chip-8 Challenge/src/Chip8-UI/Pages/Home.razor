@@ -25,7 +25,7 @@
 
     protected override void OnInitialized()
     {
-        _vm = new VM(new BlazorKeypadMap());
+        _vm = new VM();
         _keypad = _vm.Keypad;
         _vm.Display.OnSpriteDisplayed += SpriteUpdated;
         _vm.Display.OnDisplayCleared += ClearDisplay;
