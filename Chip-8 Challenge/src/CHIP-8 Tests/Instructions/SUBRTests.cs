@@ -7,7 +7,6 @@ namespace CHIP_8_Tests.Instructions;
 [TestFixture]
 public class SUBRTests : InstructionTestsBase
 {
-    private SUBR _subr;
 
     [TestCase(0, 1, 64, 127, 63)]
     [TestCase(15, 5, 64, 127, 63)]
@@ -15,13 +14,13 @@ public class SUBRTests : InstructionTestsBase
     [TestCase(1, 3, 64, 64, 0)]
     public void VX_EqualsVYMinusMX(int x, int y, byte xValue, byte yValue, int expectedVx)
     {
-        _subr = new SUBR((Register)x, (Register)y);
-        VM.V[_subr.X] = xValue;
-        VM.V[_subr.Y] = yValue;
-            
-        _subr.Execute(VM);
+        var subr = new SUBR((Register)x, (Register)y);
+        VM.V[subr.X] = xValue;
+        VM.V[subr.Y] = yValue;
 
-        Assert.That(VM.V[_subr.X], Is.EqualTo(expectedVx));
+        subr.Execute(VM);
+
+        Assert.That(VM.V[subr.X], Is.EqualTo(expectedVx));
     }
 
 
@@ -29,11 +28,11 @@ public class SUBRTests : InstructionTestsBase
     [TestCase(2, 3, 127, 64,  0)]
     public void VF_SetUnderflow(int x, int y, byte xValue, byte yValue, int isUnderflow)
     {
-        _subr = new SUBR((Register)x, (Register)y);
-        VM.V[_subr.X] = xValue;
-        VM.V[_subr.Y] = yValue;
+        var subr = new SUBR((Register)x, (Register)y);
+        VM.V[subr.X] = xValue;
+        VM.V[subr.Y] = yValue;
 
-        _subr.Execute(VM);
+        subr.Execute(VM);
 
         Assert.That(VM.V[0xF], Is.EqualTo(isUnderflow));
     }
