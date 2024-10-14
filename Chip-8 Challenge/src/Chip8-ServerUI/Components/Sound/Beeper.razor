@@ -1,0 +1,23 @@
+﻿@if (SoundPlaying)
+{
+    <audio autoplay loop preload="auto" src="/beep.wav" />
+}
+else
+{
+    <audio muted loop preload="auto" src="/beep.wav" />
+}
+@code {
+    public bool SoundPlaying { get; set; } = false;
+    
+    public async Task Start()
+    {
+        SoundPlaying = true;
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    public async Task Stop()
+    {
+        SoundPlaying = false;
+        await InvokeAsync(StateHasChanged);
+    }   
+}
