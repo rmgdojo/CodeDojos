@@ -1,6 +1,6 @@
-﻿using NUnit.Framework;
+﻿using CHIP_8_Virtual_Machine;
 using CHIP_8_Virtual_Machine.Instructions;
-using CHIP_8_Virtual_Machine;
+using NUnit.Framework;
 
 namespace CHIP_8_Tests.Instructions
 {
@@ -30,7 +30,7 @@ namespace CHIP_8_Tests.Instructions
             VM.V[0] = 0b10111011; // bit 7 is set
             _shl.Execute(VM);
 
-            Assert.That(VM.F == 1);
+            Assert.That(VM.F, Is.True);
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace CHIP_8_Tests.Instructions
             VM.V[0] = 0b01010101; // bit 7 is not set
             _shl.Execute(VM);
 
-            Assert.That(VM.F == 0);
+            Assert.That(VM.F, Is.False);
         }
     }
 }

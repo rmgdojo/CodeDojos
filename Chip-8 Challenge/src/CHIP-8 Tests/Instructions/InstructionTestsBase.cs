@@ -1,8 +1,6 @@
-﻿using Castle.Components.DictionaryAdapter;
-using NUnit.Framework;
-using CHIP_8_Virtual_Machine;
-using CHIP_8_Virtual_Machine.InstructionBases;
+﻿using CHIP_8_Virtual_Machine;
 using NSubstitute;
+using NUnit.Framework;
 
 namespace CHIP_8_Tests.Instructions
 {

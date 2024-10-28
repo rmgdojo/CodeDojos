@@ -25,7 +25,7 @@ public class SUBRTests : InstructionTestsBase
 
 
     [TestCase(0, 1, 64, 127, 1)]
-    [TestCase(2, 3, 127, 64,  0)]
+    [TestCase(2, 3, 127, 64, 0)]
     public void VF_SetUnderflow(int x, int y, byte xValue, byte yValue, int isUnderflow)
     {
         var subr = new SUBR((Register)x, (Register)y);

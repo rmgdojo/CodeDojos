@@ -15,7 +15,7 @@ namespace CHIP_8_Virtual_Machine
 
         public event EventHandler<int> OnStart;
         public event EventHandler OnElapsed;
-        
+
         public void Start(int cycles)
         {
             _targetCycles = cycles;
@@ -26,7 +26,7 @@ namespace CHIP_8_Virtual_Machine
 
         public byte GetCyclesRemaining()
         {
-           return (byte)(_targetCycles - _cyclesSoFar);
+            return (byte)(_targetCycles - _cyclesSoFar);
         }
 
         private void HandleIntervalChange(object sender, EventArgs e)

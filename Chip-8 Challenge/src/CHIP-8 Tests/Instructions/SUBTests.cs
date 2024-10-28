@@ -1,11 +1,6 @@
-﻿using CHIP_8_Virtual_Machine.Instructions;
-using CHIP_8_Virtual_Machine;
+﻿using CHIP_8_Virtual_Machine;
+using CHIP_8_Virtual_Machine.Instructions;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CHIP_8_Tests.Instructions
 {

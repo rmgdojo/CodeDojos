@@ -1,15 +1,11 @@
+using CHIP_8_Virtual_Machine;
 using Microsoft.Win32;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using CHIP_8_Virtual_Machine;
-using System;
-using System.Threading.Tasks;
 
 namespace Chip8.UI.Wpf
 {
@@ -34,7 +30,7 @@ namespace Chip8.UI.Wpf
             {
                 string imagePath = dialog.FileName;
                 _vm.Load(imagePath);
-                _vm.Display.OnDisplayUpdated += UpdateDisplay;
+                _vm.Display.OnSpriteDisplayed += UpdateDisplay;
                 _vm.SoundTimer.OnStart += StartSound;
                 _vm.Run(ClockMode.Threaded, 1);
             }
@@ -59,8 +55,10 @@ namespace Chip8.UI.Wpf
             _vm.Keypad.KeyDown(e.Key.ToString());
         }
 
-        private void UpdateDisplay(object sender, bool[,] pixels)
+        private void UpdateDisplay(object sender, SpriteInfo _)
         {
+            bool[,] pixels = _vm.Display.Pixels;
+
             if (!_isClosing)
             {
                 int magnification = 20;
@@ -92,7 +90,7 @@ namespace Chip8.UI.Wpf
                 });
             }
         }
-        
+
         protected override void OnClosing(CancelEventArgs e)
         {
             _isClosing = true;

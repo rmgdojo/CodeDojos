@@ -21,7 +21,7 @@ namespace CHIP_8_Console
         {
             ((IDebugVM)_vm).Pause();
 
-            Console.WriteLine($"PC:{e.PC.ToString("X3")}\t{GetOpcodeAndMnemonic()}\tI:{e.I.ToHexString()}\tF:{e.F.ToString("X2")}");
+            Console.WriteLine($"PC:{e.PC.ToString("X3")}\t{GetOpcodeAndMnemonic()}\tI:{e.I.ToHexString()}\tF:{e.F}");
             while (true)
             {
                 if (Console.KeyAvailable)
@@ -29,7 +29,7 @@ namespace CHIP_8_Console
                     char c = Console.ReadKey(true).KeyChar;
                     if (c == '\r')
                     {
-                        ((IDebugVM)_vm).Resume(); 
+                        ((IDebugVM)_vm).Resume();
                         break;
                     }
                 }

@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
-using CHIP_8_Virtual_Machine.InstructionBases;
-
-using Timer = System.Timers.Timer;
+﻿using CHIP_8_Virtual_Machine.InstructionBases;
 
 namespace CHIP_8_Virtual_Machine
 {
@@ -31,12 +21,24 @@ namespace CHIP_8_Virtual_Machine
         public ITimer DelayTimer => _delayTimer;
         public ITimer SoundTimer => _soundTimer;
         public SystemFont SystemFont => _systemFont;
+        public Stack<Tribble> Stack => _stack;
 
         public VRegisters V => _vregisters;
 
         public Tribble PC { get; set; }
         public Tribble I { get; set; }
-        public byte F { get { return V[0xF]; } }
+        
+        public bool F
+        {
+            get
+            {
+                return V[0xF] == 1;
+            }
+            internal set
+            {
+                V[0xF] = (byte)(value ? 1 : 0);
+            }
+        }
 
         public event EventHandler<ExecutionResult> OnAfterExecution;
 
@@ -98,21 +100,6 @@ namespace CHIP_8_Virtual_Machine
                 PC = 0x200;
                 _ram[i + PC] = rom[i];
             }
-        }
-
-        internal void SetFlag(bool value)
-        {
-            V[0xF] = (byte)(value ? 1 : 0);
-        }
-
-        internal void PushStack(Tribble value)
-        {
-            _stack.Push(value);
-        }
-
-        internal Tribble PopStack()
-        {
-            return _stack.Pop();
         }
 
         private void InstructionCycle()

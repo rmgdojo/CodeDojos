@@ -9,7 +9,7 @@ public class SHL : TwoRegistersInstruction
         // the value of bit 7 of register X is copied to register 0xF which is the CPU flag register
         byte vx = vm.V[X];
         vm.V[Y] = (byte)(vx << 1);
-        vm.SetFlag(vx.GetBit(7)); 
+        vm.F = vx.GetBit(7);
     }
 
     public SHL(Register X, Register Y)

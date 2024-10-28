@@ -9,7 +9,7 @@ public class ADDR : TwoRegistersInstruction
         bool overflow = result > 0xFF;
 
         vm.V[X] = (byte)result;
-        vm.SetFlag(overflow);
+        vm.F = overflow;
     }
 
     public ADDR(Register X, Register Y)

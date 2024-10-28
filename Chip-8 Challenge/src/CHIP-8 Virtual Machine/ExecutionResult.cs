@@ -8,12 +8,12 @@ namespace CHIP_8_Virtual_Machine
         public string Opcode { get; init; }
         public Tribble PC { get; init; }
         public Tribble I { get; init; }
-        public byte F { get; init; }
+        public bool F { get; init; }
         public VRegisters V { get; init; }
         public Stack<Tribble> Stack { get; init; }
         public bool[] Keystate { get; init; }
 
-        public ExecutionResult(Instruction instruction, ushort opcode, Tribble PC, Tribble I, byte F, VRegisters V, Stack<Tribble> stack, bool[] keyState)
+        public ExecutionResult(Instruction instruction, ushort opcode, Tribble PC, Tribble I, bool F, VRegisters V, Stack<Tribble> stack, bool[] keyState)
         {
             Instruction = instruction;
             Opcode = opcode.ToString("X4");
