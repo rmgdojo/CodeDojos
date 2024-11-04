@@ -5,11 +5,16 @@ VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RMGChess.Test.Unit", "RMGChess.Test.Unit\RMGChess.Test.Unit.csproj", "{CE3493B9-9B8E-45AE-AF09-A62F964CBF18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RMGChess.UI.Blazor", "RMGChess.UI.Blazor\RMGChess.UI.Blazor\RMGChess.UI.Blazor.csproj", "{BC3866B2-E566-436F-8135-1FB89867EDD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RMGChess.UI.Blazor", "RMGChess.UI.Blazor\RMGChess.UI.Blazor\RMGChess.UI.Blazor.csproj", "{BC3866B2-E566-436F-8135-1FB89867EDD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RMGChess.UI.Blazor.Client", "RMGChess.UI.Blazor\RMGChess.UI.Blazor.Client\RMGChess.UI.Blazor.Client.csproj", "{B780FD26-1809-4CEB-B368-B1286D8603E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RMGChess.UI.Blazor.Client", "RMGChess.UI.Blazor\RMGChess.UI.Blazor.Client\RMGChess.UI.Blazor.Client.csproj", "{B780FD26-1809-4CEB-B368-B1286D8603E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RMGChess.Core", "RMGChess.Core\RMGChess.Core.csproj", "{BA73CB94-FAA7-4400-8805-751DD8586F44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RMGChess.Core", "RMGChess.Core\RMGChess.Core.csproj", "{BA73CB94-FAA7-4400-8805-751DD8586F44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FEE10A4D-8BEE-4DF1-B310-B7D1252DEF9C}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
