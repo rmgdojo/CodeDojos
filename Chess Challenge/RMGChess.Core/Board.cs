@@ -21,11 +21,11 @@
         public Board()
         {
             _squares = new Square[8, 8];
-            for (int file = 0; file < 8; file++)
+            for (char file = 'a'; file < 'g'; file++)
             {
                 for (int rank = 0; rank < 8; rank++)
                 {
-                    _squares[file, rank] = new Square();
+                    _squares[file, rank] = new Square(file, rank);
                 }
             }
         }
