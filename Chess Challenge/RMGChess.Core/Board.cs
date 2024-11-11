@@ -21,9 +21,9 @@
         public Board()
         {
             _squares = new Square[8, 8];
-            for (char file = 'a'; file < 'g'; file++)
+            for (char file = 'a'; file <= 'h'; file++)
             {
-                for (int rank = 0; rank < 8; rank++)
+                for (int rank = 1; rank <= 8; rank++)
                 {
                     _squares[file, rank] = new Square(file, rank);
                 }
