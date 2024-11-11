@@ -25,7 +25,7 @@
             {
                 for (int rank = 1; rank <= 8; rank++)
                 {
-                    _squares[file, rank] = new Square(file, rank);
+                    _squares[file - 'a', rank - 1] = new Square(file, rank);
                 }
             }
         }
