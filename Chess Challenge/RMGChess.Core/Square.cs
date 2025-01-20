@@ -21,9 +21,9 @@
         public bool IsOccupied => Piece != null;
         public Piece Piece { get; private set; }
 
-        internal Board Board => _board;
+        public Board Board => _board;
 
-        internal void PlacePiece(Piece piece)
+        public void PlacePiece(Piece piece)
         {
             Piece = piece;
             piece.Square = this;

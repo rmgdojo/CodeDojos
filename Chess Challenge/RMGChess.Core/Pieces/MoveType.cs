@@ -3,15 +3,15 @@
     [Flags]
     public enum MoveType
     {
-        Vertical,
-        Horizontal,
-        Diagonal,
-        LShaped,
-        Castling,
-        EnPassant,
-        Promotion,
-        NotBackwards,
-        TakesDiagonally,
-        None
+        None = 0,
+        Vertical = 1,
+        Horizontal = 2,
+        Diagonal = 4,
+        LShaped = 8,
+        Castling = 16,
+        EnPassant = 32,
+        Promotion = 64,
+        NotBackwards = 128,
+        TakesDiagonally = 256
     }
 }

@@ -2,6 +2,8 @@
 {
     public class Board
     {
+        public static int MAX_DISTANCE = 7;
+
         private Square[,] _squares;
 
         public Square this[string position] => this[position[0], position[1] - '0'];

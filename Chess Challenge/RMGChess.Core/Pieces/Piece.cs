@@ -6,28 +6,30 @@
 
         public Colour Colour { get; init; }
         public virtual int Value => 0;
-        public virtual int MaxSquares => Int32.MaxValue;
+        public virtual int MaxSquares => Board.MAX_DISTANCE;
         public virtual MoveType MoveTypes => MoveType.None;
         public Square Square { get; set; }
+        public char Symbol => GetType().Name.ToUpper()[0];
 
         public virtual IEnumerable<Move> GetValidMoves()
         {
-            List<Move> validMoves = new();
+            if (Square is null) return new Move[0];
 
-            foreach(MoveType moveType in Enum.GetValues<MoveType>())
+            List<Move> validMoves = new();
+            foreach (MoveType moveType in Enum.GetValues<MoveType>())
             {
-                if (MoveTypes.HasFlag(moveType))
+                if (moveType > 0 && MoveTypes.HasFlag(moveType))
                 {
                     switch (moveType)
                     {
                         case MoveType.Horizontal:
-                            validMoves.AddRange(GetHorizontalMoves(validMoves));
+                            validMoves.AddRange(GetHorizontalMoves());
                             break;
                         case MoveType.Vertical:
-                            validMoves.AddRange(GetVerticalMoves(validMoves));
+                            validMoves.AddRange(GetVerticalMoves());
                             break;
                         case MoveType.Diagonal:
-                            validMoves.AddRange(GetDiagonalMoves(validMoves));
+                            validMoves.AddRange(GetDiagonalMoves());
                             break;
                     }
                 }
@@ -36,8 +38,10 @@
             return validMoves;
         }
 
-        private IEnumerable<Move> GetHorizontalMoves(List<Move> validMoves)
+        private IList<Move> GetHorizontalMoves()
         {
+            IList<Move> validMoves = new List<Move>();
+
             for (int i = 1; i <= MaxSquares; i++)
             {
                 if (Square.File + i <= 'h')
@@ -57,8 +61,10 @@
             return validMoves;
         }
 
-        protected virtual IEnumerable<Move> GetVerticalMoves(List<Move> validMoves)
+        private IList<Move> GetVerticalMoves()
         {
+            IList<Move> validMoves = new List<Move>();
+
             for (int i = 1; i <= MaxSquares; i++)
             {
                 if (Square.Rank + i <= 8)
@@ -78,8 +84,10 @@
             return validMoves;
         }
 
-        private IEnumerable<Move> GetDiagonalMoves(List<Move> validMoves)
+        private IList<Move> GetDiagonalMoves()
         {
+            IList<Move> validMoves = new List<Move>();
+
             for (int i = 1; i <= MaxSquares; i++)
             {
                 if (Square.File + i <= 'h' && Square.Rank + i <= 8)
