@@ -5,7 +5,7 @@
         public override int Value => 9;
         public override MoveType MoveTypes => MoveType.Vertical | MoveType.Horizontal | MoveType.Diagonal;
 
-        public Queen(Colour colour) : base(colour)
+        public Queen() : base()
         {
         }
     }

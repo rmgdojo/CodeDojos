@@ -23,6 +23,27 @@
 
         public Board Board => _board;
 
+        public bool Is(string coordinates)
+        {
+            return Position.ToLower() == coordinates.ToLower();
+        }
+
+        public Square GetNeighbour(NeighbourDirection direction)
+        {
+            return direction switch
+            {
+                NeighbourDirection.Up => Up,
+                NeighbourDirection.Down => Down,
+                NeighbourDirection.Left => Left,
+                NeighbourDirection.Right => Right,
+                NeighbourDirection.UpLeft => UpLeft,
+                NeighbourDirection.UpRight => UpRight,
+                NeighbourDirection.DownLeft => DownLeft,
+                NeighbourDirection.DownRight => DownRight,
+                _ => null,
+            };
+        }
+
         public void PlacePiece(Piece piece)
         {
             Piece = piece;

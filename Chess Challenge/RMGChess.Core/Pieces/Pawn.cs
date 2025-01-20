@@ -15,40 +15,13 @@ namespace RMGChess.Core
 
             IList<Move> validMoves = new List<Move>();
 
-            int currentMaxSquares = MaxSquares;
-            if (Square.Rank == 2 || Square.Rank == 7)
-            {
-                currentMaxSquares = 2;
-            }
-
-            if (Colour == Colour.White)
-            {
-                for (int i = 1; i <= currentMaxSquares; i++)
-                {
-                    if (Square.Rank + i <= 8)
-                    {
-                        Square square = Square.Up;
-                        validMoves.Add(new Move(this, Square, square));
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 1; i <= MaxSquares; i++)
-                {
-
-                    if (Square.Rank - i >= 1)
-                    {
-                        Square square = Square.Down;
-                        validMoves.Add(new Move(this, Square, square));
-                    }
-                }
-            }
+            if (Colour == Colour.White) AddMoves(Square, NeighbourDirection.Up, validMoves);
+            if (Colour == Colour.Black) AddMoves(Square, NeighbourDirection.Down, validMoves);
 
             return validMoves;
         }
 
-        public Pawn(Colour colour) : base(colour)
+        public Pawn() : base()
         {
         }
     }
