@@ -3,7 +3,7 @@
     public class Bishop : Piece
     {
         public override int Value => 3;
-        public override MoveType MoveType => MoveType.Diagonal;
+        public override MoveType MoveTypes => MoveType.Diagonal;
 
         public Bishop(Colour colour) : base(colour)
         {

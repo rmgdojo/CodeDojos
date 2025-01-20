@@ -11,6 +11,7 @@
         EnPassant,
         Promotion,
         NotBackwards,
+        TakesDiagonally,
         None
     }
 }

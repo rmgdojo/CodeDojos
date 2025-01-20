@@ -4,6 +4,8 @@
     {
         private Square[,] _squares;
 
+        public Square this[string position] => this[position[0], position[1] - '0'];
+
         public Square this[char file, int rank]
         {
             get
@@ -25,7 +27,7 @@
             {
                 for (int rank = 1; rank <= 8; rank++)
                 {
-                    _squares[file - 'a', rank - 1] = new Square(file, rank);
+                    _squares[file - 'a', rank - 1] = new Square(this, file, rank);
                 }
             }
         }

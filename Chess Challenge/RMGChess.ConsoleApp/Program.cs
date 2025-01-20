@@ -8,6 +8,7 @@ namespace RMGChess.ConsoleApp
         {
             Game game = new Game();
             game.Start();
+            Square a1 = game.Board["a1"];
         }
     }
 }
