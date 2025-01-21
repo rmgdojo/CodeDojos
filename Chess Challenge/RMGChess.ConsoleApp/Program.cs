@@ -13,6 +13,11 @@ namespace RMGChess.ConsoleApp
 
             TestPiece<Pawn>(Colour.White);
             TestPiece<Pawn>(Colour.Black);
+            TestPiece<Pawn>(Colour.White, "a2");
+            TestPiece<Pawn>(Colour.Black, "b7");
+            TestPiece<Pawn>(Colour.Black, "a2");
+            TestPiece<Pawn>(Colour.White, "b7");
+
             TestPiece<King>(Colour.White);
             TestPiece<Queen>(Colour.White);
             TestPiece<Rook>(Colour.White);
@@ -22,22 +27,23 @@ namespace RMGChess.ConsoleApp
             Console.ReadLine();
         }
 
-        static void TestPiece<T>(Colour colour) where T : Piece, new()
+        static void TestPiece<T>(Colour colour, Position position = null) where T : Piece, new()
         {
+            position = position ?? new Position('e', 5);
             T piece = new T() { Colour = colour };
             Board board = new();
-            board["e5"].PlacePiece(piece);
+            board[position].PlacePiece(piece);
             var moves = piece.GetPotentialMoves();
             foreach (var move in moves)
             {
                 move.To.PlacePiece(new T() { Colour = piece.Colour });
             }
 
-            Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}):");
-            WriteBoardStringToConsole(board);
+            Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}) {position}:");
+            WriteBoardStringToConsole(board, position);
         }
 
-        static void WriteBoardStringToConsole(Board board)
+        static void WriteBoardStringToConsole(Board board, Position highlight)
         {
             for (int rank = 8; rank >= 1; rank--)
             {
@@ -59,7 +65,7 @@ namespace RMGChess.ConsoleApp
                             Console.BackgroundColor = ConsoleColor.Black;
                         }
 
-                        if (square.Is("e5"))
+                        if (square.Is(highlight))
                         {
                             if (square.Piece.Colour == Colour.Black)
                             {

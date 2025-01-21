@@ -23,9 +23,14 @@
 
         public Board Board => _board;
 
-        public bool Is(string coordinates)
+        public bool Is(string position)
         {
-            return Position.ToLower() == coordinates.ToLower();
+            return Position.ToLower() == position.ToLower();
+        }
+
+        public bool Is(Position position)
+        {
+            return File == position.File && Rank == position.Rank;
         }
 
         public Square GetNeighbour(Direction direction)

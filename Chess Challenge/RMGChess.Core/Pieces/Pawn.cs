@@ -13,12 +13,23 @@ namespace RMGChess.Core
         {
             if (Square is null) return new Move[0];
 
-            IList<Move> validMoves = new List<Move>();
+            IList<Move> potentialMoves = new List<Move>();
+            Direction direction = Colour == Colour.White ? Direction.Up : Direction.Down;
 
-            if (Colour == Colour.White) AddMoves(Square, Direction.Up, validMoves);
-            if (Colour == Colour.Black) AddMoves(Square, Direction.Down, validMoves);
+            Square first = Square.GetNeighbour(direction);
+            Square second = first?.GetNeighbour(direction);
 
-            return validMoves;
+            if (first is not null) 
+            {
+                potentialMoves.Add(new Move(this, Square, first));
+                if ((Square.Rank == 2 || Square.Rank == 7) && second is not null)
+                {
+                    // could move two squares
+                    potentialMoves.Add(new Move(this, Square, second));
+                }
+            }
+
+            return potentialMoves;
         }
 
         public Pawn() : base()
