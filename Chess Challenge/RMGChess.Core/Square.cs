@@ -28,18 +28,18 @@
             return Position.ToLower() == coordinates.ToLower();
         }
 
-        public Square GetNeighbour(NeighbourDirection direction)
+        public Square GetNeighbour(Direction direction)
         {
             return direction switch
             {
-                NeighbourDirection.Up => Up,
-                NeighbourDirection.Down => Down,
-                NeighbourDirection.Left => Left,
-                NeighbourDirection.Right => Right,
-                NeighbourDirection.UpLeft => UpLeft,
-                NeighbourDirection.UpRight => UpRight,
-                NeighbourDirection.DownLeft => DownLeft,
-                NeighbourDirection.DownRight => DownRight,
+                Direction.Up => Up,
+                Direction.Down => Down,
+                Direction.Left => Left,
+                Direction.Right => Right,
+                Direction.UpLeft => UpLeft,
+                Direction.UpRight => UpRight,
+                Direction.DownLeft => DownLeft,
+                Direction.DownRight => DownRight,
                 _ => null,
             };
         }

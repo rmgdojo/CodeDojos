@@ -1,6 +1,6 @@
 ﻿namespace RMGChess.Core
 {
-    public enum NeighbourDirection
+    public enum Direction
     {
         Up,
         Down,

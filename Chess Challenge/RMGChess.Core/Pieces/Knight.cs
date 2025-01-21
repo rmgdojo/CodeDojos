@@ -8,7 +8,7 @@ namespace RMGChess.Core
         public override MoveType MoveTypes => MoveType.LShaped;
         public override char Symbol => 'H';
 
-        public override IEnumerable<Move> GetValidMoves()
+        public override IEnumerable<Move> GetPotentialMoves()
         {
             if (Square is null || Square.Board is null) return new Move[0];
             

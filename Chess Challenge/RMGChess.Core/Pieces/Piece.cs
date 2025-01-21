@@ -9,11 +9,11 @@
         public Square Square { get; set; }
         public virtual char Symbol => GetType().Name.ToUpper()[0];
 
-        public virtual IEnumerable<Move> GetValidMoves()
+        public virtual IEnumerable<Move> GetPotentialMoves()
         {
             if (Square is null) return new Move[0];
 
-            List<Move> validMoves = new();
+            List<Move> potentialMoves = new();
             foreach (MoveType moveType in Enum.GetValues<MoveType>())
             {
                 if (moveType > 0 && MoveTypes.HasFlag(moveType))
@@ -21,67 +21,67 @@
                     switch (moveType)
                     {
                         case MoveType.Horizontal:
-                            validMoves.AddRange(GetHorizontalMoves());
+                            potentialMoves.AddRange(GetHorizontalMoves());
                             break;
                         case MoveType.Vertical:
-                            validMoves.AddRange(GetVerticalMoves());
+                            potentialMoves.AddRange(GetVerticalMoves());
                             break;
                         case MoveType.Diagonal:
-                            validMoves.AddRange(GetDiagonalMoves());
+                            potentialMoves.AddRange(GetDiagonalMoves());
                             break;
                     }
                 }
             }
 
-            return validMoves;
+            return potentialMoves;
         }
 
         private IList<Move> GetVerticalMoves()
         {
-            IList<Move> validMoves = new List<Move>();
+            IList<Move> potentialMoves = new List<Move>();
 
-            AddMoves(Square, NeighbourDirection.Up, validMoves);
-            AddMoves(Square, NeighbourDirection.Down, validMoves);
+            AddMoves(Square, Direction.Up, potentialMoves);
+            AddMoves(Square, Direction.Down, potentialMoves);
 
-            return validMoves;
+            return potentialMoves;
         }
 
         private IList<Move> GetHorizontalMoves()
         {
-            IList<Move> validMoves = new List<Move>();
+            IList<Move> potentialMoves = new List<Move>();
 
-            AddMoves(Square, NeighbourDirection.Left, validMoves);
-            AddMoves(Square, NeighbourDirection.Right, validMoves);
+            AddMoves(Square, Direction.Left, potentialMoves);
+            AddMoves(Square, Direction.Right, potentialMoves);
 
-            return validMoves;
+            return potentialMoves;
         }
 
         private IList<Move> GetDiagonalMoves()
         {
-            IList<Move> validMoves = new List<Move>();
+            IList<Move> potentialMoves = new List<Move>();
 
-            AddMoves(Square, NeighbourDirection.UpLeft, validMoves);
-            AddMoves(Square, NeighbourDirection.UpRight, validMoves);
-            AddMoves(Square, NeighbourDirection.DownLeft, validMoves);
-            AddMoves(Square, NeighbourDirection.DownRight, validMoves);
+            AddMoves(Square, Direction.UpLeft, potentialMoves);
+            AddMoves(Square, Direction.UpRight, potentialMoves);
+            AddMoves(Square, Direction.DownLeft, potentialMoves);
+            AddMoves(Square, Direction.DownRight, potentialMoves);
 
-            return validMoves;
+            return potentialMoves;
         }
 
-        protected void AddMoves(Square square, NeighbourDirection direction, IList<Move> validMoves, int movesSoFar = 0)
+        protected void AddMoves(Square square, Direction direction, IList<Move> potentialMoves, int movesSoFar = 0)
         {
             if (square != null)
             {
                 Square nextSquare = square.GetNeighbour(direction);
                 if (nextSquare != null && movesSoFar++ < MaxSquares)
                 {
-                    validMoves.Add(new Move(this, square, nextSquare));
-                    AddMoves(nextSquare, direction, validMoves, movesSoFar);
+                    potentialMoves.Add(new Move(this, square, nextSquare));
+                    AddMoves(nextSquare, direction, potentialMoves, movesSoFar);
                 }
             }
         }
 
-        public override string ToString() => $"{(Colour == Colour.White ? "W" : "B")}{GetType().Name[0]}";
+        public override string ToString() => $"{(Colour == Colour.White ? "W" : "B")}{Symbol}";
 
         public Piece()
         {

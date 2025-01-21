@@ -9,14 +9,14 @@ namespace RMGChess.Core
         public override MoveType MoveTypes => MoveType.Vertical | MoveType.NotBackwards | MoveType.TakesDiagonally;
         public bool HasMoved { get; private set; }
 
-        public override IEnumerable<Move> GetValidMoves()
+        public override IEnumerable<Move> GetPotentialMoves()
         {
             if (Square is null) return new Move[0];
 
             IList<Move> validMoves = new List<Move>();
 
-            if (Colour == Colour.White) AddMoves(Square, NeighbourDirection.Up, validMoves);
-            if (Colour == Colour.Black) AddMoves(Square, NeighbourDirection.Down, validMoves);
+            if (Colour == Colour.White) AddMoves(Square, Direction.Up, validMoves);
+            if (Colour == Colour.Black) AddMoves(Square, Direction.Down, validMoves);
 
             return validMoves;
         }

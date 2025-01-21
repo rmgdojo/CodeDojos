@@ -27,7 +27,7 @@ namespace RMGChess.ConsoleApp
             T piece = new T() { Colour = colour };
             Board board = new();
             board["e5"].PlacePiece(piece);
-            var moves = piece.GetValidMoves();
+            var moves = piece.GetPotentialMoves();
             foreach (var move in moves)
             {
                 move.To.PlacePiece(new T() { Colour = piece.Colour });
