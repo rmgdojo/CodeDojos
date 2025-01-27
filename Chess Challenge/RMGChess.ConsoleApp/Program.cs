@@ -6,11 +6,6 @@ namespace RMGChess.ConsoleApp
     {
         static void Main(string[] args)
         {
-            //Game game = new Game();
-            //game.Start();
-            //Console.WriteLine(game.Board.GetBoardString());
-            //game.Board.WriteBoardStringToConsole();
-
             TestPiece<Pawn>(Colour.White);
             TestPiece<Pawn>(Colour.Black);
             TestPiece<Pawn>(Colour.White, "a2");
