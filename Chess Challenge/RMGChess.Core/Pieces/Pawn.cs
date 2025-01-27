@@ -15,8 +15,8 @@ namespace RMGChess.Core
 
             IList<Move> potentialMoves = new List<Move>();
 
-            Direction direction = Colour == Colour.White ? Direction.Up : Direction.Down;
-            bool onStartSquare = (Square.Rank == 2 && Colour == Colour.White) || (Square.Rank == 7 && Colour == Colour.Black);
+            Direction direction = IsWhite ? Direction.Up : Direction.Down;
+            bool onStartSquare = (Square.Rank == 2 && IsWhite) || (Square.Rank == 7 && IsBlack);
             Square first = Square.GetNeighbour(direction);
             Square second = first?.GetNeighbour(direction);
 

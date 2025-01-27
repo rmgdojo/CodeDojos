@@ -6,29 +6,44 @@ namespace RMGChess.ConsoleApp
     {
         static void Main(string[] args)
         {
-            TestPiece<Pawn>(Colour.White);
-            TestPiece<Pawn>(Colour.Black);
-            TestPiece<Pawn>(Colour.White, "a2");
-            TestPiece<Pawn>(Colour.Black, "b7");
-            TestPiece<Pawn>(Colour.Black, "a2");
-            TestPiece<Pawn>(Colour.White, "b7");
+            Game game = new Game();
+            game.Start();
+            foreach(Piece piece in game.Board.Pieces)
+            {
+                TestGamePiece(piece);
+            }
 
-            TestPiece<King>(Colour.White);
-            TestPiece<Queen>(Colour.White);
-            TestPiece<Rook>(Colour.White);
-            TestPiece<Bishop>(Colour.White);
-            TestPiece<Knight>(Colour.White);
+            //TestPiece<Pawn>(Colour.White);
+            //TestPiece<Pawn>(Colour.Black);
+            //TestPiece<Pawn>(Colour.White, "a2");
+            //TestPiece<Pawn>(Colour.Black, "b7");
+            //TestPiece<Pawn>(Colour.Black, "a2");
+            //TestPiece<Pawn>(Colour.White, "b7");
+
+            //TestPiece<King>(Colour.White);
+            //TestPiece<Queen>(Colour.White);
+            //TestPiece<Rook>(Colour.White);
+            //TestPiece<Bishop>(Colour.White);
+            //TestPiece<Knight>(Colour.White);
 
             Console.ReadLine();
         }
 
-        static void TestPiece<T>(Colour colour, Position position = null) where T : Piece, new()
+        static void TestGamePiece(Piece piece)
+        {
+            Type pieceType = piece.GetType();
+            var method = typeof(Program).GetMethod(nameof(TestPiece), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            var genericMethod = method.MakeGenericMethod(pieceType);
+            genericMethod.Invoke(null, new object[] { piece.Colour, piece.Square.Board, piece.Square.Position });
+        }
+
+        static void TestPiece<T>(Colour colour, Board board = null, Position position = null) where T : Piece, new()
         {
             position = position ?? new Position('e', 5);
             T piece = new T() { Colour = colour };
-            Board board = new();
+            board ??= new();
             board[position].PlacePiece(piece);
-            var moves = piece.GetPotentialMoves();
+            var moves = board.GetValidMoves(piece) ?? piece.GetPotentialMoves();
             foreach (var move in moves)
             {
                 move.To.PlacePiece(new T() { Colour = piece.Colour });
@@ -49,7 +64,7 @@ namespace RMGChess.ConsoleApp
                     Square square = board[file, rank];
                     if (square.IsOccupied)
                     {
-                        if (square.Piece.Colour == Colour.Black)
+                        if (square.Piece.IsBlack)
                         {
                             Console.ForegroundColor = ConsoleColor.Black;
                             Console.BackgroundColor = ConsoleColor.White;

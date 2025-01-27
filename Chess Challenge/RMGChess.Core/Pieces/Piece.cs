@@ -3,11 +3,15 @@
     public abstract class Piece
     {
         public Colour Colour { get; init; }
+        public bool IsWhite => Colour == Colour.White;
+        public bool IsBlack => Colour == Colour.Black;
         public virtual int Value => 0;
         public virtual int MaxSquares => Board.MAX_DISTANCE;
         public virtual MoveType MoveTypes => MoveType.None;
         public Square Square { get; set; }
         public virtual char Symbol => GetType().Name.ToUpper()[0];
+
+        public bool IsOpponentOf(Piece piece) => piece != null && piece.Colour != Colour;
 
         public virtual IEnumerable<Move> GetPotentialMoves()
         {
