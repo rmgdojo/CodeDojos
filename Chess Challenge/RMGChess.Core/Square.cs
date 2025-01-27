@@ -6,7 +6,7 @@
 
         public char File { get; }
         public int Rank { get; }
-        public string Position => $"{File}{Rank}";
+        public Position Position => $"{File}{Rank}";
         public bool IsEdgeSquare => File == 'a' || File == 'h' || Rank == 1 || Rank == 8;
 
         public Square Left => File == 'a' ? null : _board[(char)(File - 1), Rank];
@@ -22,6 +22,27 @@
         public Piece Piece { get; private set; }
 
         public Board Board => _board;
+
+        public bool Is(Position position)
+        {
+            return File == position.File && Rank == position.Rank;
+        }
+
+        public Square GetNeighbour(Direction direction)
+        {
+            return direction switch
+            {
+                Direction.Up => Up,
+                Direction.Down => Down,
+                Direction.Left => Left,
+                Direction.Right => Right,
+                Direction.UpLeft => UpLeft,
+                Direction.UpRight => UpRight,
+                Direction.DownLeft => DownLeft,
+                Direction.DownRight => DownRight,
+                _ => null,
+            };
+        }
 
         public void PlacePiece(Piece piece)
         {

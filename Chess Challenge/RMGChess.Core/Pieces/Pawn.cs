@@ -9,46 +9,31 @@ namespace RMGChess.Core
         public override MoveType MoveTypes => MoveType.Vertical | MoveType.NotBackwards | MoveType.TakesDiagonally;
         public bool HasMoved { get; private set; }
 
-        public override IEnumerable<Move> GetValidMoves()
+        public override IEnumerable<Move> GetPotentialMoves()
         {
             if (Square is null) return new Move[0];
 
-            IList<Move> validMoves = new List<Move>();
+            IList<Move> potentialMoves = new List<Move>();
 
-            int currentMaxSquares = MaxSquares;
-            if (Square.Rank == 2 || Square.Rank == 7)
-            {
-                currentMaxSquares = 2;
-            }
+            Direction direction = Colour == Colour.White ? Direction.Up : Direction.Down;
+            bool onStartSquare = (Square.Rank == 2 && Colour == Colour.White) || (Square.Rank == 7 && Colour == Colour.Black);
+            Square first = Square.GetNeighbour(direction);
+            Square second = first?.GetNeighbour(direction);
 
-            if (Colour == Colour.White)
+            if (first is not null) 
             {
-                for (int i = 1; i <= currentMaxSquares; i++)
+                potentialMoves.Add(new Move(this, Square, first));
+                if (onStartSquare && second is not null)
                 {
-                    if (Square.Rank + i <= 8)
-                    {
-                        Square square = Square.Up;
-                        validMoves.Add(new Move(this, Square, square));
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 1; i <= MaxSquares; i++)
-                {
-
-                    if (Square.Rank - i >= 1)
-                    {
-                        Square square = Square.Down;
-                        validMoves.Add(new Move(this, Square, square));
-                    }
+                    // could move two squares
+                    potentialMoves.Add(new Move(this, Square, second));
                 }
             }
 
-            return validMoves;
+            return potentialMoves;
         }
 
-        public Pawn(Colour colour) : base(colour)
+        public Pawn() : base()
         {
         }
     }

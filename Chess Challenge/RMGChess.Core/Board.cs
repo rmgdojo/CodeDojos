@@ -6,7 +6,7 @@
 
         private Square[,] _squares;
 
-        public Square this[string position] => this[position[0], position[1] - '0'];
+        public Square this[Position position] => this[position.File, position.Rank];
 
         public Square this[char file, int rank]
         {

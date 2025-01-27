@@ -6,10 +6,11 @@ namespace RMGChess.Core
         public override int Value => 3;
         public override int MaxSquares => 3;
         public override MoveType MoveTypes => MoveType.LShaped;
+        public override char Symbol => 'H';
 
-        public override IEnumerable<Move> GetValidMoves()
+        public override IEnumerable<Move> GetPotentialMoves()
         {
-            if (Square is null) return new Move[0];
+            if (Square is null || Square.Board is null) return new Move[0];
             
             List<Move> validMoves = new();
 
@@ -34,7 +35,7 @@ namespace RMGChess.Core
             return validMoves;
         }
 
-        public Knight(Colour colour) : base(colour)
+        public Knight() : base()
         {
         }
     }

@@ -2,20 +2,18 @@
 {
     public abstract class Piece
     {
-        private string _id;
-
         public Colour Colour { get; init; }
         public virtual int Value => 0;
         public virtual int MaxSquares => Board.MAX_DISTANCE;
         public virtual MoveType MoveTypes => MoveType.None;
         public Square Square { get; set; }
-        public char Symbol => GetType().Name.ToUpper()[0];
+        public virtual char Symbol => GetType().Name.ToUpper()[0];
 
-        public virtual IEnumerable<Move> GetValidMoves()
+        public virtual IEnumerable<Move> GetPotentialMoves()
         {
             if (Square is null) return new Move[0];
 
-            List<Move> validMoves = new();
+            List<Move> potentialMoves = new();
             foreach (MoveType moveType in Enum.GetValues<MoveType>())
             {
                 if (moveType > 0 && MoveTypes.HasFlag(moveType))
@@ -23,112 +21,70 @@
                     switch (moveType)
                     {
                         case MoveType.Horizontal:
-                            validMoves.AddRange(GetHorizontalMoves());
+                            potentialMoves.AddRange(GetHorizontalMoves());
                             break;
                         case MoveType.Vertical:
-                            validMoves.AddRange(GetVerticalMoves());
+                            potentialMoves.AddRange(GetVerticalMoves());
                             break;
                         case MoveType.Diagonal:
-                            validMoves.AddRange(GetDiagonalMoves());
+                            potentialMoves.AddRange(GetDiagonalMoves());
                             break;
                     }
                 }
             }
 
-            return validMoves;
-        }
-
-        private IList<Move> GetHorizontalMoves()
-        {
-            IList<Move> validMoves = new List<Move>();
-
-            for (int i = 1; i <= MaxSquares; i++)
-            {
-                if (Square.File + i <= 'h')
-                {
-                    Square square = Square.Right;
-                    validMoves.Add(new Move(this, Square, square));
-                }
-            }
-            for (int i = 1; i <= MaxSquares; i++)
-            {
-                if (Square.File - i >= 'a')
-                {
-                    Square square = Square.Left;
-                    validMoves.Add(new Move(this, Square, square));
-                }
-            }
-            return validMoves;
+            return potentialMoves;
         }
 
         private IList<Move> GetVerticalMoves()
         {
-            IList<Move> validMoves = new List<Move>();
+            IList<Move> potentialMoves = new List<Move>();
 
-            for (int i = 1; i <= MaxSquares; i++)
-            {
-                if (Square.Rank + i <= 8)
-                {
-                    Square square = Square.Up;
-                    validMoves.Add(new Move(this, Square, square));
-                }
-            }
-            for (int i = 1; i <= MaxSquares; i++)
-            {
-                if (Square.Rank - i >= 1)
-                {
-                    Square square = Square.Down;
-                    validMoves.Add(new Move(this, Square, square));
-                }
-            }
-            return validMoves;
+            AddMoves(Square, Direction.Up, potentialMoves);
+            AddMoves(Square, Direction.Down, potentialMoves);
+
+            return potentialMoves;
+        }
+
+        private IList<Move> GetHorizontalMoves()
+        {
+            IList<Move> potentialMoves = new List<Move>();
+
+            AddMoves(Square, Direction.Left, potentialMoves);
+            AddMoves(Square, Direction.Right, potentialMoves);
+
+            return potentialMoves;
         }
 
         private IList<Move> GetDiagonalMoves()
         {
-            IList<Move> validMoves = new List<Move>();
+            IList<Move> potentialMoves = new List<Move>();
 
-            for (int i = 1; i <= MaxSquares; i++)
-            {
-                if (Square.File + i <= 'h' && Square.Rank + i <= 8)
-                {
-                    Square square = Square.UpRight;
-                    validMoves.Add(new Move(this, Square, square));
-                }
-            }
-            for (int i = 1; i <= MaxSquares; i++)
-            {
-                if (Square.File - i >= 'a' && Square.Rank + i <= 8)
-                {
-                    Square square = Square.UpLeft;
-                    validMoves.Add(new Move(this, Square, square));
-                }
-            }
-            for (int i = 1; i <= MaxSquares; i++)
-            {
-                if (Square.File + i <= 'h' && Square.Rank - i >= 1)
-                {
-                    Square square = Square.DownRight;
-                    validMoves.Add(new Move(this, Square, square));
-                }
-            }
-            for (int i = 1; i <= MaxSquares; i++)
-            {
-                if (Square.File - i >= 'a' && Square.Rank - i >= 1)
-                {
-                    Square square = Square.DownLeft;
-                    validMoves.Add(new Move(this, Square, square));
-                }
-            }
-            return validMoves;
+            AddMoves(Square, Direction.UpLeft, potentialMoves);
+            AddMoves(Square, Direction.UpRight, potentialMoves);
+            AddMoves(Square, Direction.DownLeft, potentialMoves);
+            AddMoves(Square, Direction.DownRight, potentialMoves);
+
+            return potentialMoves;
         }
 
-        public override string ToString() => _id;
-
-        public Piece(Colour colour)
+        protected void AddMoves(Square square, Direction direction, IList<Move> potentialMoves, int movesSoFar = 0)
         {
-            Colour = colour;
-            _id = $"{(Colour == Colour.White ? "W" : "B")}{GetType().Name[0]}";
+            if (square != null)
+            {
+                Square nextSquare = square.GetNeighbour(direction);
+                if (nextSquare != null && movesSoFar++ < MaxSquares)
+                {
+                    potentialMoves.Add(new Move(this, square, nextSquare));
+                    AddMoves(nextSquare, direction, potentialMoves, movesSoFar);
+                }
+            }
+        }
+
+        public override string ToString() => $"{(Colour == Colour.White ? "W" : "B")}{Symbol}";
+
+        public Piece()
+        {
         }
     }
 }
