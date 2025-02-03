@@ -50,13 +50,16 @@
             piece.Square = this;
         }
 
-        public void RemovePiece()
+        public Piece RemovePiece()
         {
-            if (Piece is not null)
+            Piece thisPiece = Piece;
+            if (thisPiece is not null)
             {
-                Piece.Square = null;
+                thisPiece.Square = null;
                 Piece = null;
             }
+
+            return thisPiece;
         }
 
         public override string ToString()

@@ -1,4 +1,5 @@
 ﻿using RMGChess.Core;
+using System.IO.Pipelines;
 
 namespace RMGChess.ConsoleApp
 {
@@ -8,10 +9,11 @@ namespace RMGChess.ConsoleApp
         {
             Game game = new Game();
             game.Start();
-            foreach(Piece piece in game.Board.Pieces)
-            {
-                TestGamePiece(piece, game.Board);
-            }
+            TestGamePiece(game.Board["b1"].Piece, game.Board);
+            //foreach (Piece piece in game.Board.Pieces)
+            //{
+            //    TestGamePiece(piece, game.Board);
+            //}
 
             //TestPiece<Pawn>(Colour.White);
             //TestPiece<Pawn>(Colour.Black);

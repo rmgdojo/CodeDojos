@@ -74,8 +74,11 @@
 
         public void MovePiece(Move move)
         {
-            this[move.From].RemovePiece();
-            this[move.To].PlacePiece(move.Piece);
+            Position fromPosition = move.From;
+            Position toPosition = move.To;
+
+            Piece removedPiece = this[fromPosition].RemovePiece();
+            this[toPosition].PlacePiece(removedPiece);
         }
 
         public Board Clone()
