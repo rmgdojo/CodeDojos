@@ -7,13 +7,18 @@ namespace RMGChess.ConsoleApp
     {
         static void Main(string[] args)
         {
+            int whiteMoves = 0, blackMoves = 0;
+
             Game game = new Game();
             game.Start();
-            TestGamePiece(game.Board["b1"].Piece, game.Board);
-            //foreach (Piece piece in game.Board.Pieces)
-            //{
-            //    TestGamePiece(piece, game.Board);
-            //}
+            foreach (Piece piece in game.Board.Pieces.Where(x => x.IsWhite))
+            {
+                whiteMoves += TestGamePiece(piece, game.Board);
+            }
+            foreach (Piece piece in game.Board.Pieces.Where(x => x.IsBlack))
+            {
+                blackMoves += TestGamePiece(piece, game.Board);
+            }
 
             //TestPiece<Pawn>(Colour.White);
             //TestPiece<Pawn>(Colour.Black);
@@ -28,10 +33,13 @@ namespace RMGChess.ConsoleApp
             //TestPiece<Bishop>(Colour.White);
             //TestPiece<Knight>(Colour.White);
 
+            Console.WriteLine($"Total number of valid moves for white: {whiteMoves}");
+            Console.WriteLine($"Total number of valid moves for black: {blackMoves}");
+            
             Console.ReadLine();
         }
 
-        static void TestGamePiece(Piece piece, Board board)
+        static int TestGamePiece(Piece piece, Board board)
         {
             IEnumerable<Move> validMoves = board.GetValidMoves(piece);
             if (validMoves != null)
@@ -44,6 +52,8 @@ namespace RMGChess.ConsoleApp
                     WriteBoardStringToConsole(cloneBoard, move.From);
                 }
             }
+
+            return validMoves.Count();
         }
 
         static void TestPiece<T>(Colour colour, Board board = null, Position position = null) where T : Piece

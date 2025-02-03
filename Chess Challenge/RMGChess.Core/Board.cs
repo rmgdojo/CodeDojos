@@ -41,7 +41,6 @@
                         if (to.Piece.IsOpponentOf(piece))
                         {
                             validMoves.Add(potentialMove.Taking(to.Piece));
-                            break; // cannot move beyond an occupied square in any case
                         }
 
                         blockedDirections.Add(potentialMove.Direction);
