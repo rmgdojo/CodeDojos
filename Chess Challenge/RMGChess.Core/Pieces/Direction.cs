@@ -9,6 +9,7 @@
         UpLeft,
         UpRight,
         DownLeft,
-        DownRight
+        DownRight,
+        LShaped
     }
 }

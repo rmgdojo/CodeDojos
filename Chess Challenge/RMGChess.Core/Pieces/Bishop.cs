@@ -5,7 +5,7 @@
         public override int Value => 3;
         public override MoveType MoveTypes => MoveType.Diagonal;
 
-        public Bishop() : base()
+        public Bishop(Colour colour) : base(colour)
         {
         }
     }

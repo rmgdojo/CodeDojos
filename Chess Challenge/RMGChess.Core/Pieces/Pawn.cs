@@ -33,7 +33,7 @@ namespace RMGChess.Core
             return potentialMoves;
         }
 
-        public Pawn() : base()
+        public Pawn(Colour colour) : base(colour)
         {
         }
     }

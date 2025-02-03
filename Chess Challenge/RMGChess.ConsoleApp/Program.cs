@@ -1,4 +1,5 @@
 ﻿using RMGChess.Core;
+using System.IO.Pipelines;
 
 namespace RMGChess.ConsoleApp
 {
@@ -6,11 +7,17 @@ namespace RMGChess.ConsoleApp
     {
         static void Main(string[] args)
         {
+            int whiteMoves = 0, blackMoves = 0;
+
             Game game = new Game();
             game.Start();
-            foreach(Piece piece in game.Board.Pieces)
+            foreach (Piece piece in game.Board.Pieces.Where(x => x.IsWhite))
             {
-                TestGamePiece(piece);
+                whiteMoves += TestGamePiece(piece, game.Board);
+            }
+            foreach (Piece piece in game.Board.Pieces.Where(x => x.IsBlack))
+            {
+                blackMoves += TestGamePiece(piece, game.Board);
             }
 
             //TestPiece<Pawn>(Colour.White);
@@ -26,31 +33,44 @@ namespace RMGChess.ConsoleApp
             //TestPiece<Bishop>(Colour.White);
             //TestPiece<Knight>(Colour.White);
 
+            Console.WriteLine($"Total number of valid moves for white: {whiteMoves}");
+            Console.WriteLine($"Total number of valid moves for black: {blackMoves}");
+            
             Console.ReadLine();
         }
 
-        static void TestGamePiece(Piece piece)
+        static int TestGamePiece(Piece piece, Board board)
         {
-            Type pieceType = piece.GetType();
-            var method = typeof(Program).GetMethod(nameof(TestPiece), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            var genericMethod = method.MakeGenericMethod(pieceType);
-            genericMethod.Invoke(null, new object[] { piece.Colour, piece.Square.Board, piece.Square.Position });
-        }
-
-        static void TestPiece<T>(Colour colour, Board board = null, Position position = null) where T : Piece, new()
-        {
-            position = position ?? new Position('e', 5);
-            T piece = new T() { Colour = colour };
-            board ??= new();
-            board[position].PlacePiece(piece);
-            var moves = board.GetValidMoves(piece) ?? piece.GetPotentialMoves();
-            foreach (var move in moves)
+            IEnumerable<Move> validMoves = board.GetValidMoves(piece);
+            if (validMoves != null)
             {
-                move.To.PlacePiece(new T() { Colour = piece.Colour });
+                foreach (Move move in validMoves)
+                {
+                    Board cloneBoard = board.Clone();
+                    cloneBoard.MovePiece(move);
+                    Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}) {move.From}:");
+                    WriteBoardStringToConsole(cloneBoard, move.From);
+                }
             }
 
-            Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}) {position}:");
-            WriteBoardStringToConsole(board, position);
+            return validMoves.Count();
+        }
+
+        static void TestPiece<T>(Colour colour, Board board = null, Position position = null) where T : Piece
+        {
+            //position = position ?? new Position('e', 5);
+            //T piece = (T)Activator.CreateInstance(typeof(T), colour);
+            //board = board.Clone() ?? new Board();
+
+            //board[position].PlacePiece(piece);
+            //var moves = board.GetValidMoves(piece) ?? piece.GetPotentialMoves();
+            //foreach (var move in moves)
+            //{
+            //    move.To.PlacePiece(new T() { Colour = piece.Colour });
+            //}
+
+            //Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}) {position}:");
+            //WriteBoardStringToConsole(board, position);
         }
 
         static void WriteBoardStringToConsole(Board board, Position highlight)
