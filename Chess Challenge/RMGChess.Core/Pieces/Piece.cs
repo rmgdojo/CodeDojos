@@ -1,4 +1,6 @@
-﻿namespace RMGChess.Core
+﻿using System.Drawing;
+
+namespace RMGChess.Core
 {
     public abstract class Piece
     {
@@ -40,6 +42,12 @@
             return potentialMoves;
         }
 
+        public Piece Clone()
+        {
+            Piece clonePiece = (Piece)Activator.CreateInstance(GetType(), Colour);
+            return clonePiece;
+        }
+
         private IList<Move> GetVerticalMoves()
         {
             IList<Move> potentialMoves = new List<Move>();
@@ -72,23 +80,29 @@
             return potentialMoves;
         }
 
-        protected void AddMoves(Square square, Direction direction, IList<Move> potentialMoves, int movesSoFar = 0)
+        protected void AddMoves(Square currentSquare, Direction direction, IList<Move> potentialMoves, int movesSoFar = 0, Square startingSquare = null)
         {
-            if (square != null)
+            if (currentSquare is not null)
             {
-                Square nextSquare = square.GetNeighbour(direction);
+                if (startingSquare is null)
+                {
+                    startingSquare = currentSquare;
+                }
+
+                Square nextSquare = currentSquare.GetNeighbour(direction);
                 if (nextSquare != null && movesSoFar++ < MaxSquares)
                 {
-                    potentialMoves.Add(new Move(this, square, nextSquare));
-                    AddMoves(nextSquare, direction, potentialMoves, movesSoFar);
+                    potentialMoves.Add(new Move(this, startingSquare, nextSquare));
+                    AddMoves(nextSquare, direction, potentialMoves, movesSoFar, startingSquare);
                 }
             }
         }
 
         public override string ToString() => $"{(Colour == Colour.White ? "W" : "B")}{Symbol}";
 
-        public Piece()
+        public Piece(Colour colour)
         {
+            Colour = colour;
         }
     }
 }

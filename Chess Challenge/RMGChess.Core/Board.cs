@@ -28,19 +28,29 @@
         {
             List<Move> validMoves = new();
             IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();
+            List<Direction> blockedDirections = new();
             foreach (Move potentialMove in potentialMoves)
             {
-                if (potentialMove.To.IsOccupied)
-                {
-                    if (potentialMove.To.Piece.IsOpponentOf(piece))
-                    {
-                        validMoves.Add(potentialMove.Taking(potentialMove.To.Piece));
-                    }
-                    
-                    break; // cannot move beyond an occupied square in any case
-                }
+                Square from = this[potentialMove.From];
+                Square to = this[potentialMove.To];
 
-                validMoves.Add(potentialMove);
+                if (!blockedDirections.Contains(potentialMove.Direction))
+                {
+                    if (to.IsOccupied)
+                    {
+                        if (to.Piece.IsOpponentOf(piece))
+                        {
+                            validMoves.Add(potentialMove.Taking(to.Piece));
+                            break; // cannot move beyond an occupied square in any case
+                        }
+
+                        blockedDirections.Add(potentialMove.Direction);
+                    }
+                    else
+                    {
+                        validMoves.Add(potentialMove);
+                    }
+                }
             }
 
             // handle cases where a pawn could take a piece diagonally
@@ -60,6 +70,25 @@
             }
 
             return validMoves;
+        }
+
+        public void MovePiece(Move move)
+        {
+            this[move.From].RemovePiece();
+            this[move.To].PlacePiece(move.Piece);
+        }
+
+        public Board Clone()
+        {
+            Board cloneBoard = new();
+            foreach (Piece piece in Pieces)
+            {
+                Piece clonePiece = piece.Clone();
+                Square squareForPiece = cloneBoard[piece.Square.Position];
+                squareForPiece.PlacePiece(clonePiece);
+            }
+
+            return cloneBoard;
         }
 
         public Board()

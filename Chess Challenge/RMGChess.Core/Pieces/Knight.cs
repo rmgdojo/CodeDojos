@@ -35,7 +35,7 @@ namespace RMGChess.Core
             return validMoves;
         }
 
-        public Knight() : base()
+        public Knight(Colour colour) : base(colour)
         {
         }
     }

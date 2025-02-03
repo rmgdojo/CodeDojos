@@ -50,6 +50,20 @@
             piece.Square = this;
         }
 
+        public void RemovePiece()
+        {
+            if (Piece is not null)
+            {
+                Piece.Square = null;
+                Piece = null;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{Position.ToString()}{(IsOccupied ? " " + Piece.ToString() : "")}";
+        }
+
         public Square(Board board, char file, int rank)
         {
             _board = board;
