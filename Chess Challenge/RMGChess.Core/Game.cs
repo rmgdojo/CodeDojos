@@ -13,9 +13,17 @@ namespace RMGChess.Core
             _board = SetupNewBoard();
         }
 
+        public bool MakeMove(string moveAsAlgebra)
+        {
+            Move move = this.DecodeMove(moveAsAlgebra);
+            if (move is null) return false;
+
+            return MakeMove(move.Piece, move.To);
+        }
+
         public bool MakeMove(Piece piece, Position position)
         {
-            var validMoves = _board.GetValidMoves(piece);
+            var validMoves = _board.GetValidMovesFor(piece);
             var validMove = validMoves.FirstOrDefault(x => x.To.Equals(position));
 
             if (validMove is not null)
@@ -27,7 +35,7 @@ namespace RMGChess.Core
             return false;
         }
 
-        internal Board SetupNewBoard()
+        private Board SetupNewBoard()
         {
             Board board = new Board();
 

@@ -24,7 +24,19 @@
             }
         }
 
-        public IEnumerable<Move> GetValidMoves(Piece piece)
+        public IEnumerable<Move> GetValidMovesForAllPieces()
+        {
+            List<Move> validMoves = new();
+            foreach (Piece piece in Pieces)
+            {
+                IEnumerable<Move> validMovesForPiece = GetValidMovesFor(piece);
+                validMoves.AddRange(validMovesForPiece);
+            }
+            
+            return validMoves;
+        }
+
+        public IEnumerable<Move> GetValidMovesFor(Piece piece)
         {
             List<Move> validMoves = new();
             IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();

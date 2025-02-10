@@ -20,9 +20,10 @@ namespace RMGChess.ConsoleApp
             //    blackMoves += TestGamePiece(piece, game.Board);
             //}
 
-            WriteBoardStringToConsole(game.Board, "h5");
-            bool moveMade = game.MakeMove(game.Board["h7"].Piece, "h5");
-            WriteBoardStringToConsole(game.Board, "h5");
+            WriteBoardStringToConsole(game.Board, "f3");
+            bool moveMade = game.MakeMove("Nf3");
+                //game.MakeMove(game.Board["h7"].Piece, "h5");
+            WriteBoardStringToConsole(game.Board, "f3");
 
             //Console.WriteLine($"Total number of valid moves for white: {whiteMoves}");
             //Console.WriteLine($"Total number of valid moves for black: {blackMoves}");
@@ -32,7 +33,7 @@ namespace RMGChess.ConsoleApp
 
         static int TestGamePiece(Piece piece, Board board)
         {
-            IEnumerable<Move> validMoves = board.GetValidMoves(piece);
+            IEnumerable<Move> validMoves = board.GetValidMovesFor(piece);
             if (validMoves != null)
             {
                 foreach (Move move in validMoves)
