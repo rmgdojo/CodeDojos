@@ -12,7 +12,7 @@ namespace RMGChess.Core
         {
             if (Square is null || Square.Board is null) return new Move[0];
             
-            List<Move> validMoves = new();
+            List<Move> potentialMoves = new();
 
             int[] fileOffsets = { 2, 2, -2, -2, 1, 1, -1, -1 };
             int[] rankOffsets = { 1, -1, 1, -1, 2, -2, 2, -2 };
@@ -27,12 +27,12 @@ namespace RMGChess.Core
                     Square newSquare = Square.Board[newFile, newRank];
                     if (newSquare != null && (!newSquare.IsOccupied || newSquare.Piece.Colour != this.Colour))
                     {
-                        validMoves.Add(new Move(this, Square, newSquare));
+                        potentialMoves.Add(new Move(this, Square.Position, newSquare.Position));
                     }
                 }
             }
 
-            return validMoves;
+            return potentialMoves;
         }
 
         public Knight(Colour colour) : base(colour)

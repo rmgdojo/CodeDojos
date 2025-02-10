@@ -22,11 +22,11 @@ namespace RMGChess.Core
 
             if (first is not null) 
             {
-                potentialMoves.Add(new Move(this, Square, first));
+                potentialMoves.Add(new Move(this, Square.Position, first.Position));
                 if (onStartSquare && second is not null)
                 {
                     // could move two squares
-                    potentialMoves.Add(new Move(this, Square, second));
+                    potentialMoves.Add(new Move(this, Square.Position, second.Position));
                 }
             }
 

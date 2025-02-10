@@ -90,9 +90,9 @@ namespace RMGChess.Core
                 }
 
                 Square nextSquare = currentSquare.GetNeighbour(direction);
-                if (nextSquare != null && movesSoFar++ < MaxSquares)
+                if (nextSquare is not null && movesSoFar++ < MaxSquares)
                 {
-                    potentialMoves.Add(new Move(this, startingSquare, nextSquare));
+                    potentialMoves.Add(new Move(this, startingSquare.Position, nextSquare.Position));
                     AddMoves(nextSquare, direction, potentialMoves, movesSoFar, startingSquare);
                 }
             }

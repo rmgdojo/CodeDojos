@@ -44,11 +44,6 @@ namespace RMGChess.Core
             throw new InvalidOperationException("Invalid move direction");
         }
 
-        public Move(Piece piece, Square from, Square to, Piece pieceToTake = null)
-            : this(piece, from.Position, to.Position, pieceToTake)  
-        {
-        }
-
         public Move(Piece piece, Position from, Position to, Piece pieceToTake = null)
         {
             Piece = piece;

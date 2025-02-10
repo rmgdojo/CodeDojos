@@ -13,13 +13,13 @@
 
         public Position(char file, int rank)
         {
-            File = file;
+            File = Char.ToLower(file);
             Rank = rank;
         }
 
         public override string ToString()
         {
-            return $"{Char.ToLower(File)}{Rank}";
+            return $"{File}{Rank}";
         }
 
         // implicit conversion from string to Position

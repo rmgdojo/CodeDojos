@@ -60,11 +60,11 @@
 
                 if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(piece))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Square, left).Taking(left.Piece));
+                    validMoves.Add(new Move(pawn, pawn.Square.Position, left.Position));
                 }
                 if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Square, right).Taking(right.Piece));
+                    validMoves.Add(new Move(pawn, pawn.Square.Position, right.Position));
                 }
             }
 
