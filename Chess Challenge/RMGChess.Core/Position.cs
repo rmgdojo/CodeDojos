@@ -22,6 +22,16 @@
             return $"{Char.ToLower(File)}{Rank}";
         }
 
+        public override bool Equals(object obj)
+        {
+            var position = obj as Position;
+            if (position == null)
+            {
+                return false;
+            }
+            return position.File == this.File && position.Rank == this.Rank;
+        }
+
         // implicit conversion from string to Position
         public static implicit operator Position(string position)
         {
