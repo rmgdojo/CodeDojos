@@ -1,4 +1,6 @@
-﻿namespace RMGChess.Core
+﻿using System.Linq;
+
+namespace RMGChess.Core
 {
     public class Game
     {
@@ -9,6 +11,20 @@
         public void Start()
         {
             _board = SetupNewBoard();
+        }
+
+        public bool MakeMove(Piece piece, Position position)
+        {
+            var validMoves = _board.GetValidMoves(piece);
+            var validMove = validMoves.FirstOrDefault(x => x.To.Equals(position));
+
+            if (validMove is not null)
+            {
+                _board.MovePiece(validMove);
+                return true;
+            }
+
+            return false;
         }
 
         internal Board SetupNewBoard()

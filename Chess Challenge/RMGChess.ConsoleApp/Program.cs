@@ -1,5 +1,5 @@
 ﻿using RMGChess.Core;
-using System.IO.Pipelines;
+//using System.IO.Pipelines;
 
 namespace RMGChess.ConsoleApp
 {
@@ -11,30 +11,21 @@ namespace RMGChess.ConsoleApp
 
             Game game = new Game();
             game.Start();
-            foreach (Piece piece in game.Board.Pieces.Where(x => x.IsWhite))
-            {
-                whiteMoves += TestGamePiece(piece, game.Board);
-            }
-            foreach (Piece piece in game.Board.Pieces.Where(x => x.IsBlack))
-            {
-                blackMoves += TestGamePiece(piece, game.Board);
-            }
+            //foreach (Piece piece in game.Board.Pieces.Where(x => x.IsWhite))
+            //{
+            //    whiteMoves += TestGamePiece(piece, game.Board);
+            //}
+            //foreach (Piece piece in game.Board.Pieces.Where(x => x.IsBlack))
+            //{
+            //    blackMoves += TestGamePiece(piece, game.Board);
+            //}
 
-            //TestPiece<Pawn>(Colour.White);
-            //TestPiece<Pawn>(Colour.Black);
-            //TestPiece<Pawn>(Colour.White, "a2");
-            //TestPiece<Pawn>(Colour.Black, "b7");
-            //TestPiece<Pawn>(Colour.Black, "a2");
-            //TestPiece<Pawn>(Colour.White, "b7");
+            WriteBoardStringToConsole(game.Board, "h5");
+            bool moveMade = game.MakeMove(game.Board["h7"].Piece, "h5");
+            WriteBoardStringToConsole(game.Board, "h5");
 
-            //TestPiece<King>(Colour.White);
-            //TestPiece<Queen>(Colour.White);
-            //TestPiece<Rook>(Colour.White);
-            //TestPiece<Bishop>(Colour.White);
-            //TestPiece<Knight>(Colour.White);
-
-            Console.WriteLine($"Total number of valid moves for white: {whiteMoves}");
-            Console.WriteLine($"Total number of valid moves for black: {blackMoves}");
+            //Console.WriteLine($"Total number of valid moves for white: {whiteMoves}");
+            //Console.WriteLine($"Total number of valid moves for black: {blackMoves}");
             
             Console.ReadLine();
         }
