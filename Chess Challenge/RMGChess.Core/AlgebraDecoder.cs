@@ -11,8 +11,6 @@
                 Piece takenPiece = null;
                 Position to = null;
 
-                bool check = moveAsAlgebra.EndsWith("+"); // see below
-                bool mate = moveAsAlgebra.EndsWith("#"); // special ending tags, which we'll ignore
                 bool castling = moveAsAlgebra == "O-O" || moveAsAlgebra == "O-O-O"; // castling
                 bool taking = moveAsAlgebra.Contains("x"); // taking a piece
 
@@ -71,8 +69,12 @@
                     }
                     else
                     {
-                        piece = possiblePieces.First();
+                        piece = possiblePieces.FirstOrDefault();
                     }
+                }
+                else
+                {
+                    // TODO: implement castling
                 }
 
                 if (piece is null)
