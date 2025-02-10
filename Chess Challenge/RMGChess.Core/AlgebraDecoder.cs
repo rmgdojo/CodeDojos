@@ -27,7 +27,7 @@
                     to = toSquare.Position;
 
                     var validMoves = board.GetValidMovesForAllPieces();
-                    var possiblePieces = validMoves.Where(x => x.To.Equals(to)).Select(x => x.Piece);
+                    var possiblePieces = validMoves.Where(m => m.To.Equals(to)).Select(m => m.Piece);
                     bool isAmbiguous = possiblePieces.Count() > 1;
 
                     if (isAmbiguous)
@@ -37,7 +37,7 @@
                         char firstChar = Char.ToUpper(moveAsAlgebra[0]);
                         if (firstChar == 'K' || firstChar == 'Q' || firstChar == 'R' || firstChar == 'B' || firstChar == 'N')
                         {
-                            possiblePieces = possiblePieces.Where(x => x.Symbol == firstChar);
+                            possiblePieces = possiblePieces.Where(p => p.Symbol == firstChar);
                             if (possiblePieces.Count() == 1)
                             {
                                 piece = possiblePieces.First();
