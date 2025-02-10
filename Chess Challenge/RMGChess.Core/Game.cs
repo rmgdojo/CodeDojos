@@ -27,14 +27,6 @@ namespace RMGChess.Core
             return false;
         }
 
-        //public bool MakeMove(string move)
-        //{
-        //    // "h5" - pawn to h5
-        //    //Nf6 - knight to f6
-
-
-        //}
-
         internal Board SetupNewBoard()
         {
             Board board = new Board();
