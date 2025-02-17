@@ -10,6 +10,7 @@
         UpRight,
         DownLeft,
         DownRight,
-        LShaped
+        LShaped,
+        Castling
     }
 }

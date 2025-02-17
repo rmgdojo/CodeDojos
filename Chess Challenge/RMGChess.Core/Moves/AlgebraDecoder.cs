@@ -2,7 +2,7 @@
 {
     public static class AlgebraDecoder
     {
-        public static Move DecodeMove(this Game game, string moveAsAlgebra)
+        public static Move DecodeMove(this Game game, string moveAsAlgebra, Colour whoseMove)
         {
             try
             {
@@ -74,7 +74,9 @@
                 }
                 else
                 {
-                    // TODO: implement castling
+                    King king = board.Pieces.OfType<King>().Single(k => k.Colour == whoseMove);
+                    CastlingMove.Type type = moveAsAlgebra == "O-O" ? CastlingMove.Type.Kingside : CastlingMove.Type.Queenside;
+                    return new CastlingMove(king, type);
                 }
 
                 if (piece is null)

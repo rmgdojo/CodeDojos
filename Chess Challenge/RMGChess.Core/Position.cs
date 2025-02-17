@@ -37,5 +37,25 @@
         {
             return new Position(position[0], position[1] - '0');
         }
+
+        public static bool operator ==(Position a, string b)
+        {
+            return a.ToString() == b;
+        }
+
+        public static bool operator !=(Position a, string b)
+        {
+            return a.ToString() != b;
+        }
+
+        public static bool operator ==(string a, Position b)
+        {
+            return a == b.ToString();
+        }
+
+        public static bool operator !=(string a, Position b)
+        {
+            return a != b.ToString();
+        }
     }
 }
