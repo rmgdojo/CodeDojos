@@ -27,6 +27,17 @@ namespace RMGChess.Core
             return false;
         }
 
+        private Position AlgebraToMove(string moveAsAlgebra)
+        {
+            if (moveAsAlgebra.Contains("O-O-O")) return null;
+            moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+');
+
+            Position positionMove = moveAsAlgebra.Substring(moveAsAlgebra.Length - 2);
+            bool isCapture = moveAsAlgebra.Contains("x") || moveAsAlgebra.Contains(":");
+
+            return positionMove;
+        }
+
         internal Board SetupNewBoard()
         {
             Board board = new Board();
