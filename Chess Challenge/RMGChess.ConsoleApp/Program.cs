@@ -11,6 +11,15 @@ namespace RMGChess.ConsoleApp
 
             Game game = new Game();
             game.Start();
+
+            while (true)
+            {
+                Console.Write("Algebra: ");
+                string algebra = Console.ReadLine();
+                Move move = new Move(algebra, game.Board);
+                Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}");
+            }
+
             //foreach (Piece piece in game.Board.Pieces.Where(x => x.IsWhite))
             //{
             //    whiteMoves += TestGamePiece(piece, game.Board);
