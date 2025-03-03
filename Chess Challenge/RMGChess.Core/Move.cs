@@ -24,16 +24,6 @@ namespace RMGChess.Core
                 _ => (false, CastlingType.None)
             };
 
-            // validate that the algebra ends with a valid position (e4 etc)
-            try
-            {
-                Position to = moveAsAlgebra[^2..];
-            }
-            catch
-            {
-                throw new ArgumentException("Algebra must end with a valid position.");
-            }
-
             bool takesPiece = moveAsAlgebra.Contains("x");
             Move move = null;
 
