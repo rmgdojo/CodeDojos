@@ -3,6 +3,7 @@
     public enum CastlingType
     {
         Kingside,
-        Queenside
+        Queenside,
+        None
     }
 }

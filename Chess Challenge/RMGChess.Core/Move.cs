@@ -15,7 +15,13 @@ namespace RMGChess.Core
                 throw new ArgumentException("Algebra cannot be empty.");
             }
 
-            bool castling = moveAsAlgebra == "O-O" || moveAsAlgebra == "O-O-O";
+            (bool castling, CastlingType castlingType) = moveAsAlgebra switch
+            {
+                "O-O" => (true, CastlingType.Kingside),
+                "O-O-O" => (true, CastlingType.Queenside),
+                _ => (false, CastlingType.None)
+            };
+
             bool takesPiece = moveAsAlgebra.Contains("x");
             Move move = null;
 
@@ -87,8 +93,7 @@ namespace RMGChess.Core
             else
             {
                 King king = board.Pieces.First(p => p is King && p.Colour == whoIsMoving) as King;
-                CastlingType type = moveAsAlgebra == "O-O" ? CastlingType.Kingside : CastlingType.Queenside;
-                move = new CastlingMove(king, type);
+                move = new CastlingMove(king, castlingType);
             }
 
             return move;
