@@ -8,51 +8,16 @@ namespace RMGChess.Core
 {
     public class Move
     {
-        public Piece Piece { get; private set; }
-        public Position From { get; private set; }
-        public Position To { get; private set; }
-        public Direction Direction { get; private set; }
-        public bool TakesPiece => PieceToTake is not null;
-        public Piece PieceToTake { get; private set; }
-
-        public Move Taking(Piece piece)
-        {
-            return new Move(Piece, From, To, piece);
-        }
-
-        public override string ToString()
-        {
-            return $"{Piece.Symbol}{From} -> {To}{(TakesPiece ? $"x{PieceToTake.Symbol}{To}" : "")}";
-        }
-
-        private Direction GetDirection(Position from, Position to)
-        {
-            int fileDifference = to.File - from.File;
-            int rankDifference = to.Rank - from.Rank;
-
-            if (fileDifference == 0 && rankDifference > 0) return Direction.Up;
-            if (fileDifference == 0 && rankDifference < 0) return Direction.Down;
-            if (rankDifference == 0 && fileDifference > 0) return Direction.Right;
-            if (rankDifference == 0 && fileDifference < 0) return Direction.Left;
-            if (fileDifference > 0 && rankDifference > 0) return Direction.UpRight;
-            if (fileDifference < 0 && rankDifference > 0) return Direction.UpLeft;
-            if (fileDifference > 0 && rankDifference < 0) return Direction.DownRight;
-            if (fileDifference < 0 && rankDifference < 0) return Direction.DownLeft;
-            if (fileDifference == 2 && rankDifference == 1) return Direction.LShaped;
-            if (fileDifference == 1 && rankDifference == 2) return Direction.LShaped;
-
-            throw new InvalidOperationException("Invalid move direction");
-        }
-        
-        private void DecodeAlgebra(string moveAsAlgebra, Board board)
+        public static Move DecodeAlgebra(string moveAsAlgebra, Board board, Colour whoIsMoving)
         {
             if (String.IsNullOrWhiteSpace(moveAsAlgebra))
             {
                 throw new ArgumentException("Algebra cannot be empty.");
             }
 
-            bool castling = moveAsAlgebra.Contains("O-O") || moveAsAlgebra.Contains("O-O-O");
+            bool castling = moveAsAlgebra == "O-O" || moveAsAlgebra == "O-O-O";
             bool takesPiece = moveAsAlgebra.Contains("x");
+            Move move = null;
 
             /*
              *  e4: A pawn moves from e2 to e4
@@ -116,19 +81,66 @@ namespace RMGChess.Core
                         throw new InvalidOperationException("Algebra cannot be parsed.");
                     }
 
-                    Piece = piece;
-                    From = piece.Square.Position;
-                    To = to;
-                    if (takesPiece)
-                    {
-                        PieceToTake = board[to].Piece;
-                    }
+                    move = new(piece, piece.Square.Position, to, takesPiece ? board[to].Piece : null);
                 }
             }
             else
             {
-
+                King king = board.Pieces.First(p => p is King && p.Colour == whoIsMoving) as King;
+                CastlingType type = moveAsAlgebra == "O-O" ? CastlingType.Kingside : CastlingType.Queenside;
+                move = new CastlingMove(king, type);
             }
+
+            return move;
+        }
+
+        public Piece Piece { get; protected set; }
+        public Position From { get; protected set; }
+        public Position To { get; protected set; }
+        public Direction Direction { get; protected set; }
+        public bool TakesPiece => PieceToTake is not null;
+        public Piece PieceToTake { get; protected set; }
+
+        public virtual void Execute(Board board)
+        {
+            Piece pieceToRemove = board[From].Piece;
+            if (pieceToRemove != Piece)
+            {
+                throw new InvalidOperationException("Invalid move state: Piece to move does not match the piece on the board.");
+            }
+
+            Piece.HasMoved = true;
+            board[From].RemovePiece();
+            board[To].PlacePiece(Piece);
+        }
+
+        public Move Taking(Piece piece)
+        {
+            return new Move(Piece, From, To, piece);
+        }
+
+        public override string ToString()
+        {
+            return $"{Piece.Symbol}{From} -> {To}{(TakesPiece ? $"x{PieceToTake.Symbol}{To}" : "")}";
+        }
+
+        protected Direction GetDirection(Position from, Position to)
+        {
+            int fileDifference = to.File - from.File;
+            int rankDifference = to.Rank - from.Rank;
+
+            if (fileDifference == 0 && rankDifference > 0) return Direction.Up;
+            if (fileDifference == 0 && rankDifference < 0) return Direction.Down;
+            if (rankDifference == 0 && fileDifference > 0) return Direction.Right;
+            if (rankDifference == 0 && fileDifference < 0) return Direction.Left;
+            if (fileDifference > 0 && rankDifference > 0) return Direction.UpRight;
+            if (fileDifference < 0 && rankDifference > 0) return Direction.UpLeft;
+            if (fileDifference > 0 && rankDifference < 0) return Direction.DownRight;
+            if (fileDifference < 0 && rankDifference < 0) return Direction.DownLeft;
+            if (fileDifference == 2 && rankDifference == 1) return Direction.LShaped;
+            if (fileDifference == 1 && rankDifference == 2) return Direction.LShaped;
+
+            throw new InvalidOperationException("Invalid move direction");
         }
 
         public Move(Piece piece, Square from, Square to, Piece pieceToTake = null)
@@ -145,9 +157,8 @@ namespace RMGChess.Core
             Direction = GetDirection(from, to);
         }
 
-        public Move(string moveAsAlgebra, Board board)
+        protected Move()
         {
-            DecodeAlgebra(moveAsAlgebra, board);
         }
     }
 }

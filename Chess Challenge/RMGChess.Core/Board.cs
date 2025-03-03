@@ -83,14 +83,14 @@
             return validMoves;
         }
 
-        public void MovePiece(Move move)
-        {
-            Position fromPosition = move.From;
-            Position toPosition = move.To;
+        //public void MovePiece(Move move)
+        //{
+        //    Position fromPosition = move.From;
+        //    Position toPosition = move.To;
 
-            Piece removedPiece = this[fromPosition].RemovePiece();
-            this[toPosition].PlacePiece(removedPiece);
-        }
+        //    Piece removedPiece = this[fromPosition].RemovePiece();
+        //    this[toPosition].PlacePiece(removedPiece);
+        //}
 
         public Board Clone()
         {

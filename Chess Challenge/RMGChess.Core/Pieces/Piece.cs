@@ -12,6 +12,7 @@ namespace RMGChess.Core
         public virtual MoveType MoveTypes => MoveType.None;
         public Square Square { get; set; }
         public virtual char Symbol => GetType().Name.ToUpper()[0];
+        public bool HasMoved { get; set; }
 
         public bool IsOpponentOf(Piece piece) => piece != null && piece.Colour != Colour;
 

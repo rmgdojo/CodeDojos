@@ -16,7 +16,7 @@ namespace RMGChess.ConsoleApp
             {
                 Console.Write("Algebra: ");
                 string algebra = Console.ReadLine();
-                Move move = new Move(algebra, game.Board);
+                Move move = Move.DecodeAlgebra(algebra, game.Board, Colour.White);
                 Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}");
             }
 
@@ -39,22 +39,22 @@ namespace RMGChess.ConsoleApp
             Console.ReadLine();
         }
 
-        static int TestGamePiece(Piece piece, Board board)
-        {
-            IEnumerable<Move> validMoves = board.GetValidMoves(piece);
-            if (validMoves != null)
-            {
-                foreach (Move move in validMoves)
-                {
-                    Board cloneBoard = board.Clone();
-                    cloneBoard.MovePiece(move);
-                    Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}) {move.From}:");
-                    WriteBoardStringToConsole(cloneBoard, move.From);
-                }
-            }
+        //static int TestGamePiece(Piece piece, Board board)
+        //{
+        //    IEnumerable<Move> validMoves = board.GetValidMoves(piece);
+        //    if (validMoves != null)
+        //    {
+        //        foreach (Move move in validMoves)
+        //        {
+        //            Board cloneBoard = board.Clone();
+        //            cloneBoard.MovePiece(move);
+        //            Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}) {move.From}:");
+        //            WriteBoardStringToConsole(cloneBoard, move.From);
+        //        }
+        //    }
 
-            return validMoves.Count();
-        }
+        //    return validMoves.Count();
+        //}
 
         static void TestPiece<T>(Colour colour, Board board = null, Position position = null) where T : Piece
         {

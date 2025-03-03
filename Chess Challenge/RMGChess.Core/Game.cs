@@ -20,7 +20,7 @@ namespace RMGChess.Core
 
             if (validMove is not null)
             {
-                _board.MovePiece(validMove);
+                validMove.Execute(_board);
                 return true;
             }
 
