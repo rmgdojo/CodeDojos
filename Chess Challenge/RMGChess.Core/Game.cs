@@ -10,11 +10,6 @@ namespace RMGChess.Core
 
         public Board Board => _board;
 
-        public void Start()
-        {
-            _board = SetupNewBoard();
-        }
-
         public Move LastMoveFor(Colour colour) => Move.DecodeAlgebra(_history[colour].Last(), Board, colour);
 
         public bool MakeMove(Piece piece, Position position)
@@ -74,8 +69,9 @@ namespace RMGChess.Core
             return board;
         }
 
-        private Game()
+        public Game()
         {
+            _board = SetupNewBoard();
         }
     }
 }
