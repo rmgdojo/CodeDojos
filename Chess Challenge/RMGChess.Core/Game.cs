@@ -4,14 +4,13 @@ namespace RMGChess.Core
 {
     public class Game
     {
+        private Dictionary<Colour, List<string>> _history;
+
         private Board _board;
 
         public Board Board => _board;
 
-        public void Start()
-        {
-            _board = SetupNewBoard();
-        }
+        public Move LastMoveFor(Colour colour) => Move.DecodeAlgebra(_history[colour].Last(), Board, colour);
 
         public bool MakeMove(Piece piece, Position position)
         {
@@ -20,22 +19,19 @@ namespace RMGChess.Core
 
             if (validMove is not null)
             {
-                validMove.Execute(_board);
+                _history[piece.Colour].Add(Move.EncodeAlgebra(validMove));
+                validMove.Execute(this);
                 return true;
             }
 
             return false;
         }
 
-        private Position AlgebraToMove(string moveAsAlgebra)
+        public bool MakeMove(string moveAsAlgebra, Colour whoIsMoving)
         {
-            if (moveAsAlgebra.Contains("O-O-O")) return null;
-            moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+');
-
-            Position positionMove = moveAsAlgebra.Substring(moveAsAlgebra.Length - 2);
-            bool isCapture = moveAsAlgebra.Contains("x") || moveAsAlgebra.Contains(":");
-
-            return positionMove;
+            Move.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving)?.Execute(this);
+            _history[whoIsMoving].Add(moveAsAlgebra);
+            return true;
         }
 
         internal Board SetupNewBoard()
@@ -74,7 +70,8 @@ namespace RMGChess.Core
         }
 
         public Game()
-        { 
+        {
+            _board = SetupNewBoard();
         }
     }
 }

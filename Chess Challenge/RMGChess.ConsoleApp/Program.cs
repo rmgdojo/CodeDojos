@@ -10,7 +10,6 @@ namespace RMGChess.ConsoleApp
             int whiteMoves = 0, blackMoves = 0;
 
             Game game = new Game();
-            game.Start();
 
             while (true)
             {

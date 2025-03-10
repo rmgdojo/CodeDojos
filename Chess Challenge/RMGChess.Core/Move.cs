@@ -115,6 +115,53 @@ namespace RMGChess.Core
             return move;
         }
 
+        public static string EncodeAlgebra(Move move)
+        {
+            /*
+             *  e4: A pawn moves from e2 to e4
+                Nf3: A knight moves to f3
+                c5: A pawn moves to c5
+                exd5: A pawn on e4 captures a pawn on d5
+                Nxd5: A knight on f6 captures a pawn on d5
+                Bb5+: A bishop on f1 checks the opponent's king on e8
+                O-O: Castling kingside
+                O-O-O: Castling queenside
+                Bxf5: A bishop captures a piece on f5
+                cxd5: A pawn on the e-file captures a piece on the d-file
+                Qe8: A queen moves to e8
+            */
+
+            if (move is CastlingMove castlingMove)
+            {
+                return castlingMove.Type switch
+                {
+                    CastlingType.Kingside => "O-O",
+                    CastlingType.Queenside => "O-O-O",
+                    _ => throw new InvalidOperationException("Invalid castling type")
+                };
+            }
+
+            StringBuilder algebra = new StringBuilder();
+
+            if (move.Piece is not Pawn)
+            {
+                algebra.Append(move.Piece.Symbol);
+            }
+
+            if (move.TakesPiece)
+            {
+                if (move.Piece is Pawn)
+                {
+                    algebra.Append(move.From.File);
+                }
+                algebra.Append('x');
+            }
+
+            algebra.Append(move.To);
+
+            return algebra.ToString();
+        }
+
         public Piece Piece { get; protected set; }
         public Position From { get; protected set; }
         public Position To { get; protected set; }
@@ -122,8 +169,9 @@ namespace RMGChess.Core
         public bool TakesPiece => PieceToTake is not null;
         public Piece PieceToTake { get; protected set; }
 
-        public virtual void Execute(Board board)
+        public virtual void Execute(Game game)
         {
+            Board board = game.Board;
             Piece pieceToRemove = board[From].Piece;
             if (pieceToRemove != Piece)
             {

@@ -4,8 +4,9 @@
     {
         public CastlingType Type { get; private set; }
 
-        public override void Execute(Board board)
+        public override void Execute(Game game)
         {
+            Board board = game.Board;
             if (Piece.HasMoved)
             {
                 throw new InvalidOperationException("Cannot castle with a king that has moved.");
@@ -17,8 +18,8 @@
             }
 
             Move rookMove = GetRookMove(board);
-            base.Execute(board);
-            rookMove.Execute(board);
+            base.Execute(game);
+            rookMove.Execute(game);
         }
 
         private bool KingPathIsEmpty()
