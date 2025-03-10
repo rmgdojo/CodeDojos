@@ -9,7 +9,7 @@ namespace RMGChess.ConsoleApp
         {
             int whiteMoves = 0, blackMoves = 0;
 
-            Game game = new Game();
+            Game game = Game.Instance;
             game.Start();
 
             while (true)

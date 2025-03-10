@@ -4,6 +4,8 @@ namespace RMGChess.Core
 {
     public class Game
     {
+        private Dictionary<Colour, List<string>> _history;
+
         private Board _board;
 
         public Board Board => _board;
@@ -13,6 +15,9 @@ namespace RMGChess.Core
             _board = SetupNewBoard();
         }
 
+        public Move LastMoveFor(Colour colour) => Move.DecodeAlgebra(_history[colour].Last(), Board, colour);
+        public IEnumerable<string> HistoryFor(Colour colour) => _history[colour];
+
         public bool MakeMove(Piece piece, Position position)
         {
             var validMoves = _board.GetValidMoves(piece);
@@ -20,6 +25,7 @@ namespace RMGChess.Core
 
             if (validMove is not null)
             {
+                _history[piece.Colour].Add(Move.EncodeAlgebra(validMove));
                 validMove.Execute(_board);
                 return true;
             }
@@ -73,8 +79,8 @@ namespace RMGChess.Core
             return board;
         }
 
-        public Game()
-        { 
+        private Game()
+        {
         }
     }
 }
