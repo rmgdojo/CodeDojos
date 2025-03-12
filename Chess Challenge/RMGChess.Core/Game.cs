@@ -13,10 +13,9 @@ namespace RMGChess.Core
         private Board _board;
 
         public Board Board => _board;
-        public IEnumerable<Piece> Pieces => _pieces.Values.SelectMany(p => p);
-        public IEnumerable<Piece> CapturedPieces => _capturedPieces.Values.SelectMany(p => p);
-        public IEnumerable<Piece> WhitePieces => _pieces[Colour.White].AsEnumerable();
-        public IEnumerable<Piece> BlackPieces => _pieces[Colour.Black].AsEnumerable();
+
+        public PieceCollection Pieces => _pieces.Values.SelectMany(p => p).ToPieceCollection();
+        public PieceCollection CapturedPieces => _capturedPieces.Values.SelectMany(p => p).ToPieceCollection();
 
         public Move HistoryFor(Colour colour, int moveNumber) => Algebra.DecodeAlgebra(_history[colour][moveNumber], Board, colour);
         public Move MoveFor(Colour colour, int movesBack) => Algebra.DecodeAlgebra(_history[colour][_history[colour].Count - movesBack], Board, colour);

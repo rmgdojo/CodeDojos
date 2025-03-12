@@ -8,7 +8,7 @@
 
         public Game Game { get; init; }
 
-        public IEnumerable<Piece> Pieces { get; init; }
+        public PieceCollection Pieces { get; init; }
 
         public Square this[Position position] => this[position.File, position.Rank];
 
@@ -26,9 +26,9 @@
             }
         }
 
-        public IEnumerable<Piece> GetAllPiecesThatCanMoveTo(Position position)
+        public PieceCollection GetAllPiecesThatCanMoveTo(Position position)
         {
-            return Pieces.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position)));
+            return Pieces.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position))).ToPieceCollection();
         }
 
         public IEnumerable<Move> GetValidMovesForAllPieces()
