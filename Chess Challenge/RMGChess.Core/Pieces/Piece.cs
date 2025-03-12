@@ -11,6 +11,8 @@ namespace RMGChess.Core
         public virtual int MaxSquares => Board.MAX_DISTANCE;
         public virtual MoveType MoveTypes => MoveType.None;
         public Square Square { get; set; }
+        public Position Position => Square?.Position;
+        public Position Origin { get; set; }
         public virtual char Symbol => GetType().Name.ToUpper()[0];
         public bool HasMoved { get; set; }
 
@@ -41,12 +43,6 @@ namespace RMGChess.Core
             }
 
             return potentialMoves;
-        }
-
-        public Piece Clone()
-        {
-            Piece clonePiece = (Piece)Activator.CreateInstance(GetType(), Colour);
-            return clonePiece;
         }
 
         private IList<Move> GetVerticalMoves()
@@ -93,7 +89,7 @@ namespace RMGChess.Core
                 Square nextSquare = currentSquare.GetNeighbour(direction);
                 if (nextSquare != null && movesSoFar++ < MaxSquares)
                 {
-                    potentialMoves.Add(new Move(this, startingSquare, nextSquare));
+                    potentialMoves.Add(new Move(this, startingSquare.Position, nextSquare.Position));
                     AddMoves(nextSquare, direction, potentialMoves, movesSoFar, startingSquare);
                 }
             }

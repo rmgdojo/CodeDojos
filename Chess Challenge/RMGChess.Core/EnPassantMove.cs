@@ -2,24 +2,55 @@
 {
     public class EnPassantMove : Move
     {
+        public static bool CanEnPassant(Pawn pawn, Direction direction, out Pawn pawnToTake)
+        {
+            Board board = pawn.Square.Board;
+
+            Square left = pawn.Square.Left;
+            Square right = pawn.Square.Right;
+            Square leftDestination = left.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
+            Square rightDestination = right.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
+
+            if (left.IsOccupied && left.Piece.IsOpponentOf(pawn) && left.Piece is Pawn)
+            {
+                // may be able to en passant left
+                if (board.Game.LastMoveFor(left.Piece.Colour).To == leftDestination.Position)
+                {
+                    pawnToTake = left.Piece as Pawn;
+                    return true;
+                }
+            }
+
+            if (right.IsOccupied && right.Piece.IsOpponentOf(pawn) && right.Piece is Pawn)
+            {
+                // may be able to en passant right
+                if (board.Game.LastMoveFor(right.Piece.Colour).To == rightDestination.Position)
+                {
+                    pawnToTake = right.Piece as Pawn;
+                    return true;
+                }
+            }
+
+            pawnToTake = null;
+            return false;
+        }
+
         public override void Execute(Game game)
         {
             Board board = game.Board;
             // check whether we can take the pawn en passant
-            if (Piece is Pawn && !board[To].IsOccupied)
+            if (CanEnPassant(Piece as Pawn, Direction, out Pawn pawnToTake))
             {
-                Piece pawnToTake = Piece.IsWhite ? board[To].Down.Piece : board[To].Up.Piece;
-                if (pawnToTake is Pawn)
+                Colour opponentColour = Piece.IsWhite ? Colour.Black : Colour.White;
+                if (game is not null)
                 {
-                    Colour opponentColour = Piece.IsWhite ? Colour.Black : Colour.White;
-                    if (game is not null)
+                    if (game.LastMoveFor(opponentColour).To == pawnToTake.Square.Position)
                     {
-                        if (game.LastMoveFor(opponentColour).To == pawnToTake.Square.Position)
-                        {
-                            board[pawnToTake.Square.Position].RemovePiece();
-                            base.Execute(game);
-                            return;
-                        }
+                        board[pawnToTake.Square.Position].RemovePiece();
+                        game.HandleCapture(pawnToTake);
+                        
+                        base.Execute(game);
+                        return;
                     }
                 }
             }

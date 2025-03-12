@@ -23,11 +23,6 @@
 
         public Board Board => _board;
 
-        public bool Is(Position position)
-        {
-            return File == position.File && Rank == position.Rank;
-        }
-
         public Square GetNeighbour(Direction direction)
         {
             return direction switch
@@ -44,10 +39,12 @@
             };
         }
 
-        public void PlacePiece(Piece piece)
+        public Piece PlacePiece(Piece piece, bool setOrigin = false)
         {
             Piece = piece;
             piece.Square = this;
+            if (setOrigin) piece.Origin = Position;
+            return piece;
         }
 
         public Piece RemovePiece()

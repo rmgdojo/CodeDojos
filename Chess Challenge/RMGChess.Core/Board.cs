@@ -6,7 +6,9 @@
 
         private Square[,] _squares;
 
-        public IEnumerable<Piece> Pieces => _squares.Cast<Square>().Where(s => s.IsOccupied).Select(s => s.Piece);
+        public Game Game { get; init; }
+
+        public IEnumerable<Piece> Pieces { get; init; }
 
         public Square this[Position position] => this[position.File, position.Rank];
 
@@ -24,16 +26,15 @@
             }
         }
 
+        public IEnumerable<Piece> GetAllPiecesThatCanMoveTo(Position position)
+        {
+            return Pieces.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position)));
+        }
+
         public IEnumerable<Move> GetValidMovesForAllPieces()
         {
             List<Move> validMoves = new();
-            foreach (Piece piece in Pieces)
-            {
-                IEnumerable<Move> validMovesForPiece = GetValidMoves(piece);
-                validMoves.AddRange(validMovesForPiece);
-            }
-
-            return validMoves;
+            return Pieces.SelectMany(p => GetValidMoves(p));
         }
 
         public IEnumerable<Move> GetValidMoves(Piece piece)
@@ -64,48 +65,52 @@
                 }
             }
 
-            // handle cases where a pawn could take a piece diagonally
+            // handle cases where a pawn could take a piece diagonally or en passant
             if (piece is Pawn pawn)
             {
                 Square left = pawn.IsWhite ? pawn.Square.UpLeft : pawn.Square.DownLeft;
                 Square right = pawn.IsWhite ? pawn.Square.UpRight : pawn.Square.DownRight;
 
+                // normal capture
                 if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(piece))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Square, left).Taking(left.Piece));
+                    validMoves.Add(new Move(pawn, pawn.Square.Position, left.Position).Taking(left.Piece));
                 }
                 if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Square, right).Taking(right.Piece));
+                    validMoves.Add(new Move(pawn, pawn.Square.Position, right.Position).Taking(right.Piece));
+                }
+
+                // en passant
+                if (EnPassantMove.CanEnPassant(pawn, Direction.Left, out Pawn pawnToTake))
+                {
+                    validMoves.Add(new EnPassantMove(pawn, pawn.Square.Position, left.Position));
+                }
+
+                if (EnPassantMove.CanEnPassant(pawn, Direction.Right, out pawnToTake))
+                {
+                    validMoves.Add(new EnPassantMove(pawn, pawn.Square.Position, right.Position));
+                }
+            }
+
+            // what about castling?
+            if (piece is King king)
+            {
+                if (CastlingMove.CanCastle(king, Side.Queenside))
+                {
+                    validMoves.Add(new CastlingMove(king, Side.Queenside));
+                }
+
+                if (CastlingMove.CanCastle(king, Side.Kingside))
+                {
+                    validMoves.Add(new CastlingMove(king, Side.Kingside));
                 }
             }
 
             return validMoves;
         }
 
-        //public void MovePiece(Move move)
-        //{
-        //    Position fromPosition = move.From;
-        //    Position toPosition = move.To;
-
-        //    Piece removedPiece = this[fromPosition].RemovePiece();
-        //    this[toPosition].PlacePiece(removedPiece);
-        //}
-
-        public Board Clone()
-        {
-            Board cloneBoard = new();
-            foreach (Piece piece in Pieces)
-            {
-                Piece clonePiece = piece.Clone();
-                Square squareForPiece = cloneBoard[piece.Square.Position];
-                squareForPiece.PlacePiece(clonePiece);
-            }
-
-            return cloneBoard;
-        }
-
-        public Board()
+        public Board(Game game)
         {
             _squares = new Square[8, 8];
             for (char file = 'a'; file <= 'h'; file++)
@@ -115,6 +120,9 @@
                     _squares[file - 'a', rank - 1] = new Square(this, file, rank);
                 }
             }
+
+            Game = game;
+            Pieces = game.Pieces;
         }
     }
 }

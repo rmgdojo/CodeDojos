@@ -15,7 +15,7 @@ namespace RMGChess.ConsoleApp
             {
                 Console.Write("Algebra: ");
                 string algebra = Console.ReadLine();
-                Move move = Move.DecodeAlgebra(algebra, game.Board, Colour.White);
+                Move move = Algebra.DecodeAlgebra(algebra, game.Board, Colour.White);
                 Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}");
             }
 
@@ -29,7 +29,7 @@ namespace RMGChess.ConsoleApp
             //}
 
             WriteBoardStringToConsole(game.Board, "h5");
-            bool moveMade = game.MakeMove(game.Board["h7"].Piece, "h5");
+            bool moveMade = game.Move(game.Board["h7"].Piece, "h5");
             WriteBoardStringToConsole(game.Board, "h5");
 
             //Console.WriteLine($"Total number of valid moves for white: {whiteMoves}");
@@ -94,7 +94,7 @@ namespace RMGChess.ConsoleApp
                             Console.BackgroundColor = ConsoleColor.Black;
                         }
 
-                        if (square.Is(highlight))
+                        if (square.Position.Equals(highlight))
                         {
                             if (square.Piece.Colour == Colour.Black)
                             {

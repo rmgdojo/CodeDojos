@@ -5,6 +5,8 @@
         public char File { get; }
         public int Rank { get; }
 
+        public Side Side => File switch { < 'e' => Side.Queenside, >= 'e' => Side.Kingside };
+
         public void Deconstruct(out char File, out int Rank)
         {
             File = this.File;

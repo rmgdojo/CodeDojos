@@ -27,7 +27,7 @@ namespace RMGChess.Core
                     Square newSquare = Square.Board[newFile, newRank];
                     if (newSquare != null && (!newSquare.IsOccupied || newSquare.Piece.Colour != this.Colour))
                     {
-                        validMoves.Add(new Move(this, Square, newSquare));
+                        validMoves.Add(new Move(this, Square.Position, newSquare.Position));
                     }
                 }
             }

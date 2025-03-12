@@ -1,6 +1,6 @@
 ﻿namespace RMGChess.Core
 {
-    public enum CastlingType
+    public enum Side
     {
         Kingside,
         Queenside,

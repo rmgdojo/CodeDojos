@@ -1,38 +1,38 @@
-﻿namespace RMGChess.Core
+﻿using System.Drawing;
+using System.Net.NetworkInformation;
+
+namespace RMGChess.Core
 {
     public class CastlingMove : Move
     {
-        public CastlingType Type { get; private set; }
-
-        public override void Execute(Game game)
+        public static bool CanCastle(King king, Side side)
         {
-            Board board = game.Board;
-            if (Piece.HasMoved)
+            Rook rook = GetMovingRook(king, side);
+
+            if (king is null || rook is null || king.HasMoved || rook.HasMoved)
             {
-                throw new InvalidOperationException("Cannot castle with a king that has moved.");
+                return false;
             }
 
-            if (!KingPathIsEmpty())
+            if (!KingPathIsEmpty(king, side))
             {
-                throw new InvalidOperationException("Cannot castle through occupied squares.");
+                return false;
             }
 
-            Move rookMove = GetRookMove(board);
-            base.Execute(game);
-            rookMove.Execute(game);
+            return true;
         }
 
-        private bool KingPathIsEmpty()
+        private static bool KingPathIsEmpty(King king, Side side)
         {
             bool squaresAreEmpty = false;
-            Square kingSquare = Piece.Square;
-            switch (Type)
+            Square kingSquare = king.Square;
+            switch (side)
             {
-                case CastlingType.Kingside:
+                case Side.Kingside:
                     squaresAreEmpty = kingSquare.Right.IsOccupied || kingSquare.Right.Right.IsOccupied;
                     break;
 
-                case CastlingType.Queenside:
+                case Side.Queenside:
                     squaresAreEmpty = kingSquare.Left.IsOccupied || kingSquare.Left.Left.IsOccupied || kingSquare.Left.Left.Left.IsOccupied;
                     break;
             }
@@ -40,41 +40,68 @@
             return squaresAreEmpty;
         }
 
-        private Move GetRookMove(Board board)
+        private static Rook GetMovingRook(King king, Side side)
         {
-            string rookSquare = Type switch
+            string rookSquare = side switch
             {
-                CastlingType.Kingside => Piece.IsWhite ? "h1" : "h8",
-                CastlingType.Queenside => Piece.IsWhite ? "a1" : "a8",
+                Side.Kingside => king.IsWhite ? "h1" : "h8",
+                Side.Queenside => king.IsWhite ? "a1" : "a8",
                 _ => throw new InvalidOperationException("Invalid castling type")
             };
 
-            Piece rook = board[rookSquare].Piece;
-            if (rook is null || rook is not Rook || rook.HasMoved)
+            return king.Square.Board[rookSquare].Piece as Rook;
+        }
+
+        public Side Side { get; private set; }
+
+        public override void Execute(Game game)
+        {
+            Board board = game.Board;
+            King king = Piece as King;
+            Rook rook = GetMovingRook(king, Side) as Rook;
+
+            if (Piece.HasMoved)
+            {
+                throw new InvalidOperationException("Cannot castle with a king that has moved.");
+            }
+
+            if (!CanCastle(king, Side))
+            {
+                throw new InvalidOperationException("Cannot castle through occupied squares.");
+            }
+
+            Move rookMove = GetRookMove(rook);
+            base.Execute(game);
+            rookMove.Execute(game);
+        }
+
+        private Move GetRookMove(Rook rook)
+        {
+            if (rook is null || rook.HasMoved)
             {
                 throw new InvalidOperationException("Cannot castle with a rook that has moved.");
             }
 
             // identify position that the rook will move to
-            Position rookTo = Type switch
+            Position rookTo = Side switch
             {
-                CastlingType.Kingside => Piece.IsWhite ? new Position('f', 1) : new Position('f', 8),
-                CastlingType.Queenside => Piece.IsWhite ? new Position('d', 1) : new Position('d', 8),
+                Side.Kingside => Piece.IsWhite ? new Position('f', 1) : new Position('f', 8),
+                Side.Queenside => Piece.IsWhite ? new Position('d', 1) : new Position('d', 8),
                 _ => throw new InvalidOperationException("Invalid castling type")
             };
             
             return new Move(rook, rook.Square.Position, rookTo);
         }
 
-        public CastlingMove(King king, CastlingType type)
+        public CastlingMove(King king, Side type)
         {
             Piece = king;
-            Type = type;
+            Side = type;
             From = king.Square.Position;
             To = type switch
             {
-                CastlingType.Kingside => king.IsWhite ? new Position('g', 1) : new Position('g', 8),
-                CastlingType.Queenside => king.IsWhite ? new Position('c', 1) : new Position('c', 8),
+                Side.Kingside => king.IsWhite ? new Position('g', 1) : new Position('g', 8),
+                Side.Queenside => king.IsWhite ? new Position('c', 1) : new Position('c', 8),
                 _ => throw new InvalidOperationException("Invalid castling type")
             };
             Direction = GetDirection(From, To);
