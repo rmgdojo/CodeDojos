@@ -18,7 +18,8 @@ namespace RMGChess.Core
         public IEnumerable<Piece> WhitePieces => _pieces[Colour.White].AsEnumerable();
         public IEnumerable<Piece> BlackPieces => _pieces[Colour.Black].AsEnumerable();
 
-        public Move MoveFor(Colour colour, int moveNumber) => Algebra.DecodeAlgebra(_history[colour][moveNumber], Board, colour);
+        public Move HistoryFor(Colour colour, int moveNumber) => Algebra.DecodeAlgebra(_history[colour][moveNumber], Board, colour);
+        public Move MoveFor(Colour colour, int movesBack) => Algebra.DecodeAlgebra(_history[colour][_history[colour].Count - movesBack], Board, colour);
         public Move LastMoveFor(Colour colour) => Algebra.DecodeAlgebra(_history[colour].Last(), Board, colour);
 
         public bool Move(Piece piece, Position position)

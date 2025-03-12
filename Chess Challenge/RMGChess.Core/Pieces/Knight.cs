@@ -27,7 +27,7 @@ namespace RMGChess.Core
                     Square newSquare = Square.Board[newFile, newRank];
                     if (newSquare != null && (!newSquare.IsOccupied || newSquare.Piece.Colour != this.Colour))
                     {
-                        validMoves.Add(new Move(this, Square.Position, newSquare.Position));
+                        validMoves.Add(new Move(this, Position, newSquare.Position));
                     }
                 }
             }
@@ -35,7 +35,7 @@ namespace RMGChess.Core
             return validMoves;
         }
 
-        public Knight(Colour colour) : base(colour)
+        internal Knight(Colour colour) : base(colour)
         {
         }
     }

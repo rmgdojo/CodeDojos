@@ -74,22 +74,22 @@
                 // normal capture
                 if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(piece))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Square.Position, left.Position).Taking(left.Piece));
+                    validMoves.Add(new Move(pawn, pawn.Position, left.Position).Taking(left.Piece));
                 }
                 if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Square.Position, right.Position).Taking(right.Piece));
+                    validMoves.Add(new Move(pawn, pawn.Position, right.Position).Taking(right.Piece));
                 }
 
                 // en passant
                 if (EnPassantMove.CanEnPassant(pawn, Direction.Left, out Pawn pawnToTake))
                 {
-                    validMoves.Add(new EnPassantMove(pawn, pawn.Square.Position, left.Position));
+                    validMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
                 }
 
                 if (EnPassantMove.CanEnPassant(pawn, Direction.Right, out pawnToTake))
                 {
-                    validMoves.Add(new EnPassantMove(pawn, pawn.Square.Position, right.Position));
+                    validMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
                 }
             }
 

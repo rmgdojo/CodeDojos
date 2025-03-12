@@ -10,10 +10,10 @@ namespace RMGChess.Core
         public virtual int Value => 0;
         public virtual int MaxSquares => Board.MAX_DISTANCE;
         public virtual MoveType MoveTypes => MoveType.None;
-        public Square Square { get; set; }
+        public Square Square { get; internal set; }
         public Position Position => Square?.Position;
-        public Position Origin { get; set; }
-        public virtual char Symbol => GetType().Name.ToUpper()[0];
+        public Position Origin { get; internal set; }
+        public virtual char Symbol { get; init; }
         public bool HasMoved { get; set; }
 
         public bool IsOpponentOf(Piece piece) => piece != null && piece.Colour != Colour;
@@ -97,9 +97,10 @@ namespace RMGChess.Core
 
         public override string ToString() => $"{(Colour == Colour.White ? "W" : "B")}{Symbol}";
 
-        public Piece(Colour colour)
+        internal Piece(Colour colour)
         {
             Colour = colour;
+            Symbol = GetType().Name.ToUpper()[0];
         }
     }
 }

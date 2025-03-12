@@ -86,7 +86,7 @@ namespace RMGChess.Core
                     throw new InvalidOperationException("Algebra cannot be parsed.");
                 }
 
-                move = new(piece, piece.Square.Position, to, takesPiece ? board[to].Piece : null);
+                move = new(piece, piece.Position, to, takesPiece ? board[to].Piece : null);
             }
             else
             {

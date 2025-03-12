@@ -44,9 +44,9 @@
                 Colour opponentColour = Piece.IsWhite ? Colour.Black : Colour.White;
                 if (game is not null)
                 {
-                    if (game.LastMoveFor(opponentColour).To == pawnToTake.Square.Position)
+                    if (game.LastMoveFor(opponentColour).To == pawnToTake.Position)
                     {
-                        board[pawnToTake.Square.Position].RemovePiece();
+                        board[pawnToTake.Position].RemovePiece();
                         game.HandleCapture(pawnToTake);
                         
                         base.Execute(game);

@@ -22,18 +22,18 @@ namespace RMGChess.Core
 
             if (first is not null) 
             {
-                potentialMoves.Add(new Move(this, Square.Position, first.Position));
+                potentialMoves.Add(new Move(this, Position, first.Position));
                 if (onStartSquare && second is not null)
                 {
                     // could move two squares
-                    potentialMoves.Add(new Move(this, Square.Position, second.Position));
+                    potentialMoves.Add(new Move(this, Position, second.Position));
                 }
             }
 
             return potentialMoves;
         }
 
-        public Pawn(Colour colour) : base(colour)
+        internal Pawn(Colour colour) : base(colour)
         {
         }
     }

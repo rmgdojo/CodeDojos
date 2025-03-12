@@ -90,14 +90,14 @@ namespace RMGChess.Core
                 _ => throw new InvalidOperationException("Invalid castling type")
             };
             
-            return new Move(rook, rook.Square.Position, rookTo);
+            return new Move(rook, rook.Position, rookTo);
         }
 
         public CastlingMove(King king, Side type)
         {
             Piece = king;
             Side = type;
-            From = king.Square.Position;
+            From = king.Position;
             To = type switch
             {
                 Side.Kingside => king.IsWhite ? new Position('g', 1) : new Position('g', 8),
