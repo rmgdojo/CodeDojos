@@ -43,15 +43,16 @@ namespace RMGChess.Core
                 }
 
                 char pieceSymbol = char.ToUpper(moveAsAlgebra[0]);
+                bool hasSymbol = "RNBQK".Contains(pieceSymbol);
                 var pieces = validMoves.Where(m => m.To.Equals(to)).Select(m => m.Piece); // all pieces that *can* move to the target square
-                if (pieces.Count() == 1)
+                if (pieces.Count() == 1 && !hasSymbol)
                 {
                     piece = pieces.First(); // got it in one
                 }
                 else
                 {
                     // we need the notation to identify the piece
-                    if (pieceSymbol == 'R' || pieceSymbol == 'N' || pieceSymbol == 'B' || pieceSymbol == 'Q' || pieceSymbol == 'K')
+                    if (hasSymbol)
                     {
                         pieces = pieces.Where(p => p.Symbol == pieceSymbol);
                         if (pieces.Count() == 1)
@@ -83,14 +84,14 @@ namespace RMGChess.Core
                 if (piece is null)
                 {
                     // oh well, we tried
-                    throw new InvalidOperationException("Algebra cannot be parsed.");
+                    throw new InvalidOperationException("Algebra cannot be parsed or move is invalid.");
                 }
 
                 move = new(piece, piece.Position, to, takesPiece ? board[to].Piece : null);
             }
             else
             {
-                King king = board.Pieces.First(p => p is King && p.Colour == whoIsMoving) as King;
+                King king = board.Game.Pieces.First(p => p is King && p.Colour == whoIsMoving) as King;
                 move = new CastlingMove(king, castlingType);
             }
 

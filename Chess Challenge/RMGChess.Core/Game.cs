@@ -36,6 +36,13 @@ namespace RMGChess.Core
             return false;
         }
 
+        public bool Move(Move move)
+        {
+            move.Execute(this);
+            _history[move.Piece.Colour].Add(Algebra.EncodeAlgebra(move, _board));
+            return true;
+        }
+
         public bool Move(string moveAsAlgebra, Colour whoIsMoving)
         {
             Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving)?.Execute(this);
@@ -64,7 +71,7 @@ namespace RMGChess.Core
             _pieces[Colour.White].Add(board['h', 1].PlacePiece(new Rook(Colour.White), true));
             for (char file = 'a'; file <= 'h'; file++)
             {
-                board[file, 2].PlacePiece(new Pawn(Colour.White), true);
+                _pieces[Colour.White].Add(board[file, 2].PlacePiece(new Pawn(Colour.White), true));
             }
 
             // Place black pieces
@@ -78,7 +85,7 @@ namespace RMGChess.Core
             _pieces[Colour.Black].Add(board['h', 8].PlacePiece(new Rook(Colour.Black), true));
             for (char file = 'a'; file <= 'h'; file++)
             {
-                board[file, 7].PlacePiece(new Pawn(Colour.Black), true);
+                _pieces[Colour.Black].Add(board[file, 7].PlacePiece(new Pawn(Colour.Black), true));
             }
 
             return board;
@@ -86,10 +93,11 @@ namespace RMGChess.Core
 
         public Game()
         {
-            _board = SetupNewBoard();
             _history = new Dictionary<Colour, List<string>>() {{ Colour.White, new List<string>() }, { Colour.Black, new List<string>() }};
             _pieces = new Dictionary<Colour, List<Piece>>() { { Colour.White, new List<Piece>() }, { Colour.Black, new List<Piece>() } };
             _capturedPieces = new Dictionary<Colour, List<Piece>>() { { Colour.White, new List<Piece>() }, { Colour.Black, new List<Piece>() } };
+
+            _board = SetupNewBoard();
         }
     }
 }

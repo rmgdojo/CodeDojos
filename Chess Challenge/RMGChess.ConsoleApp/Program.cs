@@ -13,10 +13,23 @@ namespace RMGChess.ConsoleApp
 
             while (true)
             {
+                WriteBoardStringToConsole(game.Board, null);
+
                 Console.Write("Algebra: ");
                 string algebra = Console.ReadLine();
-                Move move = Algebra.DecodeAlgebra(algebra, game.Board, Colour.White);
-                Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}");
+                try
+                {
+
+                    Move move = Algebra.DecodeAlgebra(algebra, game.Board, Colour.White);
+                    Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}");
+                    Console.WriteLine($"Move converts to algebra: {Algebra.EncodeAlgebra(move, game.Board)}");
+
+                    game.Move(move);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Console.WriteLine($"Move is invalid ({ex.Message})");
+                }
             }
 
             //foreach (Piece piece in game.Board.Pieces.Where(x => x.IsWhite))

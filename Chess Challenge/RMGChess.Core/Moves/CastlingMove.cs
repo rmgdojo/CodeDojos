@@ -14,7 +14,7 @@ namespace RMGChess.Core
                 return false;
             }
 
-            if (!KingPathIsEmpty(king, side))
+            if (KingPathIsBlocked(king, side))
             {
                 return false;
             }
@@ -22,22 +22,22 @@ namespace RMGChess.Core
             return true;
         }
 
-        private static bool KingPathIsEmpty(King king, Side side)
+        private static bool KingPathIsBlocked(King king, Side side)
         {
-            bool squaresAreEmpty = false;
+            bool squareIsOccupied = false;
             Square kingSquare = king.Square;
             switch (side)
             {
                 case Side.Kingside:
-                    squaresAreEmpty = kingSquare.Right.IsOccupied || kingSquare.Right.Right.IsOccupied;
+                    squareIsOccupied = kingSquare.Right.IsOccupied || kingSquare.Right.Right.IsOccupied;
                     break;
 
                 case Side.Queenside:
-                    squaresAreEmpty = kingSquare.Left.IsOccupied || kingSquare.Left.Left.IsOccupied || kingSquare.Left.Left.Left.IsOccupied;
+                    squareIsOccupied = kingSquare.Left.IsOccupied || kingSquare.Left.Left.IsOccupied || kingSquare.Left.Left.Left.IsOccupied;
                     break;
             }
 
-            return squaresAreEmpty;
+            return squareIsOccupied;
         }
 
         private static Rook GetMovingRook(King king, Side side)

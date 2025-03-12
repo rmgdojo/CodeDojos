@@ -8,8 +8,6 @@
 
         public Game Game { get; init; }
 
-        public PieceCollection Pieces { get; init; }
-
         public Square this[Position position] => this[position.File, position.Rank];
 
         public Square this[char file, int rank]
@@ -28,13 +26,13 @@
 
         public PieceCollection GetAllPiecesThatCanMoveTo(Position position)
         {
-            return Pieces.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position))).ToPieceCollection();
+            return Game.Pieces.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position))).ToPieceCollection();
         }
 
         public IEnumerable<Move> GetValidMovesForAllPieces()
         {
             List<Move> validMoves = new();
-            return Pieces.SelectMany(p => GetValidMoves(p));
+            return Game.Pieces.SelectMany(p => GetValidMoves(p));
         }
 
         public IEnumerable<Move> GetValidMoves(Piece piece)
@@ -122,7 +120,6 @@
             }
 
             Game = game;
-            Pieces = game.Pieces;
         }
     }
 }

@@ -8,23 +8,23 @@
 
             Square left = pawn.Square.Left;
             Square right = pawn.Square.Right;
-            Square leftDestination = left.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
-            Square rightDestination = right.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
+            Square leftDestination = left?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
+            Square rightDestination = right?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
 
-            if (left.IsOccupied && left.Piece.IsOpponentOf(pawn) && left.Piece is Pawn)
+            if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(pawn) && left.Piece is Pawn)
             {
                 // may be able to en passant left
-                if (board.Game.LastMoveFor(left.Piece.Colour).To == leftDestination.Position)
+                if (leftDestination is not null && board.Game.LastMoveFor(left.Piece.Colour).To == leftDestination.Position)
                 {
                     pawnToTake = left.Piece as Pawn;
                     return true;
                 }
             }
 
-            if (right.IsOccupied && right.Piece.IsOpponentOf(pawn) && right.Piece is Pawn)
+            if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(pawn) && right.Piece is Pawn)
             {
                 // may be able to en passant right
-                if (board.Game.LastMoveFor(right.Piece.Colour).To == rightDestination.Position)
+                if (rightDestination is not null && board.Game.LastMoveFor(right.Piece.Colour).To == rightDestination.Position)
                 {
                     pawnToTake = right.Piece as Pawn;
                     return true;

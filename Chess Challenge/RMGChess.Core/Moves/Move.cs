@@ -7,8 +7,6 @@ namespace RMGChess.Core
 {
     public class Move
     {
-        private string _algebra;
-
         public Piece Piece { get; protected set; }
         public Position From { get; protected set; }
         public Position To { get; protected set; }
@@ -42,7 +40,7 @@ namespace RMGChess.Core
 
         public override string ToString()
         {
-            return _algebra;
+            return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{To}"; // always use full form for this
         }
 
         protected Direction GetDirection(Position from, Position to)
@@ -71,8 +69,6 @@ namespace RMGChess.Core
             To = to;
             PieceToTake = pieceToTake;
             Direction = GetDirection(from, to);
-
-            _algebra = Algebra.EncodeAlgebra(this, piece.Square.Board);
         }
 
         protected Move()
