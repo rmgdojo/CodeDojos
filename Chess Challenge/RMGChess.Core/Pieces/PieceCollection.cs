@@ -4,8 +4,8 @@ namespace RMGChess.Core
 {
     public class PieceCollection : ReadOnlyCollection<Piece>
     {
-        public PieceCollection White => this.Where(p => p.IsWhite).ToPieceCollection();
-        public PieceCollection Black => this.Where(p => p.IsBlack).ToPieceCollection();
+        public PieceCollection White => this.All(p => p.IsWhite) ? this : this.Where(p => p.IsWhite).ToPieceCollection();
+        public PieceCollection Black => this.All(p => p.IsBlack) ? this : this.Where(p => p.IsBlack).ToPieceCollection();
 
         public PieceCollection(IEnumerable<Piece> pieces) : base(pieces.ToList()) { }   
     }

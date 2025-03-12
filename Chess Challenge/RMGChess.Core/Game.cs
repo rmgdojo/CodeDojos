@@ -14,8 +14,8 @@ namespace RMGChess.Core
 
         public Board Board => _board;
 
-        public PieceCollection Pieces => _pieces.Values.SelectMany(p => p).ToPieceCollection();
-        public PieceCollection CapturedPieces => _capturedPieces.Values.SelectMany(p => p).ToPieceCollection();
+        public PieceCollection Pieces => _pieces.Values.SelectMany(p => p).ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
+        public PieceCollection CapturedPieces => _capturedPieces.Values.SelectMany(p => p).ToPieceCollection(); // ditto
 
         public Move HistoryFor(Colour colour, int moveNumber) => Algebra.DecodeAlgebra(_history[colour][moveNumber], Board, colour);
         public Move MoveFor(Colour colour, int movesBack) => Algebra.DecodeAlgebra(_history[colour][_history[colour].Count - movesBack], Board, colour);
