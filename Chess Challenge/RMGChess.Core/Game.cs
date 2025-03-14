@@ -14,7 +14,7 @@ namespace RMGChess.Core
 
         public Board Board => _board;
 
-        public PieceCollection Pieces => _pieces.ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
+        public PieceCollection PiecesInPlay => _pieces.ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
         public PieceCollection CapturedPieces => _capturedPieces.ToPieceCollection(); // ditto
 
         public Move HistoryFor(Colour colour, int moveNumber) => _history[colour][moveNumber];
@@ -43,39 +43,41 @@ namespace RMGChess.Core
             _pieces.Remove(piece);
         }
 
-        internal Board SetupNewBoard()
+        internal void SetupNewBoard()
         {
-            Board board = new Board(this);
-
-            // Place white pieces
-            _pieces.Add(board['a', 1].PlacePiece(new Rook(Colour.White), true));
-            _pieces.Add(board['b', 1].PlacePiece(new Knight(Colour.White), true));
-            _pieces.Add(board['c', 1].PlacePiece(new Bishop(Colour.White), true));
-            _pieces.Add(board['d', 1].PlacePiece(new Queen(Colour.White), true));
-            _pieces.Add(board['e', 1].PlacePiece(new King(Colour.White), true));
-            _pieces.Add(board['f', 1].PlacePiece(new Bishop(Colour.White), true));
-            _pieces.Add(board['g', 1].PlacePiece(new Knight(Colour.White), true));
-            _pieces.Add(board['h', 1].PlacePiece(new Rook(Colour.White), true));
+            // Set up white pieces
+            SetupPiece("a1", new Rook(Colour.White));
+            SetupPiece("b1", new Knight(Colour.White));
+            SetupPiece("c1", new Bishop(Colour.White));
+            SetupPiece("d1", new Queen(Colour.White));
+            SetupPiece("e1", new King(Colour.White));
+            SetupPiece("f1", new Bishop(Colour.White));
+            SetupPiece("g1", new Knight(Colour.White));
+            SetupPiece("h1", new Rook(Colour.White));
             for (char file = 'a'; file <= 'h'; file++)
             {
-                _pieces.Add(board[file, 2].PlacePiece(new Pawn(Colour.White), true));
+                SetupPiece((file, 2), new Pawn(Colour.White));
             }
 
-            // Place black pieces
-            _pieces.Add(board['a', 8].PlacePiece(new Rook(Colour.Black), true));
-            _pieces.Add(board['b', 8].PlacePiece(new Knight(Colour.Black), true));
-            _pieces.Add(board['c', 8].PlacePiece(new Bishop(Colour.Black), true));
-            _pieces.Add(board['d', 8].PlacePiece(new Queen(Colour.Black), true));
-            _pieces.Add(board['e', 8].PlacePiece(new King(Colour.Black), true));
-            _pieces.Add(board['f', 8].PlacePiece(new Bishop(Colour.Black), true));
-            _pieces.Add(board['g', 8].PlacePiece(new Knight(Colour.Black), true));
-            _pieces.Add(board['h', 8].PlacePiece(new Rook(Colour.Black), true));
+            // Set up black pieces
+            SetupPiece("a8", new Rook(Colour.Black));
+            SetupPiece("b8", new Knight(Colour.Black));
+            SetupPiece("c8", new Bishop(Colour.Black));
+            SetupPiece("d8", new Queen(Colour.Black));
+            SetupPiece("e8", new King(Colour.Black));
+            SetupPiece("f8", new Bishop(Colour.Black));
+            SetupPiece("g8", new Knight(Colour.Black));
+            SetupPiece("h8", new Rook(Colour.Black));
             for (char file = 'a'; file <= 'h'; file++)
             {
-                _pieces.Add(board[file, 7].PlacePiece(new Pawn(Colour.Black), true));
+                SetupPiece((file, 7), new Pawn(Colour.Black));
             }
+        }
 
-            return board;
+        private void SetupPiece(Position position, Piece piece)
+        {
+            _board[position].SetupPiece(piece);
+            _pieces.Add(piece);
         }
 
         public Game()
@@ -84,7 +86,8 @@ namespace RMGChess.Core
             _pieces = new List<Piece>();
             _capturedPieces = new List<Piece>();
 
-            _board = SetupNewBoard();
+            _board = new Board(this);
+            SetupNewBoard();
         }
     }
 }

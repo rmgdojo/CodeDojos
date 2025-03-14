@@ -26,13 +26,13 @@
 
         internal PieceCollection GetAllPiecesThatCanMoveTo(Position position)
         {
-            return Game.Pieces.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position))).ToPieceCollection();
+            return Game.PiecesInPlay.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position))).ToPieceCollection();
         }
 
         internal IEnumerable<Move> GetValidMovesForAllPieces()
         {
             List<Move> validMoves = new();
-            return Game.Pieces.SelectMany(p => GetValidMoves(p));
+            return Game.PiecesInPlay.SelectMany(p => GetValidMoves(p));
         }
 
         internal IEnumerable<Move> GetValidMoves(Piece piece)

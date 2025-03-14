@@ -90,7 +90,7 @@ namespace RMGChess.Core
             }
             else
             {
-                King king = board.Game.Pieces.First(p => p is King && p.Colour == whoIsMoving) as King;
+                King king = board.Game.PiecesInPlay.First(p => p is King && p.Colour == whoIsMoving) as King;
                 move = new CastlingMove(king, castlingType);
             }
 

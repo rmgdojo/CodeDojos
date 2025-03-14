@@ -44,5 +44,10 @@
         {
             return new Position(position[0], position[1] - '0');
         }
+
+        public static implicit operator Position((char file, int rank) position)
+        {
+            return new Position(position.file, position.rank);
+        }
     }
 }

@@ -38,12 +38,17 @@
             };
         }
 
-        internal Piece PlacePiece(Piece piece, bool setOrigin = false)
+        internal void SetupPiece(Piece piece)
         {
             Piece = piece;
             piece.Square = this;
-            if (setOrigin) piece.Origin = Position;
-            return piece;
+            piece.Origin = Position;
+        }
+
+        internal void PlacePiece(Piece piece)
+        {
+            Piece = piece;
+            piece.Square = this;
         }
 
         internal Piece RemovePiece()
