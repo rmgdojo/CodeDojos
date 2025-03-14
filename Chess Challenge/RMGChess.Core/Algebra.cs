@@ -100,10 +100,10 @@ namespace RMGChess.Core
         public static string EncodeAlgebra(Move move, Board board)
         {
             Piece piece = move.Piece;
-            Position to = move.To;
+            Position destination = move.To;
 
             bool isPawn = piece is Pawn;
-            var pieces = board.GetAllPiecesThatCanMoveTo(to).OfSameTypeAs(piece);
+            var pieces = board.GetAllPiecesThatCanMoveTo(destination).OfSameTypeAs(piece);
             int piecesCount = pieces.Count();
             bool moreThanOnePawn = isPawn && piecesCount > 1;
             bool allOnOneFile = pieces.All(p => p.Position.File == piece.Position.File);
