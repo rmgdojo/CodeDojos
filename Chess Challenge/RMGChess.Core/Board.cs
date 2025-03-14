@@ -24,18 +24,18 @@
             }
         }
 
-        public PieceCollection GetAllPiecesThatCanMoveTo(Position position)
+        internal PieceCollection GetAllPiecesThatCanMoveTo(Position position)
         {
             return Game.Pieces.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position))).ToPieceCollection();
         }
 
-        public IEnumerable<Move> GetValidMovesForAllPieces()
+        internal IEnumerable<Move> GetValidMovesForAllPieces()
         {
             List<Move> validMoves = new();
             return Game.Pieces.SelectMany(p => GetValidMoves(p));
         }
 
-        public IEnumerable<Move> GetValidMoves(Piece piece)
+        internal IEnumerable<Move> GetValidMoves(Piece piece)
         {
             List<Move> validMoves = new();
             IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();

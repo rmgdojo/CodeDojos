@@ -14,16 +14,6 @@ namespace RMGChess.Core
                 return false;
             }
 
-            if (KingPathIsBlocked(king, side))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool KingPathIsBlocked(King king, Side side)
-        {
             bool squareIsOccupied = false;
             Square kingSquare = king.Square;
             switch (side)
@@ -37,7 +27,12 @@ namespace RMGChess.Core
                     break;
             }
 
-            return squareIsOccupied;
+            if (squareIsOccupied)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static Rook GetMovingRook(King king, Side side)
@@ -46,7 +41,7 @@ namespace RMGChess.Core
             {
                 Side.Kingside => king.IsWhite ? "h1" : "h8",
                 Side.Queenside => king.IsWhite ? "a1" : "a8",
-                _ => throw new InvalidOperationException("Invalid castling type")
+                _ => throw new ShouldNeverHappenException("Invalid castling side.")
             };
 
             return king.Square.Board[rookSquare].Piece as Rook;
@@ -54,7 +49,7 @@ namespace RMGChess.Core
 
         public Side Side { get; private set; }
 
-        public override void Execute(Game game)
+        internal override void Execute(Game game)
         {
             Board board = game.Board;
             King king = Piece as King;
@@ -62,24 +57,17 @@ namespace RMGChess.Core
 
             if (Piece.HasMoved)
             {
-                throw new InvalidOperationException("Cannot castle with a king that has moved.");
+                throw new InvalidMoveException("Cannot castle with a king that has moved.");
             }
 
             if (!CanCastle(king, Side))
             {
-                throw new InvalidOperationException("Cannot castle through occupied squares.");
+                throw new InvalidMoveException("Cannot castle through occupied squares.");
             }
 
-            Move rookMove = GetRookMove(rook);
-            base.Execute(game);
-            rookMove.Execute(game);
-        }
-
-        private Move GetRookMove(Rook rook)
-        {
             if (rook is null || rook.HasMoved)
             {
-                throw new InvalidOperationException("Cannot castle with a rook that has moved.");
+                throw new InvalidMoveException("Cannot castle with a rook that has moved.");
             }
 
             // identify position that the rook will move to
@@ -87,10 +75,13 @@ namespace RMGChess.Core
             {
                 Side.Kingside => Piece.IsWhite ? new Position('f', 1) : new Position('f', 8),
                 Side.Queenside => Piece.IsWhite ? new Position('d', 1) : new Position('d', 8),
-                _ => throw new InvalidOperationException("Invalid castling type")
+                _ => throw new ShouldNeverHappenException("Invalid castling side.")
             };
-            
-            return new Move(rook, rook.Position, rookTo);
+
+            Move rookMove = new Move(rook, rook.Position, rookTo);
+
+            base.Execute(game);
+            rookMove.Execute(game);
         }
 
         public CastlingMove(King king, Side type)
@@ -102,7 +93,7 @@ namespace RMGChess.Core
             {
                 Side.Kingside => king.IsWhite ? new Position('g', 1) : new Position('g', 8),
                 Side.Queenside => king.IsWhite ? new Position('c', 1) : new Position('c', 8),
-                _ => throw new InvalidOperationException("Invalid castling type")
+                _ => throw new ShouldNeverHappenException("Invalid castling side.")
             };
             Direction = GetDirection(From, To);
         }

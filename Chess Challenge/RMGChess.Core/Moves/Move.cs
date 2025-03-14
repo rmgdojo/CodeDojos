@@ -13,14 +13,18 @@ namespace RMGChess.Core
         public Direction Direction { get; protected set; }
         public bool TakesPiece => PieceToTake is not null;
         public Piece PieceToTake { get; protected set; }
+        public override string ToString()
+        {
+            return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{To}"; // always use full form for this
+        }
 
-        public virtual void Execute(Game game)
+        internal virtual void Execute(Game game)
         {
             Board board = game.Board;
             Piece pieceToRemove = board[From].Piece;
             if (pieceToRemove != Piece)
             {
-                throw new InvalidOperationException("Invalid move state: Piece to move does not match the piece on the board.");
+                throw new InvalidMoveException("Invalid move state: Piece to move does not match the piece on the board.");
             }
 
             Piece.HasMoved = true;
@@ -33,14 +37,9 @@ namespace RMGChess.Core
             board[To].PlacePiece(Piece);
         }
 
-        public Move Taking(Piece piece)
+        internal Move Taking(Piece piece)
         {
             return new Move(Piece, From, To, piece);
-        }
-
-        public override string ToString()
-        {
-            return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{To}"; // always use full form for this
         }
 
         protected Direction GetDirection(Position from, Position to)
@@ -59,7 +58,7 @@ namespace RMGChess.Core
             if (fileDifference == 2 && rankDifference == 1) return Direction.LShaped;
             if (fileDifference == 1 && rankDifference == 2) return Direction.LShaped;
 
-            throw new InvalidOperationException("Invalid move direction");
+            throw new ChessException("Invalid move direction");
         }
 
         public Move(Piece piece, Position from, Position to, Piece pieceToTake = null)

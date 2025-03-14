@@ -35,7 +35,7 @@
             return false;
         }
 
-        public override void Execute(Game game)
+        internal override void Execute(Game game)
         {
             Board board = game.Board;
             // check whether we can take the pawn en passant
@@ -55,7 +55,7 @@
                 }
             }
                 
-            throw new InvalidOperationException("Invalid en passant move.");
+            throw new InvalidMoveException("Invalid en passant move.");
         }
 
         public EnPassantMove(Piece piece, Position from, Position to) : base(piece, from, to)

@@ -1,4 +1,5 @@
 ﻿using RMGChess.Core;
+using System.Drawing;
 //using System.IO.Pipelines;
 
 namespace RMGChess.ConsoleApp
@@ -7,82 +8,36 @@ namespace RMGChess.ConsoleApp
     {
         static void Main(string[] args)
         {
-            int whiteMoves = 0, blackMoves = 0;
-
             Game game = new Game();
+            bool white = true;
 
             while (true)
             {
+                Console.SetCursorPosition(0, 0);
                 WriteBoardStringToConsole(game.Board, null);
 
-                Console.Write("Algebra: ");
+                Console.WriteLine($"{(white ? "White" : "Black")} to play.");
+                Console.Write("Algebra:       ");
+                Console.SetCursorPosition(Console.CursorLeft - 6, Console.CursorTop);
                 string algebra = Console.ReadLine();
                 try
                 {
-
-                    Move move = Algebra.DecodeAlgebra(algebra, game.Board, Colour.White);
+                    Colour whoseTurn = white ? Colour.White : Colour.Black;
+                    Console.WriteLine();
+                    Move move = Algebra.DecodeAlgebra(algebra, game.Board, whoseTurn);
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}");
                     Console.WriteLine($"Move converts to algebra: {Algebra.EncodeAlgebra(move, game.Board)}");
+                    Console.ForegroundColor = ConsoleColor.White;
 
-                    game.Move(move);
+                    game.Move(algebra, whoseTurn);
+                    white = !white;
                 }
-                catch (InvalidOperationException ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine($"Move is invalid ({ex.Message})");
                 }
             }
-
-            //foreach (Piece piece in game.Board.Pieces.Where(x => x.IsWhite))
-            //{
-            //    whiteMoves += TestGamePiece(piece, game.Board);
-            //}
-            //foreach (Piece piece in game.Board.Pieces.Where(x => x.IsBlack))
-            //{
-            //    blackMoves += TestGamePiece(piece, game.Board);
-            //}
-
-            WriteBoardStringToConsole(game.Board, "h5");
-            bool moveMade = game.Move(game.Board["h7"].Piece, "h5");
-            WriteBoardStringToConsole(game.Board, "h5");
-
-            //Console.WriteLine($"Total number of valid moves for white: {whiteMoves}");
-            //Console.WriteLine($"Total number of valid moves for black: {blackMoves}");
-            
-            Console.ReadLine();
-        }
-
-        //static int TestGamePiece(Piece piece, Board board)
-        //{
-        //    IEnumerable<Move> validMoves = board.GetValidMoves(piece);
-        //    if (validMoves != null)
-        //    {
-        //        foreach (Move move in validMoves)
-        //        {
-        //            Board cloneBoard = board.Clone();
-        //            cloneBoard.MovePiece(move);
-        //            Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}) {move.From}:");
-        //            WriteBoardStringToConsole(cloneBoard, move.From);
-        //        }
-        //    }
-
-        //    return validMoves.Count();
-        //}
-
-        static void TestPiece<T>(Colour colour, Board board = null, Position position = null) where T : Piece
-        {
-            //position = position ?? new Position('e', 5);
-            //T piece = (T)Activator.CreateInstance(typeof(T), colour);
-            //board = board.Clone() ?? new Board();
-
-            //board[position].PlacePiece(piece);
-            //var moves = board.GetValidMoves(piece) ?? piece.GetPotentialMoves();
-            //foreach (var move in moves)
-            //{
-            //    move.To.PlacePiece(new T() { Colour = piece.Colour });
-            //}
-
-            //Console.WriteLine($"{piece.GetType().Name} ({piece.Colour}) {position}:");
-            //WriteBoardStringToConsole(board, position);
         }
 
         static void WriteBoardStringToConsole(Board board, Position highlight)
@@ -94,42 +49,21 @@ namespace RMGChess.ConsoleApp
                 for (char file = 'a'; file <= 'h'; file++)
                 {
                     Square square = board[file, rank];
-                    if (square.IsOccupied)
-                    {
-                        if (square.Piece.IsBlack)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Black;
-                            Console.BackgroundColor = ConsoleColor.White;
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.BackgroundColor = ConsoleColor.Black;
-                        }
+                    Position position = square.Position;
 
-                        if (square.Position.Equals(highlight))
-                        {
-                            if (square.Piece.Colour == Colour.Black)
-                            {
-                                Console.BackgroundColor = ConsoleColor.Red;
-                            }
-                            else
-                            {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                            }
-                        }
+                    if (square.Piece is not null)
+                    {
+                        Console.ForegroundColor = square.Piece.IsBlack ? ConsoleColor.Black : ConsoleColor.White;
+                        Console.BackgroundColor = square.Piece.IsBlack ? ConsoleColor.White : ConsoleColor.Black;
 
                         Console.Write(square.Piece.Symbol);
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.BackgroundColor = ConsoleColor.Black;
-
                         Console.Write(".");
                     }
 
-                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.White; 
                     Console.BackgroundColor = ConsoleColor.Black;
                     Console.Write(" ");
                 }

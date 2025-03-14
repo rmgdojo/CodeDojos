@@ -15,9 +15,8 @@ namespace RMGChess.Core
             // is this a castling move?
             (bool castling, Side castlingType) = moveAsAlgebra switch
             {
-                "O-O" => (true, Side.Kingside),
                 "O-O-O" => (true, Side.Queenside),
-                _ => (false, Side.None)
+                _ => (false, Side.Kingside)
             };
 
             bool takesPiece = moveAsAlgebra.Contains("x");
@@ -42,9 +41,9 @@ namespace RMGChess.Core
                     throw new ArgumentException("Algebra must end with a valid position.");
                 }
 
-                char pieceSymbol = char.ToUpper(moveAsAlgebra[0]);
+                char pieceSymbol = moveAsAlgebra[0];
                 bool hasSymbol = "RNBQK".Contains(pieceSymbol);
-                var pieces = validMoves.Where(m => m.To.Equals(to)).Select(m => m.Piece); // all pieces that *can* move to the target square
+                var pieces = validMoves.Where(m => m.To.Equals(to)).Select(m => m.Piece).Where(p => p.Colour == whoIsMoving); // all pieces that *can* move to the target square
                 if (pieces.Count() == 1 && !hasSymbol)
                 {
                     piece = pieces.First(); // got it in one
@@ -84,7 +83,7 @@ namespace RMGChess.Core
                 if (piece is null)
                 {
                     // oh well, we tried
-                    throw new InvalidOperationException("Algebra cannot be parsed or move is invalid.");
+                    throw new ChessException("Algebra cannot be parsed or move is invalid.");
                 }
 
                 move = new(piece, piece.Position, to, takesPiece ? board[to].Piece : null);
@@ -115,7 +114,7 @@ namespace RMGChess.Core
                 {
                     Side.Kingside => "O-O",
                     Side.Queenside => "O-O-O",
-                    _ => throw new InvalidOperationException("Invalid castling type") // never happens but compiler will throw an error otherwise
+                    _ => throw new ShouldNeverHappenException("Invalid castling type") // never happens but compiler will show a warning otherwise
                 };
             }
 

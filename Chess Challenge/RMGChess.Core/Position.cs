@@ -34,6 +34,11 @@
             return position.File == this.File && position.Rank == this.Rank;
         }
 
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         // implicit conversion from string to Position
         public static implicit operator Position(string position)
         {

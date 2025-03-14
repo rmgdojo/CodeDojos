@@ -3,7 +3,6 @@
     public enum Side
     {
         Kingside,
-        Queenside,
-        None
+        Queenside
     }
 }

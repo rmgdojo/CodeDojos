@@ -6,7 +6,7 @@ namespace RMGChess.Core
 
     public class Game
     {
-        private Dictionary<Colour, List<string>> _history;
+        private Dictionary<Colour, List<Move>> _history;
         private Dictionary<Colour, List<Piece>> _pieces;
         private Dictionary<Colour, List<Piece>> _capturedPieces;
 
@@ -17,36 +17,23 @@ namespace RMGChess.Core
         public PieceCollection Pieces => _pieces.Values.SelectMany(p => p).ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
         public PieceCollection CapturedPieces => _capturedPieces.Values.SelectMany(p => p).ToPieceCollection(); // ditto
 
-        public Move HistoryFor(Colour colour, int moveNumber) => Algebra.DecodeAlgebra(_history[colour][moveNumber], Board, colour);
-        public Move MoveFor(Colour colour, int movesBack) => Algebra.DecodeAlgebra(_history[colour][_history[colour].Count - movesBack], Board, colour);
-        public Move LastMoveFor(Colour colour) => Algebra.DecodeAlgebra(_history[colour].Last(), Board, colour);
+        public Move HistoryFor(Colour colour, int moveNumber) => _history[colour][moveNumber];
+        public Move MoveFor(Colour colour, int movesBack) => _history[colour][_history[colour].Count - movesBack];
+        public Move LastMoveFor(Colour colour) => _history[colour].Last();
 
-        public bool Move(Piece piece, Position position)
+        public void TakeTurn(Colour whoseTurn, Func<IEnumerable<Move>, Move> moveSelector)
         {
-            var validMoves = _board.GetValidMoves(piece);
-            var validMove = validMoves.FirstOrDefault(x => x.To.Equals(position));
-
-            if (validMove is not null)
-            {
-                _history[piece.Colour].Add(Algebra.EncodeAlgebra(validMove, _board));
-                validMove.Execute(this);
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool Move(Move move)
-        {
+            IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces();
+            Move move = moveSelector(validMoves);
             move.Execute(this);
-            _history[move.Piece.Colour].Add(Algebra.EncodeAlgebra(move, _board));
-            return true;
+            _history[move.Piece.Colour].Add(move);
         }
 
         public bool Move(string moveAsAlgebra, Colour whoIsMoving)
         {
-            Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving)?.Execute(this);
-            _history[whoIsMoving].Add(moveAsAlgebra);
+            Move move = Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving);
+            move.Execute(this);
+            _history[whoIsMoving].Add(move);
             return true;
         }
 
@@ -93,7 +80,7 @@ namespace RMGChess.Core
 
         public Game()
         {
-            _history = new Dictionary<Colour, List<string>>() {{ Colour.White, new List<string>() }, { Colour.Black, new List<string>() }};
+            _history = new Dictionary<Colour, List<Move>>() {{ Colour.White, new List<Move>() }, { Colour.Black, new List<Move>() }};
             _pieces = new Dictionary<Colour, List<Piece>>() { { Colour.White, new List<Piece>() }, { Colour.Black, new List<Piece>() } };
             _capturedPieces = new Dictionary<Colour, List<Piece>>() { { Colour.White, new List<Piece>() }, { Colour.Black, new List<Piece>() } };
 
