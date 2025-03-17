@@ -27,6 +27,16 @@ namespace RMGChess.Core
         }
     }
 
+    public class InvalidPositionException : ChessException
+    {
+        public InvalidPositionException(string message) : base(message)
+        {
+        }
+        public InvalidPositionException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
     public class ShouldNeverHappenException : ChessException
     {
         public ShouldNeverHappenException(string message) : base(message)
