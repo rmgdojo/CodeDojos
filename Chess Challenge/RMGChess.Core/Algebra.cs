@@ -16,6 +16,7 @@ namespace RMGChess.Core
             (bool castling, Side castlingType) = moveAsAlgebra switch
             {
                 "O-O-O" => (true, Side.Queenside),
+                "O-O" => (true, Side.Kingside),
                 _ => (false, Side.Kingside)
             };
 
@@ -35,6 +36,7 @@ namespace RMGChess.Core
                 try
                 {
                     to = moveAsAlgebra[^2..];
+                    var validPieces = board.GetAllPiecesThatCanMoveTo(to);
                 }
                 catch
                 {

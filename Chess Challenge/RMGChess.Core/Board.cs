@@ -54,7 +54,10 @@
                             validMoves.Add(potentialMove.Taking(to.Piece));
                         }
 
-                        blockedDirections.Add(potentialMove.Direction);
+                        if (piece is not Knight)
+                        {
+                            blockedDirections.Add(potentialMove.Direction);
+                        }
                     }
                     else
                     {
