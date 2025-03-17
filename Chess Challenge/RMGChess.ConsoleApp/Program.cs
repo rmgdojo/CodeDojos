@@ -32,8 +32,8 @@ namespace RMGChess.ConsoleApp
                     WriteBoardStringToConsole(game.Board, null);
 
                     Console.WriteLine($"{(white ? "White" : "Black")} to play.");
-                    Console.Write("Algebra:       ");
-                    Console.SetCursorPosition(Console.CursorLeft - 6, Console.CursorTop);
+                    Console.Write("Algebra:           ");
+                    Console.SetCursorPosition(Console.CursorLeft - 10, Console.CursorTop);
                     string algebra = moves[moveIndex++];
                     Console.WriteLine($"{moveIndex}. {algebra}");
 
