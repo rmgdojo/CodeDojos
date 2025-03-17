@@ -58,7 +58,7 @@
             throw new InvalidMoveException("Invalid en passant move.");
         }
 
-        public EnPassantMove(Piece piece, Position from, Position to) : base(piece, from, to)
+        public EnPassantMove(Pawn piece, Position from, Position to) : base(piece, from, to)
         {
         }
     }
