@@ -10,8 +10,10 @@ namespace RMGChess.Core
         public virtual int Value => 0;
         public virtual int MaxSquares => Board.MAX_DISTANCE;
         public virtual MoveType MoveTypes => MoveType.None;
-        public Square Square { get; set; }
-        public virtual char Symbol => GetType().Name.ToUpper()[0];
+        public Square Square { get; internal set; }
+        public Position Position => Square?.Position;
+        public Position Origin { get; internal set; }
+        public virtual char Symbol { get; init; }
         public bool HasMoved { get; set; }
 
         public bool IsOpponentOf(Piece piece) => piece != null && piece.Colour != Colour;
@@ -41,12 +43,6 @@ namespace RMGChess.Core
             }
 
             return potentialMoves;
-        }
-
-        public Piece Clone()
-        {
-            Piece clonePiece = (Piece)Activator.CreateInstance(GetType(), Colour);
-            return clonePiece;
         }
 
         private IList<Move> GetVerticalMoves()
@@ -93,7 +89,7 @@ namespace RMGChess.Core
                 Square nextSquare = currentSquare.GetNeighbour(direction);
                 if (nextSquare != null && movesSoFar++ < MaxSquares)
                 {
-                    potentialMoves.Add(new Move(this, startingSquare, nextSquare));
+                    potentialMoves.Add(new Move(this, startingSquare.Position, nextSquare.Position));
                     AddMoves(nextSquare, direction, potentialMoves, movesSoFar, startingSquare);
                 }
             }
@@ -101,9 +97,10 @@ namespace RMGChess.Core
 
         public override string ToString() => $"{(Colour == Colour.White ? "W" : "B")}{Symbol}";
 
-        public Piece(Colour colour)
+        internal Piece(Colour colour)
         {
             Colour = colour;
+            Symbol = GetType().Name.ToUpper()[0];
         }
     }
 }

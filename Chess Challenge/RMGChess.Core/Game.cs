@@ -1,77 +1,93 @@
 ﻿using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace RMGChess.Core
 {
+
     public class Game
     {
-        private Dictionary<Colour, List<string>> _history;
+        private Dictionary<Colour, List<Move>> _history;
+        private List<Piece> _pieces;
+        private List<Piece> _capturedPieces;
 
         private Board _board;
 
         public Board Board => _board;
 
-        public Move LastMoveFor(Colour colour) => Move.DecodeAlgebra(_history[colour].Last(), Board, colour);
+        public PieceCollection PiecesInPlay => _pieces.ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
+        public PieceCollection CapturedPieces => _capturedPieces.ToPieceCollection(); // ditto
 
-        public bool MakeMove(Piece piece, Position position)
+        public Move HistoryFor(Colour colour, int moveNumber) => _history[colour][moveNumber];
+        public Move MoveFor(Colour colour, int movesBack) => _history[colour][_history[colour].Count - movesBack];
+        public Move LastMoveFor(Colour colour) => _history[colour].Last();
+
+        public void TakeTurn(Colour whoseTurn, Func<IEnumerable<Move>, Move> moveSelector)
         {
-            var validMoves = _board.GetValidMoves(piece);
-            var validMove = validMoves.FirstOrDefault(x => x.To.Equals(position));
-
-            if (validMove is not null)
-            {
-                _history[piece.Colour].Add(Move.EncodeAlgebra(validMove));
-                validMove.Execute(this);
-                return true;
-            }
-
-            return false;
+            IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces();
+            Move move = moveSelector(validMoves);
+            move.Execute(this);
+            _history[move.Piece.Colour].Add(move);
         }
 
-        public bool MakeMove(string moveAsAlgebra, Colour whoIsMoving)
+        public bool Move(string moveAsAlgebra, Colour whoIsMoving)
         {
-            Move.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving)?.Execute(this);
-            _history[whoIsMoving].Add(moveAsAlgebra);
+            Move move = Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving);
+            move.Execute(this);
+            _history[whoIsMoving].Add(move);
             return true;
         }
 
-        internal Board SetupNewBoard()
+        internal void HandleCapture(Piece piece)
         {
-            Board board = new Board();
+            _capturedPieces.Add(piece);
+            _pieces.Remove(piece);
+        }
 
-            // Place white pieces
-            board['a', 1].PlacePiece(new Rook(Colour.White));
-            board['b', 1].PlacePiece(new Knight(Colour.White));
-            board['c', 1].PlacePiece(new Bishop(Colour.White));
-            board['d', 1].PlacePiece(new Queen(Colour.White));
-            board['e', 1].PlacePiece(new King(Colour.White));
-            board['f', 1].PlacePiece(new Bishop(Colour.White));
-            board['g', 1].PlacePiece(new Knight(Colour.White));
-            board['h', 1].PlacePiece(new Rook(Colour.White));
+        internal void SetupNewBoard()
+        {
+            // Set up white pieces
+            SetupPiece("a1", new Rook(Colour.White));
+            SetupPiece("b1", new Knight(Colour.White));
+            SetupPiece("c1", new Bishop(Colour.White));
+            SetupPiece("d1", new Queen(Colour.White));
+            SetupPiece("e1", new King(Colour.White));
+            SetupPiece("f1", new Bishop(Colour.White));
+            SetupPiece("g1", new Knight(Colour.White));
+            SetupPiece("h1", new Rook(Colour.White));
             for (char file = 'a'; file <= 'h'; file++)
             {
-                board[file, 2].PlacePiece(new Pawn(Colour.White));
+                SetupPiece((file, 2), new Pawn(Colour.White));
             }
 
-            // Place black pieces
-            board['a', 8].PlacePiece(new Rook(Colour.Black));
-            board['b', 8].PlacePiece(new Knight(Colour.Black));
-            board['c', 8].PlacePiece(new Bishop(Colour.Black));
-            board['d', 8].PlacePiece(new Queen(Colour.Black));
-            board['e', 8].PlacePiece(new King(Colour.Black));
-            board['f', 8].PlacePiece(new Bishop(Colour.Black));
-            board['g', 8].PlacePiece(new Knight(Colour.Black));
-            board['h', 8].PlacePiece(new Rook(Colour.Black));
+            // Set up black pieces
+            SetupPiece("a8", new Rook(Colour.Black));
+            SetupPiece("b8", new Knight(Colour.Black));
+            SetupPiece("c8", new Bishop(Colour.Black));
+            SetupPiece("d8", new Queen(Colour.Black));
+            SetupPiece("e8", new King(Colour.Black));
+            SetupPiece("f8", new Bishop(Colour.Black));
+            SetupPiece("g8", new Knight(Colour.Black));
+            SetupPiece("h8", new Rook(Colour.Black));
             for (char file = 'a'; file <= 'h'; file++)
             {
-                board[file, 7].PlacePiece(new Pawn(Colour.Black));
+                SetupPiece((file, 7), new Pawn(Colour.Black));
             }
+        }
 
-            return board;
+        private void SetupPiece(Position position, Piece piece)
+        {
+            _board[position].SetupPiece(piece);
+            _pieces.Add(piece);
         }
 
         public Game()
         {
-            _board = SetupNewBoard();
+            _history = new Dictionary<Colour, List<Move>>() {{ Colour.White, new List<Move>() }, { Colour.Black, new List<Move>() }};
+            _pieces = new List<Piece>();
+            _capturedPieces = new List<Piece>();
+
+            _board = new Board(this);
+            SetupNewBoard();
         }
     }
 }

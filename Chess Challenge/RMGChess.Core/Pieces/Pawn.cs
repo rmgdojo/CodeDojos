@@ -7,7 +7,6 @@ namespace RMGChess.Core
         public override int Value => 1;
         public override int MaxSquares => 1;
         public override MoveType MoveTypes => MoveType.Vertical | MoveType.NotBackwards | MoveType.TakesDiagonally;
-        public bool HasMoved { get; private set; }
 
         public override IEnumerable<Move> GetPotentialMoves()
         {
@@ -22,18 +21,18 @@ namespace RMGChess.Core
 
             if (first is not null) 
             {
-                potentialMoves.Add(new Move(this, Square, first));
+                potentialMoves.Add(new Move(this, Position, first.Position));
                 if (onStartSquare && second is not null)
                 {
                     // could move two squares
-                    potentialMoves.Add(new Move(this, Square, second));
+                    potentialMoves.Add(new Move(this, Position, second.Position));
                 }
             }
 
             return potentialMoves;
         }
 
-        public Pawn(Colour colour) : base(colour)
+        internal Pawn(Colour colour) : base(colour)
         {
         }
     }

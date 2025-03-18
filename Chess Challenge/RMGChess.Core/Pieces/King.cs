@@ -7,7 +7,7 @@
         public override MoveType MoveTypes => MoveType.Vertical | MoveType.Horizontal | MoveType.Diagonal | MoveType.Castling;
         public bool HasCastled { get; private set; }
 
-        public King(Colour colour) : base(colour)
+        internal King(Colour colour) : base(colour)
         {
         }
     }
