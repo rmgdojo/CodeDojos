@@ -33,23 +33,23 @@ namespace RMGChess.Core
                     "Nd5", "Qxb2", "Bd6", "Bxg1", "e5", "Qxa1+", "Ke2", "Na6", "Nxg7+", "Kd8", "Qf6+", "Nxf6", "Be7#"
                 }
             },
-            { "Evergreen Game (Anderssen vs. Dufresne, 1852)", new string[]
-                {
-                    "e4", "e5", "f4", "exf4", "Nf3", "g5", "h4", "g4", "Ng5", "h6", "Nxf7", "Kxf7", "d4", "d5", "Bxf4", "Nf6",
-                    "Nc3", "Bb4", "e5", "Ne4", "Qd3", "c5", "O-O-O", "Bxc3", "bxc3", "Qa5", "Kc2", "c4", "Qe3", "Qa4+", "Kb1",
-                    "Bf5", "Be2", "Nxc3+", "Qxc3", "Na6", "a3", "Rb8+", "Ka1", "Rb3", "Qc1", "Rxa3+", "Qxa3", "Qxa3#"
-                }
-            },
-            { "Kasparov vs. Topalov (1999)", new string[]
-                {
-                    "e4", "d6", "d4", "Nf6", "Nc3", "g6", "Be3", "Bg7", "Qd2", "O-O", "f3", "c6", "Nge2", "b5", "Bh6", "e5",
-                    "Bxg7", "Kxg7", "g4", "h5", "g5", "Nh7", "h4", "Nd7", "f4", "Qe7", "Ng3", "b4", "Nce2", "Nb6", "b3", "Bg4",
-                    "f5", "Kh8", "f6", "Qe6", "O-O-O", "Rfb8", "Kb1", "a5", "Nc1", "a4", "Be2", "axb3", "axb3", "Na4", "Na2",
-                    "exd4", "Qxd4", "Bxe2", "Nxe2", "Nc5", "Nf4", "Qe5", "Qxd6", "Qxd6", "Rxd6", "Nxe4", "Rhd1", "Nhf8",
-                    "Rd8", "Rxd8", "Rxd8", "Kg8", "Nd3", "c5", "Ne5", "Nc3+", "Kc1", "Ne2+", "Kb2", "Nd4", "Ra8", "Ne6",
-                    "Ra7", "Nd8", "Rc7", "Ra8", "Re7", "Ne6", "Nxf7", "Nf8", "Ne5", "Rd8", "Rg7+", "Kh8", "Nf7#"
-                }
-            },
+            //{ "Evergreen Game (Anderssen vs. Dufresne, 1852)", new string[]
+            //    {
+            //        "e4", "e5", "f4", "exf4", "Nf3", "g5", "h4", "g4", "Ng5", "h6", "Nxf7", "Kxf7", "d4", "d5", "Bxf4", "Nf6",
+            //        "Nc3", "Bb4", "e5", "Ne4", "Qd3", "c5", "O-O-O", "Bxc3", "bxc3", "Qa5", "Kc2", "c4", "Qe3", "Qa4+", "Kb1",
+            //        "Bf5", "Be2", "Nxc3+", "Qxc3", "Na6", "a3", "Rb8+", "Ka1", "Rb3", "Qc1", "Rxa3+", "Qxa3", "Qxa3#"
+            //    }
+            //},
+            //{ "Kasparov vs. Topalov (1999)", new string[]
+            //    {
+            //        "e4", "d6", "d4", "Nf6", "Nc3", "g6", "Be3", "Bg7", "Qd2", "O-O", "f3", "c6", "Nge2", "b5", "Bh6", "e5",
+            //        "Bxg7", "Kxg7", "g4", "h5", "g5", "Nh7", "h4", "Nd7", "f4", "Qe7", "Ng3", "b4", "Nce2", "Nb6", "b3", "Bg4",
+            //        "f5", "Kh8", "f6", "Qe6", "O-O-O", "Rfb8", "Kb1", "a5", "Nc1", "a4", "Be2", "axb3", "axb3", "Na4", "Na2",
+            //        "exd4", "Qxd4", "Bxe2", "Nxe2", "Nc5", "Nf4", "Qe5", "Qxd6", "Qxd6", "Rxd6", "Nxe4", "Rhd1", "Nhf8",
+            //        "Rd8", "Rxd8", "Rxd8", "Kg8", "Nd3", "c5", "Ne5", "Nc3+", "Kc1", "Ne2+", "Kb2", "Nd4", "Ra8", "Ne6",
+            //        "Ra7", "Nd8", "Rc7", "Ra8", "Re7", "Ne6", "Nxf7", "Nf8", "Ne5", "Rd8", "Rg7+", "Kh8", "Nf7#"
+            //    }
+            //},
             { "Deep Blue vs. Kasparov (1997, Game 6)", new string[]
                 { "e4", "c6", "d4", "d5", "Nc3", "dxe4", "Nxe4", "Nd7", "Nf3", "Ngf6", "Nxf6+", "Nxf6", "h3", "Bf5", "Bd3",
                   "Bxd3", "Qxd3", "e6", "O-O", "Be7", "Re1", "O-O", "c4", "Qa5", "Bd2", "Qa6", "a4", "Rad8", "Bc3", "c5",

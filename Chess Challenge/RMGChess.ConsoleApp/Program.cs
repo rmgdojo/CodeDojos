@@ -14,9 +14,10 @@ namespace RMGChess.ConsoleApp
             int pauseAt = -1;
 
             int gameIndex = 0;
-            foreach (string[] moves in FamousGames.Games.Values)
+            foreach (string[] moves in FamousGames.Games.Skip(0).ToDictionary().Values)
             {
                 Game game = new Game();
+                white = true;
 
                 Console.SetCursorPosition(0, 0);
 
@@ -27,7 +28,7 @@ namespace RMGChess.ConsoleApp
 
                 while (moveIndex < moves.Length)
                 {
-                    //Thread.Sleep(200);
+                    //Thread.Sleep(1000);
                     Console.SetCursorPosition(0, 3);
                     WriteBoardStringToConsole(game.Board, null);
 

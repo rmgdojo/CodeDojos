@@ -31,7 +31,6 @@
 
         internal IEnumerable<Move> GetValidMovesForAllPieces()
         {
-            List<Move> validMoves = new();
             return Game.PiecesInPlay.SelectMany(p => GetValidMoves(p));
         }
 

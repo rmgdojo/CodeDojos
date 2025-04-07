@@ -62,16 +62,24 @@ namespace RMGChess.Core
                         }
                         else
                         {
-                            // have to be supplied the file of the piece moving
-                            pieces = pieces.Where(p => p.Square?.File == moveAsAlgebra[1]);
-                            if (pieces.Count() == 1)
+                            if (moveAsAlgebra.Length == 3 && pieces.All(p => p.Symbol == pieces.First().Symbol))
                             {
-                                piece = pieces.First();
+                                piece = pieces.OrderBy(p => p.Position.File).First();
                             }
-                            else
+
+                            if (piece is null)
                             {
-                                // have to be supplied the rank of the piece moving
-                                piece = pieces.SingleOrDefault(p => p.Square?.Rank == moveAsAlgebra[2] - '0');
+                                // have to be supplied the file of the piece moving
+                                pieces = pieces.Where(p => p.Square?.File == moveAsAlgebra[1]);
+                                if (pieces.Count() == 1)
+                                {
+                                    piece = pieces.First();
+                                }
+                                else
+                                {
+                                    // have to be supplied the rank of the piece moving
+                                    piece = pieces.SingleOrDefault(p => p.Square?.Rank == moveAsAlgebra[2] - '0');
+                                }
                             }
                         }
                     }
