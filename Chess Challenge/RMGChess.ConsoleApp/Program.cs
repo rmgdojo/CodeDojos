@@ -27,7 +27,7 @@ namespace RMGChess.ConsoleApp
 
                 while (moveIndex < moves.Length)
                 {
-                    Thread.Sleep(200);
+                    //Thread.Sleep(200);
                     Console.SetCursorPosition(0, 3);
                     WriteBoardStringToConsole(game.Board, null);
 
