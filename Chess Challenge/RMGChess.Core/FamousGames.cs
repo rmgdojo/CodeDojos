@@ -40,24 +40,16 @@ namespace RMGChess.Core
             //        "Bf5", "Be2", "Nxc3+", "Qxc3", "Na6", "a3", "Rb8+", "Ka1", "Rb3", "Qc1", "Rxa3+", "Qxa3", "Qxa3#"
             //    }
             //},
-            //{ "Kasparov vs. Topalov (1999)", new string[]
-            //    {
-            //        "e4", "d6", "d4", "Nf6", "Nc3", "g6", "Be3", "Bg7", "Qd2", "O-O", "f3", "c6", "Nge2", "b5", "Bh6", "e5",
-            //        "Bxg7", "Kxg7", "g4", "h5", "g5", "Nh7", "h4", "Nd7", "f4", "Qe7", "Ng3", "b4", "Nce2", "Nb6", "b3", "Bg4",
-            //        "f5", "Kh8", "f6", "Qe6", "O-O-O", "Rfb8", "Kb1", "a5", "Nc1", "a4", "Be2", "axb3", "axb3", "Na4", "Na2",
-            //        "exd4", "Qxd4", "Bxe2", "Nxe2", "Nc5", "Nf4", "Qe5", "Qxd6", "Qxd6", "Rxd6", "Nxe4", "Rhd1", "Nhf8",
-            //        "Rd8", "Rxd8", "Rxd8", "Kg8", "Nd3", "c5", "Ne5", "Nc3+", "Kc1", "Ne2+", "Kb2", "Nd4", "Ra8", "Ne6",
-            //        "Ra7", "Nd8", "Rc7", "Ra8", "Re7", "Ne6", "Nxf7", "Nf8", "Ne5", "Rd8", "Rg7+", "Kh8", "Nf7#"
-            //    }
-            //},
             { "Deep Blue vs. Kasparov (1997, Game 6)", new string[]
-                { "e4", "c6", "d4", "d5", "Nc3", "dxe4", "Nxe4", "Nd7", "Nf3", "Ngf6", "Nxf6+", "Nxf6", "h3", "Bf5", "Bd3",
+                { 
+                  "e4", "c6", "d4", "d5", "Nc3", "dxe4", "Nxe4", "Nd7", "Nf3", "Ngf6", "Nxf6+", "Nxf6", "h3", "Bf5", "Bd3",
                   "Bxd3", "Qxd3", "e6", "O-O", "Be7", "Re1", "O-O", "c4", "Qa5", "Bd2", "Qa6", "a4", "Rad8", "Bc3", "c5",
                   "d5", "Nxd5", "Qe4", "Nxc3", "bxc3", "Bf6", "Re3", "Rd6", "a5", "Qc6", "Qf4", "Rfd8", "Ne5", "Qc7",
-                  "Ng4", "Rd1+", "Rxd1", "Rxd1+", "Kh2", "Rh1+", "Kxh1", "Qxf4", "Qxf4", "gxf4", "Rd3", "b6", "axb6",
+                  "Ng4", "Rd1+", "Rxd1", "Rxd1+", "Kh2", "Rh1+", "Kxh1", "Qxf4", "gxf4", "Rd3", "b6", "axb6",
                   "axb6", "Rxb6", "Bxc3", "Rb8+", "Kg7", "Nh2", "Be1", "Nf3", "Bxf2", "Rb7", "Kf6", "Rc7", "e5", "c5",
                   "e4", "Nd2", "Ke5", "Nc4+", "Kd5", "Na5", "e3", "Nb3", "e2", "Rd7+", "Kc4", "Nd2+", "Kc3", "Nf3",
-                  "e1=Q", "Nxe1", "Bxe1", "c6", "Bg3", "c7", "f3", "c8=Q", "f2", "Qc4+", "Kd2", "Qd3#" }
+                  "e1=Q", "Nxe1", "Bxe1", "c6", "Bg3", "c7", "f3", "c8=Q", "f2", "Qc4+", "Kd2", "Qd3#" 
+                }
             }
         };
     }

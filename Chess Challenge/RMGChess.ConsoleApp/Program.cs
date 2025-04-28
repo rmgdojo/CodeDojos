@@ -10,8 +10,10 @@ namespace RMGChess.ConsoleApp
         {
             bool white = true;
             int moveIndex = 0;
+            int whiteIndex = 0;
+            int blackIndex = 0;
             bool invalid = false;
-            int pauseAt = -1;
+            int pauseAt = 80;
 
             int gameIndex = 0;
             foreach (string[] moves in FamousGames.Games.Skip(0).ToDictionary().Values)
@@ -32,21 +34,19 @@ namespace RMGChess.ConsoleApp
                     Console.SetCursorPosition(0, 3);
                     WriteBoardStringToConsole(game.Board, null);
 
-                    Console.WriteLine($"{(white ? "White" : "Black")} to play.");
+                    Console.WriteLine($"{(white ? "White" : "Black")} to play.");                                        
                     Console.Write("Algebra:           ");
                     Console.SetCursorPosition(Console.CursorLeft - 10, Console.CursorTop);
                     string algebra = moves[moveIndex++];
-                    Console.WriteLine($"{moveIndex}. {algebra}");
+                    whiteIndex += white ? 1 : 0;
+                    blackIndex += white ? 0 : 1;
+                    Console.WriteLine($"{(white ? whiteIndex : blackIndex) }. {algebra}");
 
                     //Console.ReadLine();
                     try
                     {
-                        if (pauseAt > 0 && pauseAt == moveIndex)
-                        {
-                            pauseAt = 0;
-                        }
-
                         Colour whoseTurn = white ? Colour.White : Colour.Black;
+
                         Console.WriteLine();
                         Move move = Algebra.DecodeAlgebra(algebra, game.Board, whoseTurn);
                         Console.ForegroundColor = ConsoleColor.Green;

@@ -45,7 +45,8 @@ namespace RMGChess.Core
 
                 char pieceSymbol = moveAsAlgebra[0];
                 bool hasSymbol = "RNBQK".Contains(pieceSymbol);
-                var pieces = validMoves.Where(m => m.To.Equals(to)).Select(m => m.Piece).Where(p => p.Colour == whoIsMoving); // all pieces that *can* move to the target square
+                
+                IEnumerable<Piece> pieces = board.GetAllPiecesThatCanMoveTo(to).OfColour(whoIsMoving);
                 if (pieces.Count() == 1 && !hasSymbol)
                 {
                     piece = pieces.First(); // got it in one
