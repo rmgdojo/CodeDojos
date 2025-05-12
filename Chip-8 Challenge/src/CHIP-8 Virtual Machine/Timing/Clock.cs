@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Timer = System.Timers.Timer;
 
 namespace CHIP_8_Virtual_Machine
@@ -31,6 +26,7 @@ namespace CHIP_8_Virtual_Machine
         {
             _running = false;
             _timer?.Stop();
+            _timer?.Dispose();
             _thread?.Join();
         }
 
@@ -56,7 +52,10 @@ namespace CHIP_8_Virtual_Machine
                     {
                         _stopwatch.Start();
                         _callback();
-                        while (_stopwatch.ElapsedMilliseconds < _cycleTime) ;
+                        while (_stopwatch.ElapsedMilliseconds < _cycleTime)
+                        {
+                            Thread.Sleep(1);
+                        }
                         _stopwatch.Reset();
                     }
                     else

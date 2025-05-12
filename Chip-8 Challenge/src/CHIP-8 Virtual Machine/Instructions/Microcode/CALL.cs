@@ -5,7 +5,7 @@ public class CALL : AddressInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.PushStack(vm.PC);
+        vm.Stack.Push(vm.PC);
         vm.PC = Address;
     }
 

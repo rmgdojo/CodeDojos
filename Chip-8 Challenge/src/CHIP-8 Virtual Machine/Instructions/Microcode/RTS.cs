@@ -5,7 +5,7 @@ public class RTS : AddressInstruction
 {
     public override void Execute(VM vm)
     {
-        vm.PC = vm.PopStack();
+        vm.PC = vm.Stack.Pop();
     }
 
     public RTS(Tribble address)

@@ -3,7 +3,7 @@
     public struct Nibble
     {
         public const int MAX_VALUE = 15;
-    
+
         private byte _value;
 
         public Nibble(byte value)

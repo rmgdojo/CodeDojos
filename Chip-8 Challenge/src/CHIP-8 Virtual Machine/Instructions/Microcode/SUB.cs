@@ -8,7 +8,7 @@ public class SUB : TwoRegistersInstruction
         int result = vm.V[X] - vm.V[Y];
         bool underflow = result < 0;
 
-        vm.SetFlag(!underflow);
+        vm.F = !underflow;
         vm.V[X] = (byte)result;
     }
 
