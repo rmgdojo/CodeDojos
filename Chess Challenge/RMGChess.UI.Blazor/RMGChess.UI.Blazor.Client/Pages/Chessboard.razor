@@ -1,0 +1,29 @@
+﻿@page "/chessboard"
+@rendermode InteractiveWebAssembly
+@using RMGChess.Core;
+<h3>Chessboard</h3>
+@for (int rank = 8; rank >= 1; rank--)
+{
+    (string odd, string even) = (rank % 2 != 0) ? (LIGHT_COLOUR, DARK_COLOUR) : (DARK_COLOUR, LIGHT_COLOUR);
+
+    <div style="padding:0; margin:0; height:30px">
+        @for (char file='a'; file <= 'h'; file++)
+        {
+            Square square = board[file, rank];
+            string fontColour = (square.Piece?.IsBlack ?? true) ? "black" : "white";
+            string squareColour = ((int)file % 2 != 0) ? odd : even ;
+        <div style="display:inline-block; width:30px; height:30px; text-align:center; align-content:center; background-color:@squareColour; color: @fontColour">
+            @(board[file,rank].Piece?.Symbol ?? ' ')
+        </div>
+    }
+    </div>
+}
+
+@code {
+    const string LIGHT_COLOUR = "lightgray";
+    const string DARK_COLOUR = "darkgray";
+
+    Game game = new();
+    Board board => game.Board;
+    
+}
