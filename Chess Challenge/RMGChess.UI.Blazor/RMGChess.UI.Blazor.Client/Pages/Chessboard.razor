@@ -1,6 +1,4 @@
-﻿@page "/chessboard"
-@rendermode InteractiveWebAssembly
-@using RMGChess.Core;
+﻿@using RMGChess.Core;
 <h3>Chessboard</h3>
 @for (int rank = 8; rank >= 1; rank--)
 {
@@ -12,18 +10,20 @@
             Square square = board[file, rank];
             string fontColour = (square.Piece?.IsBlack ?? true) ? "black" : "white";
             string squareColour = ((int)file % 2 != 0) ? odd : even ;
-        <div style="display:inline-block; width:30px; height:30px; text-align:center; align-content:center; background-color:@squareColour; color: @fontColour">
-            @(board[file,rank].Piece?.Symbol ?? ' ')
-        </div>
-    }
+            <BoardSquare Symbol="@(square.Piece?.Symbol ?? ' ')" FontColour="@fontColour" SquareColour="@squareColour"  />
+         }
     </div>
 }
 
 @code {
+    [Parameter]
+    public Game Game { get; set; } = new Game();
+
     const string LIGHT_COLOUR = "lightgray";
     const string DARK_COLOUR = "darkgray";
+   
 
-    Game game = new();
-    Board board => game.Board;
-    
+     Board board => Game.Board;
+   
+
 }
