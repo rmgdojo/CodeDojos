@@ -1,0 +1,9 @@
+﻿@page "/chessgame"
+@rendermode InteractiveWebAssembly
+
+<h3>Chess Game</h3>
+<Chessboard Game="@game"/>
+
+@code {
+    Game game = new();
+}

@@ -1,0 +1,23 @@
+﻿<div class="@chessPieces[Symbol]" style="display:inline-block; width:30px; height:30px; text-align:center; align-content:center; background-color:@SquareColour; color: @FontColour" />
+
+@code {
+    [Parameter]
+    public char Symbol { get; set; } = ' ';
+
+    [Parameter]
+    public string SquareColour { get; set; } = "";
+
+    [Parameter]
+    public string FontColour { get; set; } = ""; 
+
+    private Dictionary<char, string> chessPieces = new()
+    {
+         { ' ', "fas fa-chess-piece" },   // EMPTY
+         { 'K', "fas fa-chess-king" },   // King
+         { 'Q', "fas fa-chess-queen" },  // Queen
+         { 'R', "fas fa-chess-rook" },   // Rook
+         { 'B', "fas fa-chess-bishop" }, // Bishop
+         { 'N', "fas fa-chess-knight" }, // Knight
+         { 'P', "fas fa-chess-pawn" }    // Pawn
+    };
+}
