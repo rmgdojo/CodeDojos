@@ -1,9 +1,69 @@
 ﻿@page "/chessgame"
 @rendermode InteractiveWebAssembly
 
-<h3>Chess Game</h3>
-<Chessboard Game="@game"/>
-
+<h3>@Label</h3>
+<Chessboard @ref="chessboard" Game="@game"/>
+<button @onclick="PlayFamousGames">Play Famous Games</button>
+<div>@Message</div>
 @code {
+    public string Label { get; set; } = "Chess Game";
+    public string Message { get; set; } = "";
+
+
+    private Chessboard? chessboard;
     Game game = new();
+    private async void PlayFamousGames()
+    {
+        bool white = true;
+        int moveIndex = 0;
+        int whiteIndex = 0;
+        int blackIndex = 0;
+        bool invalid = false;
+        int pauseAt = 80;
+
+        int gameIndex = 0;
+        foreach (string[] moves in FamousGames.Games.Skip(0).ToDictionary().Values)
+        {
+
+            game = new Game();
+            white = true;
+
+
+            string gameName = FamousGames.Games.Keys.ToArray()[gameIndex++];
+
+            while (moveIndex < moves.Length && !invalid)
+            {
+
+                string algebra = moves[moveIndex++];
+                Label = $"{gameName} {moveIndex + 1} of {moves.Length + 1} {algebra}";
+                whiteIndex += white ? 1 : 0;
+                blackIndex += white ? 0 : 1;
+                try
+                {
+                    Colour whoseTurn = white ? Colour.White : Colour.Black;
+                    if (gameIndex == 4 && moveIndex == 54)
+                    {
+                        int x = 0;
+                    }
+                    Move move = Algebra.DecodeAlgebra(algebra, game.Board, whoseTurn);
+                    game.Move(algebra, whoseTurn);
+                    Move moveHistory = game.HistoryFor(Colour.White, 0);
+                    white = !white;
+                }
+                catch (Exception ex)
+                {
+                    invalid = true;
+                    Message = $"{ex.Message}";
+                }
+                StateHasChanged();
+                await Task.Delay(1);
+
+             }
+
+            //TODO: Handle pause between games
+     
+            moveIndex = 0;
+        }
+
+    }
 }
