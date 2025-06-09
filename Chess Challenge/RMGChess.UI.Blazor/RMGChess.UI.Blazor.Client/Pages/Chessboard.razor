@@ -10,20 +10,30 @@
             Square square = board[file, rank];
             string fontColour = (square.Piece?.IsBlack ?? true) ? "black" : "white";
             string squareColour = ((int)file % 2 != 0) ? odd : even ;
-            <BoardSquare Symbol="@(square.Piece?.Symbol ?? ' ')" FontColour="@fontColour" SquareColour="@squareColour"  />
-         }
+            <BoardSquare @key="@square.Position" Symbol="@(square.Piece?.Symbol ?? ' ')" FontColour="@fontColour" SquareColour="@squareColour"  />
+        }
     </div>
 }
 
 @code {
+    private Game _game = new();
+
     [Parameter]
-    public Game Game { get; set; } = new Game();
+    public Game Game {
+        get
+        {
+            return _game;
+        }
+        set
+        {
+            _game = value;
+        }
+    }
 
     const string LIGHT_COLOUR = "lightgray";
     const string DARK_COLOUR = "darkgray";
-   
 
-     Board board => Game.Board;
-   
+
+    Board board => Game.Board;
 
 }
