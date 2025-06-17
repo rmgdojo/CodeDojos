@@ -1,6 +1,4 @@
 ﻿using RMGChess.Core;
-using System.Drawing;
-//using System.IO.Pipelines;
 
 namespace RMGChess.ConsoleApp
 {
@@ -16,14 +14,28 @@ namespace RMGChess.ConsoleApp
             int pauseAt = 80;
 
             int gameIndex = 0;
-            foreach (string[] moves in FamousGames.Games.Skip(0).ToDictionary().Values)
+
+
+            // Run this code to read in the DannyTheDonkey PGN file and play the games.
+            // NOTE: We are only running the first game for now and there is an issue with this game
+            // Move 7. Ne2 is ambiguous and we end up moving the wrong knight
+            // To fix this alter the move to be 7. Nge2
+
+            var inputPgns = PGNGames.DannyTheDonkey;
+            var gameToPlay = inputPgns[0];
+
+
+            // Run this code to play the FamousGames
+            // var gameToPlay = FamousGames.Games.Skip(0).ToDictionary();
+
+            foreach (string[] moves in gameToPlay.Values)
             {
                 Game game = new Game();
                 white = true;
 
                 Console.SetCursorPosition(0, 0);
 
-                string gameName = FamousGames.Games.Keys.ToArray()[gameIndex++];
+                string gameName = gameToPlay.Keys.ToArray()[gameIndex++];
                 Console.WriteLine(gameName);
                 Console.WriteLine(new string('-', gameName.Length));
                 Console.WriteLine();
