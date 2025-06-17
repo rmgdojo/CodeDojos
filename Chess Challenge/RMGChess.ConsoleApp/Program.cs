@@ -21,38 +21,40 @@ namespace RMGChess.ConsoleApp
             // Move 7. Ne2 is ambiguous and we end up moving the wrong knight
             // To fix this alter the move to be 7. Nge2
 
-            var inputPgns = PGNGames.DannyTheDonkey;
-            var gameToPlay = inputPgns[0];
-
-
-            // Run this code to play the FamousGames
-            // var gameToPlay = FamousGames.Games.Skip(0).ToDictionary();
-
-            foreach (string[] moves in gameToPlay.Values)
+            var pgnGames = PGNGames.DannyTheDonkey;
+            foreach (GameRecord gameToPlay in pgnGames)
             {
+                Console.WriteLine($"Game: {gameToPlay.Name}");
+                Console.WriteLine(string.Join(' ', gameToPlay.Moves));
+                Console.WriteLine("Press ENTER to start game.");
+                Console.ReadLine();
+                Console.Clear();
+
+                // Run this code to play the FamousGames
+                // var gameToPlay = FamousGames.Games.Skip(0).ToDictionary();
+
                 Game game = new Game();
                 white = true;
 
                 Console.SetCursorPosition(0, 0);
 
-                string gameName = gameToPlay.Keys.ToArray()[gameIndex++];
-                Console.WriteLine(gameName);
-                Console.WriteLine(new string('-', gameName.Length));
+                Console.WriteLine(gameToPlay.Name);
+                Console.WriteLine(new string('-', gameToPlay.Name.Length));
                 Console.WriteLine();
 
-                while (moveIndex < moves.Length)
+                while (moveIndex < gameToPlay.Moves.Length)
                 {
                     //Thread.Sleep(1000);
                     Console.SetCursorPosition(0, 3);
                     WriteBoardStringToConsole(game.Board, null);
 
-                    Console.WriteLine($"{(white ? "White" : "Black")} to play.");                                        
+                    Console.WriteLine($"{(white ? "White" : "Black")} to play.");
                     Console.Write("Algebra:           ");
                     Console.SetCursorPosition(Console.CursorLeft - 10, Console.CursorTop);
-                    string algebra = moves[moveIndex++];
+                    string algebra = gameToPlay.Moves[moveIndex++];
                     whiteIndex += white ? 1 : 0;
                     blackIndex += white ? 0 : 1;
-                    Console.WriteLine($"{(white ? whiteIndex : blackIndex) }. {algebra}");
+                    Console.WriteLine($"{(white ? whiteIndex : blackIndex)}. {algebra}");
 
                     //Console.ReadLine();
                     try
