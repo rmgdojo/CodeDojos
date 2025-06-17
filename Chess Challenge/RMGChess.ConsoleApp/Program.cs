@@ -1,9 +1,4 @@
 ﻿using RMGChess.Core;
-using RMGChess.Core.Converters;
-using System.Drawing;
-using System.Reflection;
-
-//using System.IO.Pipelines;
 
 namespace RMGChess.ConsoleApp
 {
