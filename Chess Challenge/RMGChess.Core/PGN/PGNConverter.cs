@@ -85,6 +85,9 @@ namespace RMGChess.Core
                         }
                     }
 
+                    // replace all sequences of multiple spaces with a single space
+                    movesBlock = new StringBuilder(System.Text.RegularExpressions.Regex.Replace(movesBlock.ToString(), @"\s+", " "));
+
                     gameBlocks.Add((headerBlock.ToArray(), movesBlock.ToString()));
                     lines = lines.Skip(lineIndex).ToArray(); // remove the processed lines
                     lineIndex = 0; // reset line index for the next game
