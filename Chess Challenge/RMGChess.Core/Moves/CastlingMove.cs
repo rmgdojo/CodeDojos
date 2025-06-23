@@ -73,8 +73,8 @@ namespace RMGChess.Core
             // identify position that the rook will move to
             Position rookTo = Side switch
             {
-                Side.Kingside => Piece.IsWhite ? new Position('f', 1) : new Position('f', 8),
-                Side.Queenside => Piece.IsWhite ? new Position('d', 1) : new Position('d', 8),
+                Side.Kingside => Piece.IsWhite ? "f1" : "f8",
+                Side.Queenside => Piece.IsWhite ? "d1" : "d8",
                 _ => throw new ShouldNeverHappenException("Invalid castling side.")
             };
 
@@ -91,8 +91,8 @@ namespace RMGChess.Core
             From = king.Position;
             To = type switch
             {
-                Side.Kingside => king.IsWhite ? new Position('g', 1) : new Position('g', 8),
-                Side.Queenside => king.IsWhite ? new Position('c', 1) : new Position('c', 8),
+                Side.Kingside => king.IsWhite ? "g1" :"g8",
+                Side.Queenside => king.IsWhite ? "c1" : "c8",
                 _ => throw new ShouldNeverHappenException("Invalid castling side.")
             };
             Direction = GetDirection(From, To);

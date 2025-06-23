@@ -3,7 +3,7 @@
 
 <h3>@Label</h3>
 <Chessboard @ref="chessboard" Game="@game"/>
-<button @onclick="PlayFamousGames">Play Famous Games</button>
+<button @onclick="PlayLiChessGames">Play LiChess Games</button>
 <div>@Message</div>
 @code {
     public string Label { get; set; } = "Chess Game";
@@ -12,7 +12,7 @@
 
     private Chessboard? chessboard;
     Game game = new();
-    private async void PlayFamousGames()
+    private async void PlayLiChessGames()
     {
         bool white = true;
         int moveIndex = 0;
@@ -22,18 +22,16 @@
         int pauseAt = 80;
 
         int gameIndex = 0;
-        foreach (string[] moves in FamousGames.Games.Skip(0).ToDictionary().Values)
+        foreach (GameRecord gameRecord in GameLibrary.LiChess)
         {
-
             game = new Game();
             white = true;
 
-
-            string gameName = FamousGames.Games.Keys.ToArray()[gameIndex++];
+            string gameName = gameRecord.Name;
+            string[] moves = gameRecord.MovesAsAlgebra;
 
             while (moveIndex < moves.Length && !invalid)
             {
-
                 string algebra = moves[moveIndex++];
                 Label = $"{gameName} {moveIndex + 1} of {moves.Length + 1} {algebra}";
                 whiteIndex += white ? 1 : 0;
@@ -41,11 +39,7 @@
                 try
                 {
                     Colour whoseTurn = white ? Colour.White : Colour.Black;
-                    if (gameIndex == 4 && moveIndex == 54)
-                    {
-                        int x = 0;
-                    }
-                    Move move = Algebra.DecodeAlgebra(algebra, game.Board, whoseTurn);
+                    //Move move = Algebra.DecodeAlgebra(algebra, game.Board, whoseTurn);
                     game.Move(algebra, whoseTurn);
                     Move moveHistory = game.HistoryFor(Colour.White, 0);
                     white = !white;
@@ -57,7 +51,6 @@
                 }
                 StateHasChanged();
                 await Task.Delay(1);
-
              }
 
             //TODO: Handle pause between games

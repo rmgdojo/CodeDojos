@@ -2,9 +2,9 @@
 
 namespace RMGChess.Core
 {
-    public static class Algebra
+    internal static class Algebra
     {
-        public static Move DecodeAlgebra(string moveAsAlgebra, Board board, Colour whoIsMoving)
+        internal static Move DecodeAlgebra(string moveAsAlgebra, Board board, Colour whoIsMoving)
         {
             // check if empty or too short to be valid
             if (String.IsNullOrWhiteSpace(moveAsAlgebra) || moveAsAlgebra.Length < 2)
@@ -108,7 +108,7 @@ namespace RMGChess.Core
             return move;
         }
 
-        public static string EncodeAlgebra(Move move, Board board)
+        internal static string EncodeAlgebra(Move move, Board board)
         {
             Piece piece = move.Piece;
             Position destination = move.To;
