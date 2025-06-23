@@ -17,9 +17,11 @@ namespace RMGChess.ConsoleApp
             var pgnGames = GameLibrary.LiChess;
             int badGames = 0;
 
-            foreach (GameRecord gameToPlay in pgnGames)
+            foreach (GameRecord gameToPlay in pgnGames.Skip(3))
             {
                 Game game = new Game();
+                bool firstMove = true;
+                float movePairIndex = 1;
 
                 Console.SetCursorPosition(0, 0);
 
@@ -31,6 +33,13 @@ namespace RMGChess.ConsoleApp
                 Game.PlayRecordedGame(game, gameToPlay,
                     (whoseTurn, move) =>
                     {
+                        if (firstMove)
+                        {
+                            Console.SetCursorPosition(0, 3);
+                            WriteBoardStringToConsole(game.Board, null);
+                            firstMove = false;
+                        }
+
                         // before the move, write out the move details so we can see what's coming
                         Console.SetCursorPosition(0, 13);
 
@@ -39,12 +48,14 @@ namespace RMGChess.ConsoleApp
                         Console.SetCursorPosition(Console.CursorLeft - 10, Console.CursorTop);
 
                         string algebra = gameToPlay.MovesAsAlgebra[moveIndex++];
-                        Console.WriteLine(algebra);
+                        Console.WriteLine($"{(int)movePairIndex}. {algebra}");
                         Console.WriteLine();
+                        movePairIndex += 0.5f; // increment by half for each move
 
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}");
+                        Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}{new string(' ', 20)}");
                         Console.ForegroundColor = ConsoleColor.White;
+                        Console.ReadKey(false);
                     },
                     (whoseTurn, move) =>
                     {
