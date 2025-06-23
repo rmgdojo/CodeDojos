@@ -3,14 +3,13 @@ using System.Reflection;
 
 namespace RMGChess.Core;
 
-public static class PGNGames
+public static class GameLibrary
 {
-    private static IList<GameRecord> _dannyTheDonkey;
+    private static IList<GameRecord> _lichess;
 
-    public static IList<GameRecord> DannyTheDonkey => _dannyTheDonkey ??=
-        GetPGNFromEmbeddedResource("lichess_DannyTheDonkey_2023-07-20.pgn");
+    public static IList<GameRecord> LiChess => _lichess ??= GetGamesFromEmbeddedPGN("lichess_DannyTheDonkey_2023-07-20.pgn");
 
-    private static IList<GameRecord> GetPGNFromEmbeddedResource(string resourcePath)
+    private static IList<GameRecord> GetGamesFromEmbeddedPGN(string resourcePath)
     {
         var assembly = Assembly.GetExecutingAssembly();
         var resourceName = assembly.GetManifestResourceNames().SingleOrDefault(str => str.EndsWith(resourcePath));
@@ -22,7 +21,7 @@ public static class PGNGames
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     string result = reader.ReadToEnd();
-                    return PGNConverter.ConvertGames(result);
+                    return PGNConverter.GetGameRecordsFromPGN(result);
                 }
             }
         }

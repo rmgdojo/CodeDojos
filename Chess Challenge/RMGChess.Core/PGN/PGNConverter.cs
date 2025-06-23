@@ -12,14 +12,49 @@ namespace RMGChess.Core
         private const string BLACK_IDENTIFIER = "[Black \"";
         private const string HEADER_END = "\"]";
 
-        public static IList<GameRecord> ConvertGames(string pgnData)
+        public static IList<GameRecord> GetGameRecordsFromPGN(string pgnData)
         {
             List<GameRecord> games = new();
+            IList<(string[] HeaderBlock, string MovesBlock)> gameBlocks = GetBlocksFromPGN(pgnData);
 
-            // we can't automatically assume that the double new line convention etc will be honoured
-            // so we need to proactive parse the PGN data into blocks - 1 header, 1 moves for each game
+            foreach (var gameBlock in gameBlocks)
+            {
+                // only take the headers we want
+                string eventName = gameBlock.HeaderBlock.GetValueFromHeader(EVENT_IDENTIFIER);
+                string gameDate = gameBlock.HeaderBlock.GetValueFromHeader(DATE_IDENTIFIER);
+                string playingWhite = gameBlock.HeaderBlock.GetValueFromHeader(WHITE_IDENTIFIER);
+                string playingBlack = gameBlock.HeaderBlock.GetValueFromHeader(BLACK_IDENTIFIER);
+
+                if (String.IsNullOrWhiteSpace(gameBlock.MovesBlock))
+                {
+                    throw new InvalidDataException("Game moves block is empty."); // unlikely, but bad data is bad
+                }
+
+                string[] moves = gameBlock.MovesBlock.Split(" ").Where(x => !x.Contains(".")).SkipLast(1).ToArray();
+                string name = $"{eventName} | {gameDate} | {playingWhite} vs {playingBlack}";
+
+                games.Add(new GameRecord(
+                    eventName, 
+                    String.IsNullOrWhiteSpace(gameDate) ? DateTime.MinValue : DateTime.Parse(gameDate), 
+                    playingWhite, 
+                    playingBlack, 
+                    moves));
+            }
+
+            return games;
+        }
+
+        private static string GetValueFromHeader(this string[] pgnLines, string name)
+        {
+            string line = pgnLines.FirstOrDefault(x => x.Contains(name));
+            return line?.Replace(name, "").Replace(HEADER_END, "") ?? "";
+        }
+
+        private static IList<(string[] HeaderBlock, string MovesBlock)> GetBlocksFromPGN(string pgnData)
+        {
             List<(string[] HeaderBlock, string MovesBlock)> gameBlocks = new();
 
+            pgnData = pgnData.TrimStart().TrimEnd('\r', '\n');
             if (pgnData.StartsWith("["))
             {
                 int lineIndex = 0;
@@ -37,17 +72,20 @@ namespace RMGChess.Core
 
                     if (lines[lineIndex] == "") lineIndex++; // skip the empty line after the header block, if it exists
 
-                    while (lines[lineIndex] != "" && !lines[lineIndex].StartsWith("["))
+                    while (lineIndex < lines.Length && lines[lineIndex] != "" && !lines[lineIndex].StartsWith("["))
                     {
                         movesBlock.Append(lines[lineIndex++].Replace("\n", "")); // in case the moves are on multiple lines
                     }
 
-                    while (lineIndex < lines.Length && lines[lineIndex] == "")
+                    if (lineIndex < lines.Length && lines[lineIndex] == "")
                     {
-                        lineIndex++; // skip any additional empty lines after the moves block
+                        while (lines[lineIndex] == "")
+                        {
+                            lineIndex++; // skip any additional empty lines after the moves block
+                        }
                     }
-                    
-                    gameBlocks.Add((headerBlock.ToArray(), movesBlock.ToString().TrimEnd()));
+
+                    gameBlocks.Add((headerBlock.ToArray(), movesBlock.ToString()));
                     lines = lines.Skip(lineIndex).ToArray(); // remove the processed lines
                     lineIndex = 0; // reset line index for the next game
                 }
@@ -59,30 +97,7 @@ namespace RMGChess.Core
                 throw new InvalidDataException("Invalid PGN data format. Expected to start with a header block.");
             }
 
-            // now turn blocks into GameRecords
-            foreach (var gameBlock in gameBlocks)
-            {
-                // only take the headers we want
-                string gameName = gameBlock.HeaderBlock.GetValueFromHeader(EVENT_IDENTIFIER);
-                string gameDate = gameBlock.HeaderBlock.GetValueFromHeader(DATE_IDENTIFIER);
-                string playingWhite = gameBlock.HeaderBlock.GetValueFromHeader(WHITE_IDENTIFIER);
-                string playingBlack = gameBlock.HeaderBlock.GetValueFromHeader(BLACK_IDENTIFIER);
-
-                if (String.IsNullOrWhiteSpace(gameBlock.MovesBlock)) throw new InvalidDataException("Game moves block is empty."); // unlikely, but bad data is bad data
-
-                string[] moves = gameBlock.MovesBlock.Split(" ").Where(x => !x.Contains(".")).SkipLast(1).ToArray();
-                string name = $"{gameName} | {gameDate} | {playingWhite} vs {playingBlack}";
-
-                games.Add(new GameRecord(name, moves));
-            }
-
-            return games;
-        }
-
-        private static string GetValueFromHeader(this string[] pgnLines, string name)
-        {
-            string line = pgnLines.FirstOrDefault(x => x.Contains(name));
-            return line?.Replace(name, string.Empty).Replace(HEADER_END, string.Empty) ?? string.Empty;
+            return gameBlocks;
         }
     }
 }

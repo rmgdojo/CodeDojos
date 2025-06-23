@@ -6,84 +6,76 @@ namespace RMGChess.ConsoleApp
     {
         static void Main(string[] args)
         {
-            bool white = true;
             int moveIndex = 0;
-            int whiteIndex = 0;
-            int blackIndex = 0;
-            bool invalid = false;
-            int pauseAt = 80;
-
-            int gameIndex = 0;
-
+            int gameIndex = 1;
 
             // Run this code to read in the DannyTheDonkey PGN file and play the games.
             // NOTE: We are only running the first game for now and there is an issue with this game
             // Move 7. Ne2 is ambiguous and we end up moving the wrong knight
             // To fix this alter the move to be 7. Nge2
 
-            var pgnGames = PGNGames.DannyTheDonkey;
+            var pgnGames = GameLibrary.LiChess;
+            int badGames = 0;
+
             foreach (GameRecord gameToPlay in pgnGames)
             {
-                Console.WriteLine($"Game: {gameToPlay.Name}");
-                Console.WriteLine(string.Join(' ', gameToPlay.Moves));
-                Console.WriteLine("Press ENTER to start game.");
-                Console.ReadLine();
-                Console.Clear();
-
-                // Run this code to play the FamousGames
-                // var gameToPlay = FamousGames.Games.Skip(0).ToDictionary();
-
                 Game game = new Game();
-                white = true;
 
                 Console.SetCursorPosition(0, 0);
 
-                Console.WriteLine(gameToPlay.Name);
-                Console.WriteLine(new string('-', gameToPlay.Name.Length));
+                string title = $"Game {gameIndex++}: {gameToPlay.Name}";
+                Console.WriteLine(title);
+                Console.WriteLine(new string('-', title.Length));
                 Console.WriteLine();
 
-                while (moveIndex < gameToPlay.Moves.Length)
-                {
-                    //Thread.Sleep(1000);
-                    Console.SetCursorPosition(0, 3);
-                    WriteBoardStringToConsole(game.Board, null);
-
-                    Console.WriteLine($"{(white ? "White" : "Black")} to play.");
-                    Console.Write("Algebra:           ");
-                    Console.SetCursorPosition(Console.CursorLeft - 10, Console.CursorTop);
-                    string algebra = gameToPlay.Moves[moveIndex++];
-                    whiteIndex += white ? 1 : 0;
-                    blackIndex += white ? 0 : 1;
-                    Console.WriteLine($"{(white ? whiteIndex : blackIndex)}. {algebra}");
-
-                    //Console.ReadLine();
-                    try
+                Game.PlayRecordedGame(game, gameToPlay,
+                    (whoseTurn, move) =>
                     {
-                        Colour whoseTurn = white ? Colour.White : Colour.Black;
+                        // before the move, write out the move details so we can see what's coming
+                        Console.SetCursorPosition(0, 13);
 
+                        Console.WriteLine($"{whoseTurn} to play.");
+                        Console.Write("Algebra:           ");
+                        Console.SetCursorPosition(Console.CursorLeft - 10, Console.CursorTop);
+
+                        string algebra = gameToPlay.MovesAsAlgebra[moveIndex++];
+                        Console.WriteLine(algebra);
                         Console.WriteLine();
-                        Move move = Algebra.DecodeAlgebra(algebra, game.Board, whoseTurn);
+
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}");
-                        Console.WriteLine($"Move converts to algebra: {Algebra.EncodeAlgebra(move, game.Board)}");
                         Console.ForegroundColor = ConsoleColor.White;
-
-                        game.Move(algebra, whoseTurn);
-                        white = !white;
-                    }
-                    catch (Exception ex)
+                    },
+                    (whoseTurn, move) =>
                     {
-                        Console.WriteLine($"Move is invalid ({ex.Message})");
-                        invalid = true;
-                    }
-                }
+                        // after the move, write out the newboard state
+                        Console.SetCursorPosition(0, 3);
+                        WriteBoardStringToConsole(game.Board, null);
 
+                        //Thread.Sleep(100);
+                    }, 
+                    message => {
+                        Console.SetCursorPosition(0, 16);
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine(message + new string(' ', 30));
+                        Console.ForegroundColor = ConsoleColor.White;
+                        badGames++;
+                        Console.ReadKey(false);
+                        return true;
+                    }
+                );
+
+                Console.SetCursorPosition(0, 17);
                 Console.WriteLine("Game over. Press any key to continue.");
-                Console.ReadKey(false);
+                //Console.ReadKey(false);
                 Console.Clear();
 
                 moveIndex = 0;
             }
+
+            Console.SetCursorPosition(0, 19);
+            Console.WriteLine($"Games outcomes: {pgnGames.Count - badGames} good games, {badGames} bad games");
+            Console.ReadKey(false);
         }
 
         static void WriteBoardStringToConsole(Board board, Position highlight)
