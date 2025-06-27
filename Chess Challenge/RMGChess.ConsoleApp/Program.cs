@@ -14,10 +14,10 @@ namespace RMGChess.ConsoleApp
             // Move 7. Ne2 is ambiguous and we end up moving the wrong knight
             // To fix this alter the move to be 7. Nge2
 
-            var pgnGames = GameLibrary.LiChess;
+            var gameRecords = GameLibrary.MagnusCarlsenGames;
             int badGames = 0;
 
-            foreach (GameRecord gameToPlay in pgnGames.Skip(3))
+            foreach (GameRecord gameToPlay in gameRecords.Skip(3))
             {
                 Game game = new Game();
                 bool firstMove = true;
@@ -85,7 +85,7 @@ namespace RMGChess.ConsoleApp
             }
 
             Console.SetCursorPosition(0, 19);
-            Console.WriteLine($"Games outcomes: {pgnGames.Count - badGames} good games, {badGames} bad games");
+            Console.WriteLine($"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
             Console.ReadKey(false);
         }
 

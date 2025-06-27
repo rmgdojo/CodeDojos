@@ -22,7 +22,7 @@
         int pauseAt = 80;
 
         int gameIndex = 0;
-        foreach (GameRecord gameRecord in GameLibrary.LiChess)
+        foreach (GameRecord gameRecord in GameLibrary.MagnusCarlsenGames)
         {
             game = new Game();
             white = true;
@@ -39,8 +39,9 @@
                 try
                 {
                     Colour whoseTurn = white ? Colour.White : Colour.Black;
+                    // TODO: move to Game.PlayRecordedGame
                     //Move move = Algebra.DecodeAlgebra(algebra, game.Board, whoseTurn);
-                    game.Move(algebra, whoseTurn);
+                    //game.Move(algebra, whoseTurn);
                     Move moveHistory = game.HistoryFor(Colour.White, 0);
                     white = !white;
                 }
