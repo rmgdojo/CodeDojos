@@ -17,7 +17,7 @@ namespace RMGChess.ConsoleApp
             var gameRecords = GameLibrary.MagnusCarlsenGames;
             int badGames = 0;
 
-            foreach (GameRecord gameToPlay in gameRecords.Skip(3))
+            foreach (GameRecord gameToPlay in gameRecords)
             {
                 Game game = new Game();
                 bool firstMove = true;
@@ -55,7 +55,7 @@ namespace RMGChess.ConsoleApp
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}{new string(' ', 20)}");
                         Console.ForegroundColor = ConsoleColor.White;
-                        Console.ReadKey(false);
+                        //Console.ReadKey(false);
                     },
                     (whoseTurn, move) =>
                     {
