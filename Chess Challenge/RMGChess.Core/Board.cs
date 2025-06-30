@@ -48,7 +48,7 @@
                 {
                     if (to.IsOccupied)
                     {
-                        if (to.Piece.IsOpponentOf(piece))
+                        if (piece is not Pawn && to.Piece.IsOpponentOf(piece))
                         {
                             validMoves.Add(potentialMove.Taking(to.Piece));
                         }

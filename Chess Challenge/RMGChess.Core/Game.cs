@@ -13,7 +13,7 @@ namespace RMGChess.Core
             foreach (string moveAsAlgebra in gameRecord.MovesAsAlgebra)
             {
                 try
-                {
+                {                 
                     Move move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
                     beforeMove?.Invoke(whoseTurn, move);
                     move.Execute(game);

@@ -17,7 +17,7 @@ namespace RMGChess.ConsoleApp
             var gameRecords = GameLibrary.MagnusCarlsenGames;
             int badGames = 0;
 
-            foreach (GameRecord gameToPlay in gameRecords)
+            foreach (GameRecord gameToPlay in gameRecords) // straight to game 4
             {
                 Game game = new Game();
                 bool firstMove = true;
