@@ -8,6 +8,7 @@ public class GameRecord
     public string PlayingWhite { get; init; }
     public string PlayingBlack { get; init; }
     public string[] MovesAsAlgebra { get; init; }
+    public int MoveCount => (int)(MovesAsAlgebra.Length / 2);
 
     public GameRecord(string @event, DateTime date, string playingWhite, string playingBlack, string[] movesAsAlgebra)
     {

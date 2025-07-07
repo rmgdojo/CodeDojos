@@ -5,7 +5,7 @@ namespace RMGChess.Core
 {
     public class Game
     {
-        public static void PlayRecordedGame(Game game, GameRecord gameRecord, Action<Colour, Move> beforeMove, Action<Colour, Move> afterMove, Func<string, bool> onError)
+        public static void PlayRecordedGame(Game game, GameRecord gameRecord, Func<Colour, Move, bool> beforeMove, Func<Colour, Move, bool> afterMove, Func<string, bool> onError)
         {
             game.Reset();
 
@@ -15,10 +15,10 @@ namespace RMGChess.Core
                 try
                 {                 
                     Move move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
-                    beforeMove?.Invoke(whoseTurn, move);
+                    if (!beforeMove.Invoke(whoseTurn, move)) return;
                     move.Execute(game);
                     game._history[whoseTurn].Add(move);
-                    afterMove?.Invoke(whoseTurn, move);
+                    if (!afterMove.Invoke(whoseTurn, move)) return;
                     whoseTurn = whoseTurn.Switch(); // switch turns
                 }
                 catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using RMGChess.Core;
+using System.Diagnostics;
 
 namespace RMGChess.ConsoleApp
 {
@@ -17,11 +18,13 @@ namespace RMGChess.ConsoleApp
             var gameRecords = GameLibrary.MagnusCarlsenGames;
             int badGames = 0;
 
-            foreach (GameRecord gameToPlay in gameRecords) // straight to game 4
+            foreach (GameRecord gameToPlay in gameRecords)
             {
                 Game game = new Game();
                 bool firstMove = true;
                 float movePairIndex = 1;
+                char? modeKey = null;
+                float runningTo = 0;
 
                 Console.SetCursorPosition(0, 0);
 
@@ -29,6 +32,8 @@ namespace RMGChess.ConsoleApp
                 Console.WriteLine(title);
                 Console.WriteLine(new string('-', title.Length));
                 Console.WriteLine();
+
+                Console.CursorVisible = false;
 
                 Game.PlayRecordedGame(game, gameToPlay,
                     (whoseTurn, move) =>
@@ -43,19 +48,97 @@ namespace RMGChess.ConsoleApp
                         // before the move, write out the move details so we can see what's coming
                         Console.SetCursorPosition(0, 13);
 
-                        Console.WriteLine($"{whoseTurn} to play.");
-                        Console.Write("Algebra:           ");
-                        Console.SetCursorPosition(Console.CursorLeft - 10, Console.CursorTop);
+                        #region show previous move
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write("Previous move: ");
+                        if (moveIndex > 0)
+                        {
+                            Console.WriteLine($"{(Math.Ceiling(movePairIndex) - 1)}. {gameToPlay.MovesAsAlgebra[moveIndex-1]} ({whoseTurn.Switch()} playing)          \n");
+                        }
+                        else
+                        {
+                            Console.WriteLine("None\n");
+                        }
+                        Console.ForegroundColor = ConsoleColor.White;
+                        #endregion
 
+                        #region show next move
                         string algebra = gameToPlay.MovesAsAlgebra[moveIndex++];
-                        Console.WriteLine($"{(int)movePairIndex}. {algebra}");
-                        Console.WriteLine();
+                        Console.WriteLine($"{whoseTurn} to play.");
+                        Console.WriteLine($"Algebra: {(int)movePairIndex}. {algebra}     ");
                         movePairIndex += 0.5f; // increment by half for each move
 
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}{new string(' ', 20)}");
                         Console.ForegroundColor = ConsoleColor.White;
-                        //Console.ReadKey(false);
+                        #endregion
+
+                        #region set mode from key
+                        while (true)
+                        {
+                            if (modeKey == 'q')
+                            {
+                                return false;
+                            }
+
+                            if (modeKey != 'r')
+                            {
+                                if (movePairIndex > runningTo)
+                                {
+                                    Console.SetCursorPosition(0, 19);
+                                    Console.WriteLine("Press (S) step through move, (R) to run, (Q) to skip to next game");
+                                    modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (modeKey == 'r')
+                            {
+                                Console.Write("Run to move: ");
+                                Console.CursorVisible = true;
+
+                                try
+                                {
+                                    string runTo = Console.ReadLine()?.Trim() ?? string.Empty;
+                                    Console.CursorVisible = false;
+                                    if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault())) runTo += 'w';
+                                    char colour = runTo.Last();
+                                    int runTarget = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim());
+
+                                    runningTo = runTarget + (colour == 'b' ? 0.5f : 0f);
+                                    if (runningTo <= movePairIndex || runningTo >= gameToPlay.MoveCount) runningTo = 0;
+
+                                    if (runningTo > 1)
+                                    {
+                                        Console.SetCursorPosition(0, 20);
+                                        Console.WriteLine(new string(' ', 40));
+                                        modeKey = ' ';
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        throw new IndexOutOfRangeException();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.SetCursorPosition(0, 20);
+                                    Console.Write($"Invalid run target. ");
+                                    continue;
+                                }
+                            }
+
+                            if (modeKey == 's')
+                            {
+                                break; // step through
+                            }
+                        }
+                        #endregion
+
+                        return true;
                     },
                     (whoseTurn, move) =>
                     {
@@ -63,10 +146,10 @@ namespace RMGChess.ConsoleApp
                         Console.SetCursorPosition(0, 3);
                         WriteBoardStringToConsole(game.Board, null);
 
-                        //Thread.Sleep(100);
+                        return true;
                     }, 
                     message => {
-                        Console.SetCursorPosition(0, 16);
+                        Console.SetCursorPosition(0, 18);
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine(message + new string(' ', 30));
                         Console.ForegroundColor = ConsoleColor.White;
@@ -76,7 +159,7 @@ namespace RMGChess.ConsoleApp
                     }
                 );
 
-                Console.SetCursorPosition(0, 17);
+                Console.SetCursorPosition(0, 20);
                 Console.WriteLine("Game over. Press any key to continue.");
                 //Console.ReadKey(false);
                 Console.Clear();
@@ -84,7 +167,7 @@ namespace RMGChess.ConsoleApp
                 moveIndex = 0;
             }
 
-            Console.SetCursorPosition(0, 19);
+            Console.SetCursorPosition(0, 21);
             Console.WriteLine($"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
             Console.ReadKey(false);
         }
