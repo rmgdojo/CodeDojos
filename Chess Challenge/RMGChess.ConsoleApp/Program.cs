@@ -68,6 +68,25 @@ namespace RMGChess.ConsoleApp
                         #region set mode from key
                         while (true)
                         {
+                            if (modeKey == 'e')
+                            {
+                                DateTime startDelay = DateTime.Now;
+                                while (DateTime.Now < startDelay.AddMilliseconds(500))
+                                {
+                                    if (Console.KeyAvailable)
+                                    {
+                                        char key = char.ToLower(Console.ReadKey(true).KeyChar);
+                                        if (key == 'c')
+                                        {
+                                            modeKey = ' '; // exit playback
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+
                             if (modeKey == 'q')
                             {
                                 return false;
@@ -77,7 +96,7 @@ namespace RMGChess.ConsoleApp
                             {
                                 if (movePairIndex > runningTo)
                                 {
-                                    ChessConsole.WriteLine(0, 19, "Press (S) step through move, (R) to run, (Q) to skip to next game");
+                                    ChessConsole.WriteLine(0, 19, "Press (S) step through move, (R) to run, (E) to playback to game end (C interrupts), (Q) to skip to next game");
                                     modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
                                 }
                                 else
