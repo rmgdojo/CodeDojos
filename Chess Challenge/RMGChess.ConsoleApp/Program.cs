@@ -12,6 +12,7 @@ namespace RMGChess.ConsoleApp
         {
             int moveIndex = 0;
             int gameIndex = 1;
+            char? modeKey = null;
 
             // Run this code to read in the DannyTheDonkey PGN file and play the games.
             // NOTE: We are only running the first game for now and there is an issue with this game
@@ -27,7 +28,7 @@ namespace RMGChess.ConsoleApp
             {
                 Game game = new Game();
                 float movePairIndex = 1;
-                char? modeKey = null;
+                int delay = 500;
                 float runningTo = 0;
                 Move lastMove = null;
 
@@ -68,10 +69,24 @@ namespace RMGChess.ConsoleApp
                         #region set mode from key
                         while (true)
                         {
+                            if (modeKey == 'x')
+                            {
+                                if (Console.KeyAvailable)
+                                {
+                                    char key = char.ToLower(Console.ReadKey(true).KeyChar);
+                                    if (key == 'x')
+                                    {
+                                        modeKey = ' '; // exit playback
+                                    }
+                                }
+                                
+                                break;
+                            }
+
                             if (modeKey == 'e')
                             {
                                 DateTime startDelay = DateTime.Now;
-                                while (DateTime.Now < startDelay.AddMilliseconds(500))
+                                while (DateTime.Now < startDelay.AddMilliseconds(delay))
                                 {
                                     if (Console.KeyAvailable)
                                     {
@@ -80,6 +95,11 @@ namespace RMGChess.ConsoleApp
                                         {
                                             modeKey = ' '; // exit playback
                                             break;
+                                        }
+
+                                        if (key == 'f')
+                                        {
+                                            delay = 0; // remove delay
                                         }
                                     }
                                 }
@@ -96,7 +116,7 @@ namespace RMGChess.ConsoleApp
                             {
                                 if (movePairIndex > runningTo)
                                 {
-                                    ChessConsole.WriteLine(0, 19, "Press (S) to step through move, (R) to run, (E) to playback to game end (C interrupts), (Q) to skip to next game");
+                                    ChessConsole.WriteLine(0, 19, "Press (S) to step through move, (R) to run, (E) to playback to game end (C interrupts, F removes delay), (Q) to skip to next game, (X) to play all games at max speed.");
                                     modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
                                 }
                                 else
@@ -161,7 +181,7 @@ namespace RMGChess.ConsoleApp
                     }
                 );
 
-                if (modeKey != 'q')
+                if (modeKey != 'q' && modeKey != 'x')
                 {
                     ChessConsole.WriteLine(0, 20, "Game over. Press any key to continue.");
                     Console.ReadKey(false);
