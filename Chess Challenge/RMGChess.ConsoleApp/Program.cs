@@ -1,5 +1,8 @@
 ﻿using RMGChess.Core;
+using Spectre.Console;
 using System.Diagnostics;
+using System.Drawing;
+using System.Text;
 
 namespace RMGChess.ConsoleApp
 {
@@ -18,59 +21,48 @@ namespace RMGChess.ConsoleApp
             var gameRecords = GameLibrary.MagnusCarlsenGames;
             int badGames = 0;
 
+            Console.OutputEncoding = Encoding.UTF8;
+
             foreach (GameRecord gameToPlay in gameRecords)
             {
                 Game game = new Game();
-                bool firstMove = true;
                 float movePairIndex = 1;
                 char? modeKey = null;
                 float runningTo = 0;
-
-                Console.SetCursorPosition(0, 0);
+                Move lastMove = null;
 
                 string title = $"Game {gameIndex++}: {gameToPlay.Name}";
-                Console.WriteLine(title);
-                Console.WriteLine(new string('-', title.Length));
-                Console.WriteLine();
+                ChessConsole.WriteLine(0, 0, title);
+                ChessConsole.WriteLine(new string('-', title.Length));
+                ChessConsole.WriteLine();
 
                 Console.CursorVisible = false;
 
                 Game.PlayRecordedGame(game, gameToPlay,
                     (whoseTurn, move) =>
                     {
-                        if (firstMove)
-                        {
-                            Console.SetCursorPosition(0, 3);
-                            WriteBoardStringToConsole(game.Board, null);
-                            firstMove = false;
-                        }
+                        DisplayFormattedPgn(0, 22, gameToPlay, (int)Math.Floor(movePairIndex), whoseTurn, 120);
+                        WriteBoardStringToConsole(3, 3, game.Board, move.From, move.To);
 
-                        // before the move, write out the move details so we can see what's coming
-                        Console.SetCursorPosition(0, 13);
-
-                        #region show previous move
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Console.Write("Previous move: ");
-                        if (moveIndex > 0)
+                        if (moveIndex > 0 && lastMove is not null)
                         {
-                            Console.WriteLine($"{(Math.Ceiling(movePairIndex) - 1)}. {gameToPlay.MovesAsAlgebra[moveIndex-1]} ({whoseTurn.Switch()} playing)          \n");
+                            string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(movePairIndex) - 1)}. {gameToPlay.MovesAsAlgebra[moveIndex - 1]} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
+                            ChessConsole.Write(0, 13, previousMove, true);
                         }
                         else
                         {
-                            Console.WriteLine("None\n");
+                            ChessConsole.Write(0, 13, $"[blue]No previous move.[/]", true);
                         }
-                        Console.ForegroundColor = ConsoleColor.White;
-                        #endregion
+
+                        lastMove = move;
 
                         #region show next move
                         string algebra = gameToPlay.MovesAsAlgebra[moveIndex++];
-                        Console.WriteLine($"{whoseTurn} to play.");
-                        Console.WriteLine($"Algebra: {(int)movePairIndex}. {algebra}     ");
+                        ChessConsole.WriteLine(0, 15, $"{whoseTurn} to play.");
+                        ChessConsole.WriteLine($"Algebra: {(int)movePairIndex}. {algebra}", true);
                         movePairIndex += 0.5f; // increment by half for each move
 
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}{new string(' ', 20)}");
-                        Console.ForegroundColor = ConsoleColor.White;
+                        ChessConsole.WriteLine($"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
                         #endregion
 
                         #region set mode from key
@@ -85,8 +77,7 @@ namespace RMGChess.ConsoleApp
                             {
                                 if (movePairIndex > runningTo)
                                 {
-                                    Console.SetCursorPosition(0, 19);
-                                    Console.WriteLine("Press (S) step through move, (R) to run, (Q) to skip to next game");
+                                    ChessConsole.WriteLine(0, 19, "Press (S) step through move, (R) to run, (Q) to skip to next game");
                                     modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
                                 }
                                 else
@@ -97,7 +88,7 @@ namespace RMGChess.ConsoleApp
 
                             if (modeKey == 'r')
                             {
-                                Console.Write("Run to move: ");
+                                ChessConsole.Write("Run to move: ");
                                 Console.CursorVisible = true;
 
                                 try
@@ -109,12 +100,11 @@ namespace RMGChess.ConsoleApp
                                     int runTarget = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim());
 
                                     runningTo = runTarget + (colour == 'b' ? 0.5f : 0f);
-                                    if (runningTo <= movePairIndex || runningTo >= gameToPlay.MoveCount) runningTo = 0;
+                                    if (runningTo <= movePairIndex || runningTo > gameToPlay.MoveCount) runningTo = 0;
 
                                     if (runningTo > 1)
                                     {
-                                        Console.SetCursorPosition(0, 20);
-                                        Console.WriteLine(new string(' ', 40));
+                                        ChessConsole.ClearLine(20);
                                         modeKey = ' ';
                                         break;
                                     }
@@ -125,8 +115,7 @@ namespace RMGChess.ConsoleApp
                                 }
                                 catch (Exception ex)
                                 {
-                                    Console.SetCursorPosition(0, 20);
-                                    Console.Write($"Invalid run target. ");
+                                    ChessConsole.Write(0, 20, $"Invalid run target. ");
                                     continue;
                                 }
                             }
@@ -142,69 +131,130 @@ namespace RMGChess.ConsoleApp
                     },
                     (whoseTurn, move) =>
                     {
-                        // after the move, write out the newboard state
-                        Console.SetCursorPosition(0, 3);
-                        WriteBoardStringToConsole(game.Board, null);
-
                         return true;
                     }, 
                     message => {
-                        Console.SetCursorPosition(0, 18);
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(message + new string(' ', 30));
-                        Console.ForegroundColor = ConsoleColor.White;
+
+                        ChessConsole.WriteLine(0, 18, $"[red]{message}[/]", true);
                         badGames++;
                         Console.ReadKey(false);
                         return true;
                     }
                 );
 
-                Console.SetCursorPosition(0, 20);
-                Console.WriteLine("Game over. Press any key to continue.");
-                //Console.ReadKey(false);
-                Console.Clear();
+                if (modeKey != 'q')
+                {
+                    ChessConsole.WriteLine(0, 20, "Game over. Press any key to continue.");
+                    Console.ReadKey(false);
+                }
 
+               ChessConsole.Clear();
                 moveIndex = 0;
             }
 
-            Console.SetCursorPosition(0, 21);
-            Console.WriteLine($"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
+            ChessConsole.Clear();
+            ChessConsole.WriteLine(0, 20, $"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
             Console.ReadKey(false);
         }
 
-        static void WriteBoardStringToConsole(Board board, Position highlight)
+        private static void WriteBoardStringToConsole(int column, int row, Board board, Position from, Position to)
         {
+            bool alt = false;
+
+            int rowIndex = row;
             for (int rank = 8; rank >= 1; rank--)
             {
-                Console.Write(rank);
-                Console.Write(" ");
+                ChessConsole.Write(column, rowIndex++, $"{rank}");
                 for (char file = 'a'; file <= 'h'; file++)
                 {
+                    string foregroundColour = "white";
+                    string backgroundColour = alt ? "cyan" : "darkcyan";
+                    if (from is not null && (rank == from.Rank && file == from.File))
+                    {
+                        foregroundColour = "magenta"; // highlight the specified position
+                    }
+                    if (to is not null && (rank == to.Rank && file == to.File))
+                    {
+                        backgroundColour = "magenta"; // highlight the destination position
+                    }
+
+                    alt = !alt;
+
+                    char content = ' ';
                     Square square = board[file, rank];
                     Position position = square.Position;
 
                     if (square.Piece is not null)
                     {
-                        Console.ForegroundColor = square.Piece.IsBlack ? ConsoleColor.Black : ConsoleColor.White;
-                        Console.BackgroundColor = square.Piece.IsBlack ? ConsoleColor.White : ConsoleColor.Black;
-
-                        Console.Write(square.Piece.Symbol);
-                    }
-                    else
-                    {
-                        Console.Write(".");
+                        content = square.Piece.Symbol; // use the first character of the piece symbol
+                        if (square.Piece.IsBlack && foregroundColour == "white") foregroundColour = "black";
                     }
 
-                    Console.ForegroundColor = ConsoleColor.White; 
-                    Console.BackgroundColor = ConsoleColor.Black;
-                    Console.Write(" ");
+                    ChessConsole.Write($"[{foregroundColour} on {backgroundColour}] {content} [/]");
                 }
 
-                Console.WriteLine();
+                ChessConsole.WriteLine();
+                alt = !alt; // alternate the background color for the next line
             }
 
-            Console.WriteLine("  a b c d e f g h");
-            Console.WriteLine();
+            ChessConsole.WriteLine(column, rowIndex, " a  b  c  d  e  f  g  h");
+        }
+
+        private static void DisplayFormattedPgn(int column, int row, GameRecord game, int currentRound, Colour whoseTurn, int lineLength)
+        {
+            var rounds = game.MovesAsAlgebra
+                .Select((move, index) => new { move, index })
+                .GroupBy(x => x.index / 2)
+                .Select((g, roundIndex) => new
+                {
+                    Round = roundIndex + 1,
+                    WhiteMove = g.ElementAtOrDefault(0)?.move,
+                    BlackMove = g.ElementAtOrDefault(1)?.move,
+                    IsCurrentRound = (roundIndex == currentRound - 1)
+                })
+                .ToList();
+
+            StringBuilder pgnBuilder = new StringBuilder();
+            int currentLineLength = 0;
+            foreach (var round in rounds)
+            {
+                string roundString = getRoundString(round.Round, round.WhiteMove, round.BlackMove, round.IsCurrentRound, whoseTurn, out string markedUpRoundString);
+                if (currentLineLength + roundString.Length > lineLength)
+                {
+                    pgnBuilder.AppendLine();
+                    currentLineLength = 0;
+                }
+                pgnBuilder.Append(markedUpRoundString);
+                currentLineLength += roundString.Length;
+            }
+
+            string pgn = pgnBuilder.ToString().TrimEnd();
+            ChessConsole.Write(column, row, pgn);
+
+            string getRoundString(int round, string whiteMove, string blackMove, bool isCurrentRound, Colour whoseTurn, out string markedUpString)
+            {
+                markedUpString = string.Empty;
+                if (isCurrentRound)
+                {
+                    markedUpString = $"[white on green]{round}.\u00A0";
+
+                    markedUpString += (whoseTurn == Colour.White) ? "[white]" : "[darkgreen]";
+                    markedUpString += whiteMove;
+                    markedUpString += "[/]\u00A0";
+
+                    markedUpString += (whoseTurn == Colour.Black) ? "[white]" : "[darkgreen]";
+                    markedUpString += blackMove;
+                    markedUpString += "[/][/]";
+                }
+                else
+                {
+                    markedUpString += $"[grey30]{round}.\u00A0{whiteMove}\u00A0{blackMove}[/]";
+                }
+                markedUpString += " ";
+
+
+                return $"{round}.\u00A0{whiteMove}\u00A0{blackMove} ";
+            }
         }
     }
 }
