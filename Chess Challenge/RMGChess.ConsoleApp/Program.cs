@@ -96,7 +96,7 @@ namespace RMGChess.ConsoleApp
                             {
                                 if (movePairIndex > runningTo)
                                 {
-                                    ChessConsole.WriteLine(0, 19, "Press (S) step through move, (R) to run, (E) to playback to game end (C interrupts), (Q) to skip to next game");
+                                    ChessConsole.WriteLine(0, 19, "Press (S) to step through move, (R) to run, (E) to playback to game end (C interrupts), (Q) to skip to next game");
                                     modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
                                 }
                                 else
