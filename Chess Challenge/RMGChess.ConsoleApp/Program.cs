@@ -100,7 +100,7 @@ namespace RMGChess.ConsoleApp
                                     int runTarget = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim());
 
                                     runningTo = runTarget + (colour == 'b' ? 0.5f : 0f);
-                                    if (runningTo <= movePairIndex || runningTo > gameToPlay.MoveCount) runningTo = 0;
+                                    if (runningTo <= movePairIndex || runningTo > (gameToPlay.MoveCount + 1)) runningTo = 0;
 
                                     if (runningTo > 1)
                                     {
