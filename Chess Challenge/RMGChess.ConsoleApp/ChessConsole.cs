@@ -50,12 +50,15 @@ namespace RMGChess.ConsoleApp
             AnsiConsole.Markup(text);
         }
 
-        public static void ClearLine(int topIndex)
+        public static void ClearLine(params int[] rows)
         {
-            (int left, int top) = Console.GetCursorPosition();
-            Console.SetCursorPosition(0, topIndex);
-            Console.Write(new string(' ', Console.WindowWidth)); // clear the line by writing spaces
-            Console.SetCursorPosition(left, top); // reset cursor position to the start of the line
+            foreach (int row in rows)
+            {
+                (int left, int top) = Console.GetCursorPosition();
+                Console.SetCursorPosition(0, row);
+                Console.Write(new string(' ', Console.WindowWidth)); // clear the line by writing spaces
+                Console.SetCursorPosition(left, top); // reset cursor position to the start of the line
+            }
         }
     }
 }

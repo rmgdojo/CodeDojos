@@ -71,12 +71,14 @@ namespace RMGChess.ConsoleApp
                         {
                             if (modeKey == 'x')
                             {
+                                ChessConsole.WriteLine(0, 19, "Playing all games at max speed. Press (X) to stop playback.", true);
+
                                 if (Console.KeyAvailable)
                                 {
                                     char key = char.ToLower(Console.ReadKey(true).KeyChar);
                                     if (key == 'x')
                                     {
-                                        modeKey = ' '; // exit playback
+                                        modeKey = null; // exit playback
                                     }
                                 }
                                 
@@ -85,15 +87,17 @@ namespace RMGChess.ConsoleApp
 
                             if (modeKey == 'e')
                             {
+                                ChessConsole.WriteLine(0, 19, "Playback to game end. Press (E) to exit playback, (F) to remove delay.", true);
+
                                 DateTime startDelay = DateTime.Now;
                                 while (DateTime.Now < startDelay.AddMilliseconds(delay))
                                 {
                                     if (Console.KeyAvailable)
                                     {
                                         char key = char.ToLower(Console.ReadKey(true).KeyChar);
-                                        if (key == 'c')
+                                        if (key == 'e')
                                         {
-                                            modeKey = ' '; // exit playback
+                                            modeKey = null; // exit playback
                                             break;
                                         }
 
@@ -116,8 +120,21 @@ namespace RMGChess.ConsoleApp
                             {
                                 if (movePairIndex > runningTo)
                                 {
-                                    ChessConsole.WriteLine(0, 19, "Press (S) to step through move, (R) to run, (E) to playback to game end (C interrupts, F removes delay), (Q) to skip to next game, (X) to play all games at max speed.");
+                                    ChessConsole.WriteLine(0, 19, "Press (S) to step through move, (R) to run, (E) to playback to game end, (Q) to skip to next game, (X) to play all games at max speed.");
                                     modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
+
+                                    if (modeKey == 'x')
+                                    {
+                                        ChessConsole.ClearLine(20);
+                                        continue;
+                                    }
+
+                                    if (modeKey == 'e')
+                                    {
+                                        ChessConsole.ClearLine(20);
+                                        delay = 500; // reset delay
+                                        continue;
+                                    }
                                 }
                                 else
                                 {
@@ -143,7 +160,7 @@ namespace RMGChess.ConsoleApp
 
                                     if (runningTo > 1)
                                     {
-                                        ChessConsole.ClearLine(20);
+                                        ChessConsole.ClearLine(21);
                                         modeKey = ' ';
                                         break;
                                     }
@@ -183,16 +200,19 @@ namespace RMGChess.ConsoleApp
 
                 if (modeKey != 'q' && modeKey != 'x')
                 {
-                    ChessConsole.WriteLine(0, 20, "Game over. Press any key to continue.");
+                    ChessConsole.ClearLine(20);
+                    ChessConsole.WriteLine(0, 19, "Game over. Press any key to continue.", true);
                     Console.ReadKey(false);
                 }
 
+                if (modeKey != 'x') modeKey = null; // x mode remains between games until cancelled
+
                ChessConsole.Clear();
-                moveIndex = 0;
+               moveIndex = 0;
             }
 
             ChessConsole.Clear();
-            ChessConsole.WriteLine(0, 20, $"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
+            ChessConsole.WriteLine(0, 22, $"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
             Console.ReadKey(false);
         }
 
