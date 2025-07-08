@@ -61,7 +61,8 @@ namespace RMGChess.ConsoleApp
                         movePairIndex += 0.5f; // increment by half for each move
 
                         ChessConsole.WriteLine($"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
-                        DisplayBoard(game.Board, whoseTurn, move.From, move.To, delay != 0);
+                        bool animate = modeKey is null;
+                        DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
 
                         #endregion
 
@@ -126,7 +127,7 @@ namespace RMGChess.ConsoleApp
                                 if (movePairIndex > runningTo)
                                 {
                                     DisplayPrompt("Press (S) to step through move, (R) to run, (E) to playback to end, (Q) to skip to next game, (X) to play all games.");
-                                    modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
+                                    modeKey = KeyPress();
 
                                     if (modeKey == 'x')
                                     {
@@ -174,6 +175,7 @@ namespace RMGChess.ConsoleApp
 
                                     if (modeKey == 's')
                                     {
+                                        modeKey = null;
                                         break; // step through
                                     }
                                 }
@@ -195,7 +197,7 @@ namespace RMGChess.ConsoleApp
 
                         ChessConsole.WriteLine(0, DisplaySettings.ErrorLine, $"[red]{message}[/]", true);
                         badGames++;
-                        Console.ReadKey(false);
+                        KeyPress();
                         return true;
                     }
                 );
@@ -203,7 +205,7 @@ namespace RMGChess.ConsoleApp
                 if (modeKey != 'q' && modeKey != 'x')
                 {
                     ChessConsole.WriteLine(0, DisplaySettings.PromptLine, "Game over. Press any key to continue.", true);
-                    Console.ReadKey(false);
+                    KeyPress();
                 }
 
                 if (modeKey != 'x') modeKey = null; // x mode remains between games until cancelled
@@ -226,6 +228,12 @@ namespace RMGChess.ConsoleApp
             {
                 ChessConsole.ClearLine(DisplaySettings.PromptLine, DisplaySettings.PromptLine + 1);
             }
+        }
+
+        private static char KeyPress()
+        {
+            char key = char.ToLower(Console.ReadKey(true).KeyChar);
+            return key;
         }
 
         private static char? DelayOrKeyPress(int delayInMilliseconds)
@@ -292,6 +300,8 @@ namespace RMGChess.ConsoleApp
             {
                 WriteBoard(false);
             }
+
+            return;
 
             void WriteBoard(bool highlight)
             {
