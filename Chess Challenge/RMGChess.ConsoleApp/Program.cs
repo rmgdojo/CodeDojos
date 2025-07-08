@@ -43,7 +43,7 @@ namespace RMGChess.ConsoleApp
                     (whoseTurn, move) =>
                     {
                         DisplayFormattedPgn(0, 22, gameToPlay, (int)Math.Floor(movePairIndex), whoseTurn, 120);
-                        WriteBoardStringToConsole(3, 3, game.Board, move.From, move.To);
+                        WriteBoardStringToConsole(3, 3, game.Board);
 
                         if (moveIndex > 0 && lastMove is not null)
                         {
@@ -65,6 +65,9 @@ namespace RMGChess.ConsoleApp
 
                         ChessConsole.WriteLine($"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
                         #endregion
+
+                        ChessConsole.ClearLine(19, 20);
+                        WriteBoardStringToConsole(3, 3, game.Board, whoseTurn, move.From, move.To, true); // animates the move on the board
 
                         #region set mode from key
                         while (true)
@@ -120,7 +123,7 @@ namespace RMGChess.ConsoleApp
                             {
                                 if (movePairIndex > runningTo)
                                 {
-                                    ChessConsole.WriteLine(0, 19, "Press (S) to step through move, (R) to run, (E) to playback to game end, (Q) to skip to next game, (X) to play all games at max speed.");
+                                    ChessConsole.WriteLine(0, 19, "Press (S) to step through move, (R) to run, (E) to playback to game end, (Q) to skip to next game, (X) to play all games.");
                                     modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
 
                                     if (modeKey == 'x')
@@ -216,47 +219,86 @@ namespace RMGChess.ConsoleApp
             Console.ReadKey(false);
         }
 
-        private static void WriteBoardStringToConsole(int column, int row, Board board, Position from, Position to)
+        private static void WriteBoardStringToConsole(int column, int row, Board board)
+        {
+            WriteBoardStringToConsole(column, row, board, Colour.White, null, null, false);
+        }
+
+        private static void WriteBoardStringToConsole(int column, int row, Board board, Colour whoseTurn, Position from, Position to, bool animateHighlight)
         {
             bool alt = false;
 
-            int rowIndex = row;
-            for (int rank = 8; rank >= 1; rank--)
+            if (from is not null && to is not null)
             {
-                ChessConsole.Write(column, rowIndex++, $"{rank}");
-                for (char file = 'a'; file <= 'h'; file++)
+                if (animateHighlight)
                 {
-                    string foregroundColour = "white";
-                    string backgroundColour = alt ? "cyan" : "darkcyan";
-                    if (from is not null && (rank == from.Rank && file == from.File))
+                    Thread.Sleep(200);
+                    for (int i = 2; i < 7; i++) // animate highlight for 4 cycles
                     {
-                        foregroundColour = "magenta"; // highlight the specified position
+                        DisplayBoard(i % 2 == 0);
+                        Thread.Sleep(150);
                     }
-                    if (to is not null && (rank == to.Rank && file == to.File))
-                    {
-                        backgroundColour = "magenta"; // highlight the destination position
-                    }
-
-                    alt = !alt;
-
-                    char content = ' ';
-                    Square square = board[file, rank];
-                    Position position = square.Position;
-
-                    if (square.Piece is not null)
-                    {
-                        content = square.Piece.Symbol; // use the first character of the piece symbol
-                        if (square.Piece.IsBlack && foregroundColour == "white") foregroundColour = "black";
-                    }
-
-                    ChessConsole.Write($"[{foregroundColour} on {backgroundColour}] {content} [/]");
                 }
-
-                ChessConsole.WriteLine();
-                alt = !alt; // alternate the background color for the next line
+                else
+                {
+                    DisplayBoard(true);
+                }
+            }
+            else
+            {
+                DisplayBoard(false);
             }
 
-            ChessConsole.WriteLine(column, rowIndex, " a  b  c  d  e  f  g  h");
+            void DisplayBoard(bool highlight)
+            {
+                int rowIndex = row;
+                for (int rank = 8; rank >= 1; rank--)
+                {
+                    ChessConsole.Write(column, rowIndex++, $"{rank}");
+                    for (char file = 'a'; file <= 'h'; file++)
+                    {
+                        string foregroundColour = "white";
+                        string backgroundColour = alt ? "cyan" : "darkcyan";
+                        string highlightColour = whoseTurn switch
+                        {
+                            Colour.White => "magenta",
+                            Colour.Black => "maroon",
+                            _ => backgroundColour
+                        };
+
+                        if (highlight)
+                        {
+                            if (from is not null && (rank == from.Rank && file == from.File))
+                            {
+                                foregroundColour = highlightColour; // highlight the specified position
+                            }
+                            if (to is not null && (rank == to.Rank && file == to.File))
+                            {
+                                backgroundColour = highlightColour; // highlight the destination position
+                            }
+                        }
+
+                        alt = !alt;
+
+                        char content = ' ';
+                        Square square = board[file, rank];
+                        Position position = square.Position;
+
+                        if (square.Piece is not null)
+                        {
+                            content = square.Piece.Symbol; // use the first character of the piece symbol
+                            if (square.Piece.IsBlack && foregroundColour == "white") foregroundColour = "black";
+                        }
+
+                        ChessConsole.Write($"[{foregroundColour} on {backgroundColour}] {content} [/]");
+                    }
+
+                    ChessConsole.WriteLine();
+                    alt = !alt; // alternate the background color for the next line
+                }
+
+                ChessConsole.WriteLine(column, rowIndex, " a  b  c  d  e  f  g  h");
+            }
         }
 
         private static void DisplayFormattedPgn(int column, int row, GameRecord game, int currentRound, Colour whoseTurn, int lineLength)
