@@ -12,9 +12,9 @@ namespace RMGChess.ConsoleApp
 
         static void Main(string[] args)
         {
-            int moveIndex = 0;
+            //int moveIndex = 0;
             char? modeKey = null;
-            float startingRound = 1;
+            float goToRound = 1;
 
             // play through Magnus Carlsen game library
             var gameRecords = GameLibrary.MagnusCarlsenGames;
@@ -27,30 +27,22 @@ namespace RMGChess.ConsoleApp
             {
                 GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
-                Move lastMove = null;
 
-                float roundIndex = startingRound;
                 float runToRound = 0;
                 int delay = 500;
 
-                DisplayGameInfo(gameIndex, gameToPlay.Name);
+                DisplayGameInfo(gameIndex + 1, gameToPlay.Name);
 
-                Game.PlayRecordedGame(game, gameToPlay, startingRound,
-                    (whoseTurn, move) =>
+                Game.PlayRecordedGame(game, gameToPlay,
+                    (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove) =>
                     {
-                        if (modeKey == 'r')
-                        {
-                            modeKey = null;
-                            startingRound = 1;
-                        }
-
-                        DisplayMoves(gameToPlay, (int)Math.Floor(roundIndex), whoseTurn);
+                        DisplayMoves(gameToPlay, roundIndex, whoseTurn);
                         DisplayBoard(game.Board);
 
                         #region show previous move
-                        if (moveIndex > 0 && lastMove is not null)
+                        if (lastMove is not null)
                         {
-                            string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {gameToPlay.MovesAsAlgebra[moveIndex - 1]} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
+                            string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
                             ChessConsole.Write(0, DisplaySettings.PreviousMoveLine, previousMove, true);
                         }
                         else
@@ -62,9 +54,8 @@ namespace RMGChess.ConsoleApp
                         #endregion
 
                         #region show next move
-                        string algebra = gameToPlay.MovesAsAlgebra[moveIndex++];
                         ChessConsole.WriteLine(0, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
-                        ChessConsole.WriteLine($"Algebra: {(int)roundIndex}. {algebra}", true);
+                        ChessConsole.WriteLine($"Algebra: {(int)roundIndex}. {moveAsAlgebra}", true);
                         roundIndex += 0.5f; // increment by half for each move
 
                         ChessConsole.WriteLine($"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
@@ -122,17 +113,13 @@ namespace RMGChess.ConsoleApp
                                 break;
                             }
 
-                            // straight to next game
-                            if (modeKey == 'q')
-                            {
-                                return false;
-                            }
-
                             // no mode set - need to prompt
                             if (modeKey == null)
                             {
                                 if (roundIndex > runToRound)
                                 {
+                                    runToRound = 0; 
+
                                     DisplayPrompt("(S)tep through, (P)lay to move x, Play to (E)nd, (Q)uit to next game, (R)ollback, (X) to play all games.");
                                     modeKey = KeyPress();
 
@@ -157,14 +144,13 @@ namespace RMGChess.ConsoleApp
                                             char colour = rollbackTo.Last();
                                             int rollbackTarget = int.Parse(rollbackTo.Substring(0, rollbackTo.Length - 1).Trim());
 
-                                            startingRound = rollbackTarget + (colour == 'b' ? 0.5f : 0f);
-                                            if (startingRound >= roundIndex || startingRound > (gameToPlay.MoveCount + 1))
+                                            goToRound = rollbackTarget + (colour == 'b' ? 0.5f : 0f);
+                                            if (goToRound >= roundIndex || goToRound > (gameToPlay.RoundCount + 1))
                                             {
-                                                startingRound = 1;
+                                                goToRound = 1;
                                                 throw new IndexOutOfRangeException();
                                             }
-
-                                            return false; // quit playback to roll back again
+                                            break;
                                         }
                                         catch (Exception ex)
                                         {
@@ -188,7 +174,7 @@ namespace RMGChess.ConsoleApp
                                             int runTarget = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim());
 
                                             runToRound = runTarget + (colour == 'b' ? 0.5f : 0f);
-                                            if (runToRound <= roundIndex || runToRound > (gameToPlay.MoveCount + 1)) runToRound = 0;
+                                            if (runToRound <= roundIndex || runToRound > (gameToPlay.RoundCount + 1)) runToRound = 0;
 
                                             if (runToRound > 1)
                                             {
@@ -208,6 +194,11 @@ namespace RMGChess.ConsoleApp
                                         }
                                     }
 
+                                    if (modeKey == 'q')
+                                    {
+                                        break;
+                                    }
+
                                     if (modeKey == 's')
                                     {
                                         modeKey = null;
@@ -221,12 +212,18 @@ namespace RMGChess.ConsoleApp
                             }
                         }                        
                         #endregion
-
-                        return true;
                     },
-                    (whoseTurn, move) =>
+                    (roundIndex, whoseTurn, move) =>
                     {
-                        return true;
+                        PlayControl control = new()
+                        {
+                            Stop = modeKey == 'q',
+                            GoToRound = modeKey == 'r' ? goToRound : 0,
+                            GoToMove = goToRound % 1 == 0 ? Colour.White : Colour.Black
+                        };
+
+                        if (modeKey == 'r') modeKey = null;
+                        return control;
                     }, 
                     message => {
 
@@ -243,16 +240,9 @@ namespace RMGChess.ConsoleApp
                     KeyPress();
                 }
 
-                if (modeKey == 'r')
-                {
-                    gameIndex--; // play this game again
-                    // startingRound value will advance to the rollback point
-                }
-
                 if (modeKey != 'x' && modeKey != 'r') modeKey = null; // x mode remains between games until cancelled
 
                 ChessConsole.Clear();
-                moveIndex = 0;
             }
 
             ChessConsole.Clear();
@@ -396,7 +386,7 @@ namespace RMGChess.ConsoleApp
             }
         }
 
-        private static void DisplayMoves(GameRecord game, int currentRound, Colour whoseTurn)
+        private static void DisplayMoves(GameRecord game, float currentRound, Colour whoseTurn)
         {
             var rounds = game.MovesAsAlgebra
                 .Select((move, index) => new { move, index })
@@ -406,7 +396,7 @@ namespace RMGChess.ConsoleApp
                     Round = roundIndex + 1,
                     WhiteMove = g.ElementAtOrDefault(0)?.move,
                     BlackMove = g.ElementAtOrDefault(1)?.move,
-                    IsCurrentRound = (roundIndex == currentRound - 1)
+                    IsCurrentRound = (roundIndex == ((int)currentRound) - 1)
                 })
                 .ToList();
 

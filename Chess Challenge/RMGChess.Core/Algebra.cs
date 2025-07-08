@@ -28,7 +28,6 @@ namespace RMGChess.Core
                 // we need to work out which piece is moving via induction (unless it's stated)
 
                 Piece piece = null;
-                var validMoves = board.GetValidMovesForAllPieces();
                 moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+'); // remove warts for check / checkmate
 
                 // check that the algebra now ends with a valid position (e4 etc)
