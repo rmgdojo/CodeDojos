@@ -8,6 +8,12 @@ namespace RMGChess.ConsoleApp
 {
     public class Program
     {
+        public static (int LEFT, int TOP) BOARD_COORDINATES = (3, 3);
+        public static int PGN_LINE = 22;
+        public static int PREVIOUS_MOVE_LINE = 13;
+        public static int THIS_MOVE_BLOCK_LINE = 15;
+        public static int KEY_PROMPT_LINE = 19;
+
         static void Main(string[] args)
         {
             int moveIndex = 0;
@@ -42,39 +48,39 @@ namespace RMGChess.ConsoleApp
                 Game.PlayRecordedGame(game, gameToPlay,
                     (whoseTurn, move) =>
                     {
-                        DisplayFormattedPgn(0, 22, gameToPlay, (int)Math.Floor(movePairIndex), whoseTurn, 120);
-                        WriteBoardStringToConsole(3, 3, game.Board);
+                        DisplayFormattedPgn(0, PGN_LINE, gameToPlay, (int)Math.Floor(movePairIndex), whoseTurn, 120);
+                        WriteBoardStringToConsole(game.Board);
 
                         if (moveIndex > 0 && lastMove is not null)
                         {
                             string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(movePairIndex) - 1)}. {gameToPlay.MovesAsAlgebra[moveIndex - 1]} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
-                            ChessConsole.Write(0, 13, previousMove, true);
+                            ChessConsole.Write(0, PREVIOUS_MOVE_LINE, previousMove, true);
                         }
                         else
                         {
-                            ChessConsole.Write(0, 13, $"[blue]No previous move.[/]", true);
+                            ChessConsole.Write(0, PREVIOUS_MOVE_LINE, $"[blue]No previous move.[/]", true);
                         }
 
                         lastMove = move;
 
                         #region show next move
                         string algebra = gameToPlay.MovesAsAlgebra[moveIndex++];
-                        ChessConsole.WriteLine(0, 15, $"{whoseTurn} to play.");
+                        ChessConsole.WriteLine(0, THIS_MOVE_BLOCK_LINE, $"{whoseTurn} to play.");
                         ChessConsole.WriteLine($"Algebra: {(int)movePairIndex}. {algebra}", true);
                         movePairIndex += 0.5f; // increment by half for each move
 
                         ChessConsole.WriteLine($"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
-                        #endregion
+                        ClearKeyPrompt();
+                        WriteBoardStringToConsole(game.Board, whoseTurn, move.From, move.To, true); // animates the move on the board
 
-                        ChessConsole.ClearLine(19, 20);
-                        WriteBoardStringToConsole(3, 3, game.Board, whoseTurn, move.From, move.To, true); // animates the move on the board
+                        #endregion
 
                         #region set mode from key
                         while (true)
                         {
                             if (modeKey == 'x')
                             {
-                                ChessConsole.WriteLine(0, 19, "Playing all games at max speed. Press (X) to stop playback.", true);
+                                ChessConsole.WriteLine(0, KEY_PROMPT_LINE, "Playing all games at max speed. Press (X) to stop playback.", true);
 
                                 if (Console.KeyAvailable)
                                 {
@@ -90,7 +96,7 @@ namespace RMGChess.ConsoleApp
 
                             if (modeKey == 'e')
                             {
-                                ChessConsole.WriteLine(0, 19, "Playback to game end. Press (E) to exit playback, (F) to remove delay.", true);
+                                ChessConsole.WriteLine(0, KEY_PROMPT_LINE, "Playback to game end. Press (E) to exit playback, (F) to remove delay.", true);
 
                                 DateTime startDelay = DateTime.Now;
                                 while (DateTime.Now < startDelay.AddMilliseconds(delay))
@@ -123,18 +129,18 @@ namespace RMGChess.ConsoleApp
                             {
                                 if (movePairIndex > runningTo)
                                 {
-                                    ChessConsole.WriteLine(0, 19, "Press (S) to step through move, (R) to run, (E) to playback to game end, (Q) to skip to next game, (X) to play all games.");
+                                    ChessConsole.WriteLine(0, KEY_PROMPT_LINE, "Press (S) to step through move, (R) to run, (E) to playback to end, (Q) to skip to next game, (X) to play all games.");
                                     modeKey = char.ToLower(Console.ReadKey(true).KeyChar);
 
                                     if (modeKey == 'x')
                                     {
-                                        ChessConsole.ClearLine(20);
+                                        ClearKeyPromptSecondLine();
                                         continue;
                                     }
 
                                     if (modeKey == 'e')
                                     {
-                                        ChessConsole.ClearLine(20);
+                                        ClearKeyPromptSecondLine();
                                         delay = 500; // reset delay
                                         continue;
                                     }
@@ -147,7 +153,7 @@ namespace RMGChess.ConsoleApp
 
                             if (modeKey == 'r')
                             {
-                                ChessConsole.Write("Run to move: ");
+                                ChessConsole.Write(0, KEY_PROMPT_LINE + 1, "Run to move: ");
                                 Console.CursorVisible = true;
 
                                 try
@@ -217,14 +223,29 @@ namespace RMGChess.ConsoleApp
             ChessConsole.Clear();
             ChessConsole.WriteLine(0, 22, $"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
             Console.ReadKey(false);
+
+            void ClearKeyPrompt()
+            {
+                ChessConsole.ClearLine(KEY_PROMPT_LINE, KEY_PROMPT_LINE + 1);
+            }
+
+            void ClearKeyPromptSecondLine()
+            {
+                ChessConsole.ClearLine(KEY_PROMPT_LINE + 1);
+            }
+
+            void ClearPreviousMoveLine()
+            {
+                ChessConsole.ClearLine(PREVIOUS_MOVE_LINE, PREVIOUS_MOVE_LINE + 1);
+            }
         }
 
-        private static void WriteBoardStringToConsole(int column, int row, Board board)
+        private static void WriteBoardStringToConsole(Board board)
         {
-            WriteBoardStringToConsole(column, row, board, Colour.White, null, null, false);
+            WriteBoardStringToConsole(board, Colour.White, null, null, false);
         }
 
-        private static void WriteBoardStringToConsole(int column, int row, Board board, Colour whoseTurn, Position from, Position to, bool animateHighlight)
+        private static void WriteBoardStringToConsole(Board board, Colour whoseTurn, Position from, Position to, bool animateHighlight)
         {
             bool alt = false;
 
@@ -251,10 +272,10 @@ namespace RMGChess.ConsoleApp
 
             void DisplayBoard(bool highlight)
             {
-                int rowIndex = row;
+                int rowIndex = BOARD_COORDINATES.TOP;
                 for (int rank = 8; rank >= 1; rank--)
                 {
-                    ChessConsole.Write(column, rowIndex++, $"{rank}");
+                    ChessConsole.Write(BOARD_COORDINATES.LEFT, rowIndex++, $"{rank}");
                     for (char file = 'a'; file <= 'h'; file++)
                     {
                         string foregroundColour = "white";
@@ -297,7 +318,7 @@ namespace RMGChess.ConsoleApp
                     alt = !alt; // alternate the background color for the next line
                 }
 
-                ChessConsole.WriteLine(column, rowIndex, " a  b  c  d  e  f  g  h");
+                ChessConsole.WriteLine(BOARD_COORDINATES.LEFT, rowIndex, " a  b  c  d  e  f  g  h");
             }
         }
 
