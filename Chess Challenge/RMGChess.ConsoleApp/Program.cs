@@ -13,8 +13,8 @@ namespace RMGChess.ConsoleApp
         static void Main(string[] args)
         {
             int moveIndex = 0;
-            int gameIndex = 1;
             char? modeKey = null;
+            float startingRound = 1;
 
             // play through Magnus Carlsen game library
             var gameRecords = GameLibrary.MagnusCarlsenGames;
@@ -23,27 +23,34 @@ namespace RMGChess.ConsoleApp
             Console.OutputEncoding = Encoding.UTF8;
             Console.CursorVisible = false;
 
-            foreach (GameRecord gameToPlay in gameRecords)
+            for (int gameIndex = 0; gameIndex < gameRecords.Count; gameIndex++)
             {
+                GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
                 Move lastMove = null;
 
-                float movePairIndex = 1;
-                float runningTo = 0;
+                float roundIndex = startingRound;
+                float runToRound = 0;
                 int delay = 500;
 
-                DisplayGameInfo(gameIndex++, gameToPlay.Name);
+                DisplayGameInfo(gameIndex, gameToPlay.Name);
 
-                Game.PlayRecordedGame(game, gameToPlay,
+                Game.PlayRecordedGame(game, gameToPlay, startingRound,
                     (whoseTurn, move) =>
                     {
-                        DisplayMoves(gameToPlay, (int)Math.Floor(movePairIndex), whoseTurn);
+                        if (modeKey == 'r')
+                        {
+                            modeKey = null;
+                            startingRound = 1;
+                        }
+
+                        DisplayMoves(gameToPlay, (int)Math.Floor(roundIndex), whoseTurn);
                         DisplayBoard(game.Board);
 
                         #region show previous move
                         if (moveIndex > 0 && lastMove is not null)
                         {
-                            string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(movePairIndex) - 1)}. {gameToPlay.MovesAsAlgebra[moveIndex - 1]} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
+                            string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {gameToPlay.MovesAsAlgebra[moveIndex - 1]} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
                             ChessConsole.Write(0, DisplaySettings.PreviousMoveLine, previousMove, true);
                         }
                         else
@@ -57,8 +64,8 @@ namespace RMGChess.ConsoleApp
                         #region show next move
                         string algebra = gameToPlay.MovesAsAlgebra[moveIndex++];
                         ChessConsole.WriteLine(0, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
-                        ChessConsole.WriteLine($"Algebra: {(int)movePairIndex}. {algebra}", true);
-                        movePairIndex += 0.5f; // increment by half for each move
+                        ChessConsole.WriteLine($"Algebra: {(int)roundIndex}. {algebra}", true);
+                        roundIndex += 0.5f; // increment by half for each move
 
                         ChessConsole.WriteLine($"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
                         bool animate = modeKey is null;
@@ -88,15 +95,15 @@ namespace RMGChess.ConsoleApp
                             }
 
                             // running to end of game or set point
-                            if (modeKey == 'e' || modeKey == 'r')
+                            if (modeKey == 'e' || modeKey == 'p')
                             {
-                                if (modeKey == 'r' && movePairIndex >= runningTo)
+                                if (modeKey == 'p' && roundIndex >= runToRound)
                                 {
                                     modeKey = null;
                                 }
 
                                 if (modeKey == 'e') DisplayPrompt("Playback to game end. Press (E) to exit playback, (F) to remove delay.");
-                                if (modeKey == 'r') DisplayPrompt("Running to move. Press (R) to exit running, (F) to remove delay.");
+                                if (modeKey == 'p') DisplayPrompt("Playback to specified move. Press (P) to exit playback, (F) to remove delay.");
 
                                 char? key = DelayOrKeyPress(delay);
                                 if (key is not null)
@@ -105,7 +112,7 @@ namespace RMGChess.ConsoleApp
                                     {
                                         delay = 0; // remove delay
                                     }
-                                    else if (key == 'e' || modeKey == 'r')
+                                    else if (key == 'e' || modeKey == 'p')
                                     {
                                         modeKey = null;
                                         break;
@@ -122,11 +129,11 @@ namespace RMGChess.ConsoleApp
                             }
 
                             // no mode set - need to prompt
-                            if (modeKey != 'r')
+                            if (modeKey == null)
                             {
-                                if (movePairIndex > runningTo)
+                                if (roundIndex > runToRound)
                                 {
-                                    DisplayPrompt("Press (S) to step through move, (R) to run, (E) to playback to end, (Q) to skip to next game, (X) to play all games.");
+                                    DisplayPrompt("(S)tep through, (P)lay to move x, Play to (E)nd, (Q)uit to next game, (R)ollback, (X) to play all games.");
                                     modeKey = KeyPress();
 
                                     if (modeKey == 'x')
@@ -142,7 +149,34 @@ namespace RMGChess.ConsoleApp
 
                                     if (modeKey == 'r')
                                     {
-                                        DisplayPrompt("Run to move (round number + w|b optional): ");
+                                        try
+                                        {
+                                            DisplayPrompt("Rollback to move (round number + w|b optional ie 4 or 7w or 6b): ");
+                                            string rollbackTo = Console.ReadLine()?.Trim() ?? string.Empty;
+                                            if (rollbackTo.Length > 0 && char.IsDigit(rollbackTo.LastOrDefault())) rollbackTo += 'w';
+                                            char colour = rollbackTo.Last();
+                                            int rollbackTarget = int.Parse(rollbackTo.Substring(0, rollbackTo.Length - 1).Trim());
+
+                                            startingRound = rollbackTarget + (colour == 'b' ? 0.5f : 0f);
+                                            if (startingRound >= roundIndex || startingRound > (gameToPlay.MoveCount + 1))
+                                            {
+                                                startingRound = 1;
+                                                throw new IndexOutOfRangeException();
+                                            }
+
+                                            return false; // quit playback to roll back again
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            DisplayPrompt($"[red]Invalid rollback target.[/]");
+                                            Thread.Sleep(1000);
+                                            modeKey = null;
+                                            continue;
+                                        }
+                                    }
+                                    if (modeKey == 'p')
+                                    {
+                                        DisplayPrompt("Play to move (round number + w|b optional ie 4 or 7w or 6b): ");
                                         Console.CursorVisible = true;
 
                                         try
@@ -153,10 +187,10 @@ namespace RMGChess.ConsoleApp
                                             char colour = runTo.Last();
                                             int runTarget = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim());
 
-                                            runningTo = runTarget + (colour == 'b' ? 0.5f : 0f);
-                                            if (runningTo <= movePairIndex || runningTo > (gameToPlay.MoveCount + 1)) runningTo = 0;
+                                            runToRound = runTarget + (colour == 'b' ? 0.5f : 0f);
+                                            if (runToRound <= roundIndex || runToRound > (gameToPlay.MoveCount + 1)) runToRound = 0;
 
-                                            if (runningTo > 1)
+                                            if (runToRound > 1)
                                             {
                                                 break;
                                             }
@@ -169,6 +203,7 @@ namespace RMGChess.ConsoleApp
                                         {
                                             DisplayPrompt("[red]Invalid run target.[/]");
                                             Thread.Sleep(1000);
+                                            modeKey = null;
                                             continue;
                                         }
                                     }
@@ -202,16 +237,22 @@ namespace RMGChess.ConsoleApp
                     }
                 );
 
-                if (modeKey != 'q' && modeKey != 'x')
+                if (modeKey != 'q' && modeKey != 'x' && modeKey != 'r')
                 {
                     ChessConsole.WriteLine(0, DisplaySettings.PromptLine, "Game over. Press any key to continue.", true);
                     KeyPress();
                 }
 
-                if (modeKey != 'x') modeKey = null; // x mode remains between games until cancelled
+                if (modeKey == 'r')
+                {
+                    gameIndex--; // play this game again
+                    // startingRound value will advance to the rollback point
+                }
 
-               ChessConsole.Clear();
-               moveIndex = 0;
+                if (modeKey != 'x' && modeKey != 'r') modeKey = null; // x mode remains between games until cancelled
+
+                ChessConsole.Clear();
+                moveIndex = 0;
             }
 
             ChessConsole.Clear();
@@ -263,17 +304,17 @@ namespace RMGChess.ConsoleApp
             return null;
         }
 
-        private static void DisplayBoard(Board board)
-        {
-            DisplayBoard(board, Colour.White, null, null, false);
-        }
-
         private static void DisplayGameInfo(int gameIndex, string gameName)
         {
             string title = $"Game {gameIndex}: {gameName}";
             ChessConsole.WriteLine(0, 0, title);
             ChessConsole.WriteLine(new string('-', title.Length));
             ChessConsole.WriteLine();
+        }
+
+        private static void DisplayBoard(Board board)
+        {
+            DisplayBoard(board, Colour.White, null, null, false);
         }
 
         private static void DisplayBoard(Board board, Colour whoseTurn, Position from, Position to, bool animateHighlight)

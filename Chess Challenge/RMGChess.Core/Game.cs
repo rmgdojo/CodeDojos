@@ -5,21 +5,26 @@ namespace RMGChess.Core
 {
     public class Game
     {
-        public static void PlayRecordedGame(Game game, GameRecord gameRecord, Func<Colour, Move, bool> beforeMove, Func<Colour, Move, bool> afterMove, Func<string, bool> onError)
+        public static void PlayRecordedGame(Game game, GameRecord gameRecord, float playFromRound, Func<Colour, Move, bool> beforeMove, Func<Colour, Move, bool> afterMove, Func<string, bool> onError)
         {
             game.Reset();
 
             Colour whoseTurn = Colour.White;
+            float round = 1;
             foreach (string moveAsAlgebra in gameRecord.MovesAsAlgebra)
             {
                 try
-                {                 
+                {
+                    // playFromRound > 1 will effectively run the game forward to that point
+                    // and only then start invoking the callbacks
+
                     Move move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
-                    if (!beforeMove.Invoke(whoseTurn, move)) return;
+                    if (round >= playFromRound && !beforeMove.Invoke(whoseTurn, move)) return;
                     move.Execute(game);
                     game._history[whoseTurn].Add(move);
-                    if (!afterMove.Invoke(whoseTurn, move)) return;
+                    if (round >= playFromRound && !afterMove.Invoke(whoseTurn, move)) return;
                     whoseTurn = whoseTurn.Switch(); // switch turns
+                    round += 0.5f;
                 }
                 catch (Exception ex)
                 {
