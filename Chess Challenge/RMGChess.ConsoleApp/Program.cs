@@ -215,6 +215,7 @@ namespace RMGChess.ConsoleApp
                     },
                     (roundIndex, whoseTurn, move) =>
                     {
+                        #region tell the game replay engine what to do
                         PlayControl control = new()
                         {
                             Stop = modeKey == 'q',
@@ -224,6 +225,7 @@ namespace RMGChess.ConsoleApp
 
                         if (modeKey == 'r') modeKey = null;
                         return control;
+                        #endregion
                     }, 
                     message => {
 
@@ -234,13 +236,14 @@ namespace RMGChess.ConsoleApp
                     }
                 );
 
-                if (modeKey != 'q' && modeKey != 'x' && modeKey != 'r')
+                // game has ended
+                if (modeKey != 'q' && modeKey != 'x')
                 {
                     ChessConsole.WriteLine(0, DisplaySettings.PromptLine, "Game over. Press any key to continue.", true);
                     KeyPress();
                 }
 
-                if (modeKey != 'x' && modeKey != 'r') modeKey = null; // x mode remains between games until cancelled
+                if (modeKey != 'x') modeKey = null; // x mode remains between games until cancelled
 
                 ChessConsole.Clear();
             }
