@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace RMGChess.Core
 {
@@ -14,62 +15,67 @@ namespace RMGChess.Core
             Move lastMove = null;
             string lastMoveAsAlgebra = null;
             Colour whoseTurn = Colour.White;
+            float roundToFastForwardTo = 0;
+            bool done = false;
 
-            for (float i = 1; i <= gameRecord.RoundCount; i += 0.5f)
+            do
             {
-                string moveAsAlgebra = gameRecord.MovesAsAlgebra[(int)((i - 1) * 2)];
-                
-                try
+                for (int i = 1; i <= gameRecord.RoundCount; i++)
                 {
-                    playTurn(i, moveAsAlgebra, whoseTurn, game, true);
-
-                    PlayControl control = afterMove.Invoke(i, whoseTurn, move);
-                    if (control.Stop)
+                    foreach (MoveRecord moveRecord in gameRecord.Rounds[i-1].Moves)
                     {
-                        return; // stop processing further moves
-                    }
-                    else if (control.GoToRound > 0)
-                    {
-                        float roundToAdvanceTo = control.GoToRound - 0.5f; // stop one before the specified round so we can play back that move
-                        
-                        // start again and advance to the specified round
-                        game.Reset();
-                        whoseTurn = Colour.White;
-                        for (float j = 1; j <= roundToAdvanceTo; j += 0.5f)
+                        if (moveRecord is not null)
                         {
-                            moveAsAlgebra = gameRecord.MovesAsAlgebra[(int)((j - 1) * 2)];
-                            playTurn(j, moveAsAlgebra, whoseTurn, game, false);
-                            whoseTurn = whoseTurn.Switch();
+                            string moveAsAlgebra = moveRecord.MoveAsAlgebra;
+                            whoseTurn = moveRecord.WhoseTurn;
+
+                            try
+                            {
+                                float roundAsFloat = i + (whoseTurn == Colour.Black ? 0.5f : 0);
+                                if (roundAsFloat >= roundToFastForwardTo) roundToFastForwardTo = 0;
+                                bool callbacks = roundToFastForwardTo == 0;
+
+                                move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
+
+                                if (callbacks) beforeMove.Invoke(roundAsFloat, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove);
+                                move.Execute(game);
+                                game._history[whoseTurn].Add(move);
+
+                                PlayControl control = afterMove.Invoke(i, whoseTurn, move);
+                                if (control.Stop)
+                                {
+                                    return; // stop processing further moves
+                                }
+                                else if (control.GoToRound > 0)
+                                {
+                                    game.Reset();
+                                    roundToFastForwardTo = control.GoToRound;
+                                    whoseTurn = control.GoToMove;
+                                    lastMove = null;
+                                    lastMoveAsAlgebra = null;
+
+                                    i = gameRecord.RoundCount + 1; // force exit
+                                    break;
+                                }
+
+                                whoseTurn = whoseTurn.Switch(); // switch turns
+                                lastMove = move;
+                                lastMoveAsAlgebra = moveAsAlgebra;
+                            }
+                            catch (Exception ex)
+                            {
+                                if (onError?.Invoke($"Error in move '{moveAsAlgebra}': {ex.Message}") ?? true)
+                                {
+                                    return; // stop processing if an error occurs
+                                }
+                            }
                         }
-
-                        i = roundToAdvanceTo; // adjust index to skip to the specified round
-                        whoseTurn = control.GoToMove; // switch to the specified player's turn
-                        lastMove = move;
-                        lastMoveAsAlgebra = moveAsAlgebra;
-                        continue;
-                    }
-
-                    whoseTurn = whoseTurn.Switch(); // switch turns
-                    lastMove = move;
-                    lastMoveAsAlgebra = moveAsAlgebra;
-                }
-                catch (Exception ex)
-                {
-                    if (onError?.Invoke($"Error in move '{moveAsAlgebra}': {ex.Message}") ?? true)
-                    {
-                        return; // stop processing if an error occurs
                     }
                 }
-            }
 
-            void playTurn(float round, string moveAsAlgebra, Colour whoseTurn, Game game, bool callbacks)
-            {
-                move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
-
-                if (callbacks) beforeMove.Invoke(round, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove);
-                move.Execute(game);
-                game._history[whoseTurn].Add(move);
+                if (roundToFastForwardTo == 0) done = true; // if no fast-forwarding is requested, we are done
             }
+            while (!done);
         }
 
         private Dictionary<Colour, List<Move>> _history;

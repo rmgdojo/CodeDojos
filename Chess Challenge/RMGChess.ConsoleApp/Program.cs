@@ -391,23 +391,24 @@ namespace RMGChess.ConsoleApp
 
         private static void DisplayMoves(GameRecord game, float currentRound, Colour whoseTurn)
         {
-            var rounds = game.MovesAsAlgebra
-                .Select((move, index) => new { move, index })
-                .GroupBy(x => x.index / 2)
-                .Select((g, roundIndex) => new
-                {
-                    Round = roundIndex + 1,
-                    WhiteMove = g.ElementAtOrDefault(0)?.move,
-                    BlackMove = g.ElementAtOrDefault(1)?.move,
-                    IsCurrentRound = (roundIndex == ((int)currentRound) - 1)
-                })
-                .ToList();
+            //var rounds = game.Rounds.Select(r => r.Moves)
+            //    .Select((move, index) => new { move, index })
+            //    .GroupBy(x => x.index / 2)
+            //    .Select((g, roundIndex) => new
+            //    {
+            //        Round = roundIndex + 1,
+            //        WhiteMove = g.ElementAtOrDefault(0)?.move,
+            //        BlackMove = g.ElementAtOrDefault(1)?.move,
+            //        IsCurrentRound = (roundIndex == ((int)currentRound) - 1)
+            //    })
+            //    .ToList();
 
             StringBuilder pgnBuilder = new StringBuilder();
             int currentLineLength = 0;
-            foreach (var round in rounds)
+            foreach (RoundRecord round in game.Rounds)
             {
-                string roundString = getRoundString(round.Round, round.WhiteMove, round.BlackMove, round.IsCurrentRound, whoseTurn, out string markedUpRoundString);
+                bool isCurrentRound = round.RoundIndex == (int)currentRound;
+                string roundString = getRoundString(round.RoundIndex, round.WhiteMove.MoveAsAlgebra, round.BlackMove?.MoveAsAlgebra ?? "", isCurrentRound, whoseTurn, out string markedUpRoundString);
                 if (currentLineLength + roundString.Length > DisplaySettings.ConsoleWidth)
                 {
                     pgnBuilder.AppendLine();
