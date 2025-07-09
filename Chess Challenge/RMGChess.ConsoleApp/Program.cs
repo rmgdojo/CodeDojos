@@ -139,6 +139,7 @@ namespace RMGChess.ConsoleApp
                                         try
                                         {
                                             DisplayPrompt("Rollback to move (round number + w|b optional ie 4 or 7w or 6b): ");
+                                            Console.CursorVisible = true;
                                             string rollbackTo = Console.ReadLine()?.Trim() ?? string.Empty;
                                             if (rollbackTo.Length > 0 && char.IsDigit(rollbackTo.LastOrDefault())) rollbackTo += 'w';
                                             char colour = rollbackTo.Last();
@@ -162,11 +163,10 @@ namespace RMGChess.ConsoleApp
                                     }
                                     if (modeKey == 'p')
                                     {
-                                        DisplayPrompt("Play to move (round number + w|b optional ie 4 or 7w or 6b): ");
-                                        Console.CursorVisible = true;
-
                                         try
-                                        {                                            
+                                        {
+                                            DisplayPrompt("Play to move (round number + w|b optional ie 4 or 7w or 6b): ");
+                                            Console.CursorVisible = true;
                                             string runTo = Console.ReadLine()?.Trim() ?? string.Empty;
                                             Console.CursorVisible = false;
                                             if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault())) runTo += 'w';
