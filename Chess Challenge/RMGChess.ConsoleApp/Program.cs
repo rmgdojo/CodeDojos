@@ -391,18 +391,6 @@ namespace RMGChess.ConsoleApp
 
         private static void DisplayMoves(GameRecord game, float currentRound, Colour whoseTurn)
         {
-            //var rounds = game.Rounds.Select(r => r.Moves)
-            //    .Select((move, index) => new { move, index })
-            //    .GroupBy(x => x.index / 2)
-            //    .Select((g, roundIndex) => new
-            //    {
-            //        Round = roundIndex + 1,
-            //        WhiteMove = g.ElementAtOrDefault(0)?.move,
-            //        BlackMove = g.ElementAtOrDefault(1)?.move,
-            //        IsCurrentRound = (roundIndex == ((int)currentRound) - 1)
-            //    })
-            //    .ToList();
-
             StringBuilder pgnBuilder = new StringBuilder();
             int currentLineLength = 0;
             foreach (RoundRecord round in game.Rounds)
