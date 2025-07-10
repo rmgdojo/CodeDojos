@@ -12,9 +12,9 @@ namespace RMGChess.ConsoleApp
 
         static void Main(string[] args)
         {
-            //int moveIndex = 0;
             char? modeKey = null;
-            float goToRound = 1;
+            float rollbackToRound = 1;
+            float playbackToRound = 1;
 
             // play through Magnus Carlsen game library
             var gameRecords = GameLibrary.MagnusCarlsenGames;
@@ -28,7 +28,6 @@ namespace RMGChess.ConsoleApp
                 GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
 
-                float runToRound = 0;
                 int delay = 500;
 
                 DisplayGameInfo(gameIndex + 1, gameToPlay.Name);
@@ -43,22 +42,22 @@ namespace RMGChess.ConsoleApp
                         if (lastMove is not null)
                         {
                             string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
-                            ChessConsole.Write(0, DisplaySettings.PreviousMoveLine, previousMove, true);
+                            ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, previousMove, true);
                         }
                         else
                         {
-                            ChessConsole.Write(0, DisplaySettings.PreviousMoveLine, $"[blue]No previous move.[/]", true);
+                            ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, $"[blue]No previous move.[/]", true);
                         }
 
                         lastMove = move;
                         #endregion
 
                         #region show next move
-                        ChessConsole.WriteLine(0, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
-                        ChessConsole.WriteLine($"Algebra: {(int)roundIndex}. {moveAsAlgebra}", true);
+                        ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
+                        ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 1, $"Algebra: {(int)roundIndex}. {moveAsAlgebra}", true);
                         roundIndex += 0.5f; // increment by half for each move
 
-                        ChessConsole.WriteLine($"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
+                        ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
                         bool animate = modeKey is null;
                         DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
 
@@ -88,7 +87,7 @@ namespace RMGChess.ConsoleApp
                             // running to end of game or set point
                             if (modeKey == 'e' || modeKey == 'p')
                             {
-                                if (modeKey == 'p' && roundIndex >= runToRound)
+                                if (modeKey == 'p' && roundIndex >= playbackToRound)
                                 {
                                     modeKey = null;
                                 }
@@ -116,9 +115,9 @@ namespace RMGChess.ConsoleApp
                             // no mode set - need to prompt
                             if (modeKey == null)
                             {
-                                if (roundIndex > runToRound)
+                                if (roundIndex > playbackToRound) // if we have played up to the playback target, we need a new key input
                                 {
-                                    runToRound = 0; 
+                                    playbackToRound = 1; 
 
                                     DisplayPrompt("(S)tep through, (P)lay to move x, Play to (E)nd, (Q)uit to next game, (R)ollback, (X) to play all games.");
                                     modeKey = KeyPress();
@@ -143,12 +142,11 @@ namespace RMGChess.ConsoleApp
                                             string rollbackTo = Console.ReadLine()?.Trim() ?? string.Empty;
                                             if (rollbackTo.Length > 0 && char.IsDigit(rollbackTo.LastOrDefault())) rollbackTo += 'w';
                                             char colour = rollbackTo.Last();
-                                            int rollbackTarget = int.Parse(rollbackTo.Substring(0, rollbackTo.Length - 1).Trim());
 
-                                            goToRound = rollbackTarget + (colour == 'b' ? 0.5f : 0f);
-                                            if (goToRound >= roundIndex || goToRound > (gameToPlay.RoundCount + 1))
+                                            rollbackToRound = int.Parse(rollbackTo.Substring(0, rollbackTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
+                                            if (rollbackToRound >= roundIndex || rollbackToRound > (gameToPlay.RoundCount + 1))
                                             {
-                                                goToRound = 1;
+                                                rollbackToRound = 1;
                                                 throw new IndexOutOfRangeException();
                                             }
                                             break;
@@ -161,6 +159,7 @@ namespace RMGChess.ConsoleApp
                                             continue;
                                         }
                                     }
+
                                     if (modeKey == 'p')
                                     {
                                         try
@@ -171,12 +170,11 @@ namespace RMGChess.ConsoleApp
                                             Console.CursorVisible = false;
                                             if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault())) runTo += 'w';
                                             char colour = runTo.Last();
-                                            int runTarget = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim());
 
-                                            runToRound = runTarget + (colour == 'b' ? 0.5f : 0f);
-                                            if (runToRound <= roundIndex || runToRound > (gameToPlay.RoundCount + 1)) runToRound = 0;
+                                            playbackToRound = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
+                                            if (playbackToRound <= roundIndex || playbackToRound > (gameToPlay.RoundCount + 1)) playbackToRound = 0;
 
-                                            if (runToRound > 1)
+                                            if (playbackToRound > 1)
                                             {
                                                 break;
                                             }
@@ -219,8 +217,8 @@ namespace RMGChess.ConsoleApp
                         PlayControl control = new()
                         {
                             Stop = modeKey == 'q',
-                            GoToRound = modeKey == 'r' ? goToRound : 0,
-                            GoToMove = goToRound % 1 == 0 ? Colour.White : Colour.Black
+                            GoToRound = modeKey == 'r' ? rollbackToRound : 0,
+                            GoToMove = rollbackToRound % 1 == 0 ? Colour.White : Colour.Black
                         };
 
                         if (modeKey == 'r') modeKey = null;
@@ -231,7 +229,7 @@ namespace RMGChess.ConsoleApp
 
                         ChessConsole.WriteLine(0, DisplaySettings.ErrorLine, $"[red]{message}[/]", true);
                         badGames++;
-                        KeyPress();
+                        if (modeKey != 'x') KeyPress();
                         return true;
                     }
                 );
@@ -301,7 +299,7 @@ namespace RMGChess.ConsoleApp
         {
             string title = $"Game {gameIndex}: {gameName}";
             ChessConsole.WriteLine(0, 0, title);
-            ChessConsole.WriteLine(new string('-', title.Length));
+            ChessConsole.WriteLine(new string('-', 120));
             ChessConsole.WriteLine();
         }
 
