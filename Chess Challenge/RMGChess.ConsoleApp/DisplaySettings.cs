@@ -11,5 +11,6 @@
         public const int PromptLine = 13;
         public const int MovesDisplayLine = 15;
         public const int ConsoleWidth = 120;
+        public const int Delay = 500;
     }
 }

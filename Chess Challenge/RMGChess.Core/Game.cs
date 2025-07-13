@@ -1,83 +1,13 @@
 ﻿using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RMGChess.Core
 {
 
     public class Game
     {
-        public static void PlayRecordedGame(Game game, GameRecord gameRecord, Action<float, Colour, string, Move, string, Move> beforeMove, Func<float, Colour, Move, PlayControl> afterMove, Func<string, bool> onError)
-        {
-            game.Reset();
-
-            Move move = null;
-            Move lastMove = null;
-            string lastMoveAsAlgebra = null;
-            Colour whoseTurn = Colour.White;
-            float roundToFastForwardTo = 0;
-            bool done = false;
-
-            do
-            {
-                for (int i = 1; i <= gameRecord.RoundCount; i++)
-                {
-                    foreach (MoveRecord moveRecord in gameRecord.Rounds[i-1].Moves)
-                    {
-                        if (moveRecord is not null)
-                        {
-                            string moveAsAlgebra = moveRecord.MoveAsAlgebra;
-                            whoseTurn = moveRecord.WhoseTurn;
-
-                            try
-                            {
-                                float roundAsFloat = i + (whoseTurn == Colour.Black ? 0.5f : 0);
-                                if (roundAsFloat >= roundToFastForwardTo) roundToFastForwardTo = 0;
-                                bool callbacks = roundToFastForwardTo == 0;
-
-                                move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
-
-                                if (callbacks) beforeMove.Invoke(roundAsFloat, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove);
-                                move.Execute(game);
-                                game._history[whoseTurn].Add(move);
-
-                                PlayControl control = afterMove.Invoke(i, whoseTurn, move);
-                                if (control.Stop)
-                                {
-                                    return; // stop processing further moves
-                                }
-                                else if (control.GoToRound > 0)
-                                {
-                                    game.Reset();
-                                    roundToFastForwardTo = control.GoToRound;
-                                    whoseTurn = control.GoToMove;
-                                    lastMove = null;
-                                    lastMoveAsAlgebra = null;
-
-                                    i = gameRecord.RoundCount + 1; // force exit
-                                    break;
-                                }
-
-                                whoseTurn = whoseTurn.Switch(); // switch turns
-                                lastMove = move;
-                                lastMoveAsAlgebra = moveAsAlgebra;
-                            }
-                            catch (Exception ex)
-                            {
-                                if (onError?.Invoke($"Error in move '{moveAsAlgebra}': {ex.Message}") ?? true)
-                                {
-                                    return; // stop processing if an error occurs
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (roundToFastForwardTo == 0) done = true; // if no fast-forwarding is requested, we are done
-            }
-            while (!done);
-        }
-
         private Dictionary<Colour, List<Move>> _history;
         private List<Piece> _pieces;
         private List<Piece> _capturedPieces;
@@ -104,7 +34,7 @@ namespace RMGChess.Core
         {
             Move move = Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving);
             move.Execute(this);
-            _history[whoIsMoving].Add(move);
+            AddHistory(whoIsMoving, move);
             return true;
         }
 
@@ -112,6 +42,21 @@ namespace RMGChess.Core
         {
             _capturedPieces.Add(piece);
             _pieces.Remove(piece);
+        }
+
+        internal void AddHistory(Colour whoseTurn, Move move)
+        {
+            _history[whoseTurn].Add(move);
+        }
+
+        internal void Reset()
+        {
+            _history = new Dictionary<Colour, List<Move>>() { { Colour.White, new List<Move>() }, { Colour.Black, new List<Move>() } };
+            _pieces = new List<Piece>();
+            _capturedPieces = new List<Piece>();
+
+            _board = new Board(this);
+            SetupNewBoard();
         }
 
         internal void SetupNewBoard()
@@ -149,16 +94,6 @@ namespace RMGChess.Core
         {
             _board[position].SetupPiece(piece);
             _pieces.Add(piece);
-        }
-
-        private void Reset()
-        {
-            _history = new Dictionary<Colour, List<Move>>() { { Colour.White, new List<Move>() }, { Colour.Black, new List<Move>() } };
-            _pieces = new List<Piece>();
-            _capturedPieces = new List<Piece>();
-
-            _board = new Board(this);
-            SetupNewBoard();
         }
 
         public Game()

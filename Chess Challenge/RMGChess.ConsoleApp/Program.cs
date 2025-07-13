@@ -2,6 +2,7 @@
 using Spectre.Console;
 using System.Diagnostics;
 using System.Drawing;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace RMGChess.ConsoleApp
@@ -12,7 +13,7 @@ namespace RMGChess.ConsoleApp
 
         static void Main(string[] args)
         {
-            char? modeKey = null;
+            char? mode = null;
             float rollbackToRound = 1;
             float playbackToRound = 1;
 
@@ -28,11 +29,11 @@ namespace RMGChess.ConsoleApp
                 GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
 
-                int delay = 500;
+                int delay = DisplaySettings.Delay;
 
                 DisplayGameInfo(gameIndex + 1, gameToPlay.Name);
 
-                Game.PlayRecordedGame(game, gameToPlay,
+                gameToPlay.Playback(game, gameToPlay,
                     (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove) =>
                     {
                         DisplayMoves(gameToPlay, roundIndex, whoseTurn);
@@ -58,7 +59,7 @@ namespace RMGChess.ConsoleApp
                         roundIndex += 0.5f; // increment by half for each move
 
                         ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
-                        bool animate = modeKey is null;
+                        bool animate = mode is null;
                         DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
 
                         #endregion
@@ -69,7 +70,7 @@ namespace RMGChess.ConsoleApp
                             // handle existing mode
 
                             // running all games non-stop
-                            if (modeKey == 'x')
+                            if (mode == 'x')
                             {
                                 DisplayPrompt("Playing all games at max speed. Press (X) to stop playback.");
                                 delay = 0;
@@ -77,7 +78,8 @@ namespace RMGChess.ConsoleApp
                                 char? key = DelayOrKeyPress(0);
                                 if (key == 'x')
                                 {
-                                    modeKey = null; // exit playback
+                                    mode = null; // exit playback
+                                    delay = DisplaySettings.Delay; // reset delay
                                     break;
                                 }
 
@@ -85,15 +87,15 @@ namespace RMGChess.ConsoleApp
                             }
 
                             // running to end of game or set point
-                            if (modeKey == 'e' || modeKey == 'p')
+                            if (mode == 'e' || mode == 'p')
                             {
-                                if (modeKey == 'p' && roundIndex >= playbackToRound)
+                                if (mode == 'p' && roundIndex >= playbackToRound)
                                 {
-                                    modeKey = null;
+                                    mode = null;
                                 }
 
-                                if (modeKey == 'e') DisplayPrompt("Playback to game end. Press (E) to exit playback, (F) to remove delay.");
-                                if (modeKey == 'p') DisplayPrompt("Playback to specified move. Press (P) to exit playback, (F) to remove delay.");
+                                if (mode == 'e') DisplayPrompt("Playback to game end. Press (E) to exit playback, (F) to remove delay.");
+                                if (mode == 'p') DisplayPrompt("Playback to specified move. Press (P) to exit playback, (F) to remove delay.");
 
                                 char? key = DelayOrKeyPress(delay);
                                 if (key is not null)
@@ -102,9 +104,10 @@ namespace RMGChess.ConsoleApp
                                     {
                                         delay = 0; // remove delay
                                     }
-                                    else if (key == 'e' || modeKey == 'p')
+                                    else if (key == 'e' || mode == 'p')
                                     {
-                                        modeKey = null;
+                                        mode = null;
+                                        delay = DisplaySettings.Delay; // reset delay
                                         break;
                                     }
                                 }
@@ -113,27 +116,28 @@ namespace RMGChess.ConsoleApp
                             }
 
                             // no mode set - need to prompt
-                            if (modeKey == null)
+                            if (mode == null)
                             {
+                                delay = DisplaySettings.Delay; // reset delay
+
                                 if (roundIndex > playbackToRound) // if we have played up to the playback target, we need a new key input
                                 {
                                     playbackToRound = 1; 
 
-                                    DisplayPrompt("(S)tep through, (P)lay to move x, Play to (E)nd, (Q)uit to next game, (R)ollback, (X) to play all games.");
-                                    modeKey = KeyPress();
+                                    DisplayPrompt("(S)tep | (B)ack | (P)lay | Play to (E)nd | (R)ollback | (Q)uit game | (Z) restart game | (X) play all");
+                                    mode = KeyPress();
 
-                                    if (modeKey == 'x')
+                                    if (mode == 'x')
                                     {
                                         continue;
                                     }
 
-                                    if (modeKey == 'e')
+                                    if (mode == 'e')
                                     {
-                                        delay = 500; // reset delay
                                         continue;
                                     }
 
-                                    if (modeKey == 'r')
+                                    if (mode == 'r')
                                     {
                                         try
                                         {
@@ -144,7 +148,7 @@ namespace RMGChess.ConsoleApp
                                             char colour = rollbackTo.Last();
 
                                             rollbackToRound = int.Parse(rollbackTo.Substring(0, rollbackTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
-                                            if (rollbackToRound >= roundIndex || rollbackToRound > (gameToPlay.RoundCount + 1))
+                                            if (rollbackToRound < 1 || rollbackToRound >= roundIndex || rollbackToRound > (gameToPlay.RoundCount + 1))
                                             {
                                                 rollbackToRound = 1;
                                                 throw new IndexOutOfRangeException();
@@ -153,14 +157,34 @@ namespace RMGChess.ConsoleApp
                                         }
                                         catch (Exception ex)
                                         {
-                                            DisplayPrompt($"[red]Invalid rollback target.[/]");
-                                            Thread.Sleep(1000);
-                                            modeKey = null;
+                                            DisplayErrorPrompt($"[red]Invalid rollback target.[/]");
                                             continue;
                                         }
                                     }
 
-                                    if (modeKey == 'p')
+                                    if (mode == 'b')
+                                    {
+                                        if (roundIndex > 1.5)
+                                        {
+                                            rollbackToRound = roundIndex - 1f; // go back one move
+                                            mode = 'r'; // set rollback mode
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            DisplayErrorPrompt("[red]Cannot go back.[/]");
+                                            continue;
+                                        }
+                                    }
+
+                                    if (mode == 'z')
+                                    {
+                                        rollbackToRound = 1; // reset to start
+                                        mode = 'r';
+                                        break;
+                                    }
+
+                                    if (mode == 'p')
                                     {
                                         try
                                         {
@@ -185,21 +209,19 @@ namespace RMGChess.ConsoleApp
                                         }
                                         catch (Exception ex)
                                         {
-                                            DisplayPrompt("[red]Invalid run target.[/]");
-                                            Thread.Sleep(1000);
-                                            modeKey = null;
+                                            DisplayErrorPrompt($"[red]Invalid run target.[/]");
                                             continue;
                                         }
                                     }
 
-                                    if (modeKey == 'q')
+                                    if (mode == 'q')
                                     {
                                         break;
                                     }
 
-                                    if (modeKey == 's')
+                                    if (mode == 's')
                                     {
-                                        modeKey = null;
+                                        mode = null;
                                         break; // step through
                                     }
                                 }
@@ -210,18 +232,25 @@ namespace RMGChess.ConsoleApp
                             }
                         }                        
                         #endregion
+
+                        void DisplayErrorPrompt(string message)
+                        {
+                            DisplayPrompt($"[red]{message}[/]");
+                            Thread.Sleep(1000);
+                            mode = null;
+                        }
                     },
                     (roundIndex, whoseTurn, move) =>
                     {
                         #region tell the game replay engine what to do
-                        PlayControl control = new()
+                        PlayControl control = new();
+                        if (mode == 'q') control.Stop = true;
+                        if (mode == 'r')
                         {
-                            Stop = modeKey == 'q',
-                            GoToRound = modeKey == 'r' ? rollbackToRound : 0,
-                            GoToMove = rollbackToRound % 1 == 0 ? Colour.White : Colour.Black
-                        };
+                            control.GoToRound = rollbackToRound;
+                        }
 
-                        if (modeKey == 'r') modeKey = null;
+                        if (mode == 'r') mode = null;
                         return control;
                         #endregion
                     }, 
@@ -229,19 +258,19 @@ namespace RMGChess.ConsoleApp
 
                         ChessConsole.WriteLine(0, DisplaySettings.ErrorLine, $"[red]{message}[/]", true);
                         badGames++;
-                        if (modeKey != 'x') KeyPress();
+                        if (mode != 'x') KeyPress();
                         return true;
                     }
                 );
 
                 // game has ended
-                if (modeKey != 'q' && modeKey != 'x')
+                if (mode != 'q' && mode != 'x')
                 {
                     ChessConsole.WriteLine(0, DisplaySettings.PromptLine, "Game over. Press any key to continue.", true);
                     KeyPress();
                 }
 
-                if (modeKey != 'x') modeKey = null; // x mode remains between games until cancelled
+                if (mode != 'x') mode = null; // x mode remains between games until cancelled
 
                 ChessConsole.Clear();
             }
@@ -387,14 +416,20 @@ namespace RMGChess.ConsoleApp
             }
         }
 
-        private static void DisplayMoves(GameRecord game, float currentRound, Colour whoseTurn)
-        {
+        private static void DisplayMoves(GameRecord gameRecord, float currentRound, Colour whoseTurn)
+        { 
             StringBuilder pgnBuilder = new StringBuilder();
             int currentLineLength = 0;
-            foreach (RoundRecord round in game.Rounds)
+            RoundRecord[] roundRecords = gameRecord.Rounds.ToArray();
+
+            for (int i = 0; i < roundRecords.Length; i++)
             {
-                bool isCurrentRound = round.RoundIndex == (int)currentRound;
-                string roundString = getRoundString(round.RoundIndex, round.WhiteMove.MoveAsAlgebra, round.BlackMove?.MoveAsAlgebra ?? "", isCurrentRound, whoseTurn, out string markedUpRoundString);
+                MoveRecord whiteMoveRecord = roundRecords[i].WhiteMove;
+                MoveRecord blackMoveRecord = roundRecords[i].BlackMove;
+                
+                bool isCurrentRound = i + 1 == (int)currentRound;
+
+                string roundString = getRoundString(i + 1, whiteMoveRecord.MoveAsAlgebra, blackMoveRecord?.MoveAsAlgebra ?? "", isCurrentRound, whoseTurn, out string markedUpRoundString);
                 if (currentLineLength + roundString.Length > DisplaySettings.ConsoleWidth)
                 {
                     pgnBuilder.AppendLine();
