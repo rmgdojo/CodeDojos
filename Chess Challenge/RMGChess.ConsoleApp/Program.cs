@@ -16,6 +16,7 @@ namespace RMGChess.ConsoleApp
             char? mode = null;
             float rollbackToRound = 1;
             float playbackToRound = 1;
+            bool wasX = false;
 
             // play through Magnus Carlsen game library
             var gameRecords = GameLibrary.MagnusCarlsenGames;
@@ -30,249 +31,266 @@ namespace RMGChess.ConsoleApp
                 Game game = new Game();
 
                 int delay = DisplaySettings.Delay;
+                bool replayGame = false;
 
                 DisplayGameInfo(gameIndex + 1, gameToPlay.Name);
 
-                gameToPlay.Playback(game, gameToPlay,
-                    (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove) =>
-                    {
-                        DisplayMoves(gameToPlay, roundIndex, whoseTurn);
-                        DisplayBoard(game.Board);
-
-                        #region show previous move
-                        if (lastMove is not null)
+                do
+                {
+                    gameToPlay.Playback(game, gameToPlay,
+                        (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove) =>
                         {
-                            string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
-                            ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, previousMove, true);
-                        }
-                        else
-                        {
-                            ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, $"[blue]No previous move.[/]", true);
-                        }
+                            DisplayMoves(gameToPlay, roundIndex, whoseTurn);
+                            DisplayBoard(game.Board);
 
-                        lastMove = move;
-                        #endregion
-
-                        #region show next move
-                        ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
-                        ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 1, $"Algebra: {(int)roundIndex}. {moveAsAlgebra}", true);
-                        roundIndex += 0.5f; // increment by half for each move
-
-                        ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
-                        bool animate = mode is null;
-                        DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
-
-                        #endregion
-
-                        #region read / set mode from key
-                        while (true)
-                        {
-                            // handle existing mode
-
-                            // running all games non-stop
-                            if (mode == 'x')
+                            #region show previous move
+                            if (lastMove is not null)
                             {
-                                DisplayPrompt("Playing all games at max speed. Press (X) to stop playback.");
-                                delay = 0;
-
-                                char? key = DelayOrKeyPress(0);
-                                if (key == 'x')
-                                {
-                                    mode = null; // exit playback
-                                    delay = DisplaySettings.Delay; // reset delay
-                                    break;
-                                }
-
-                                break;
+                                string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
+                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, previousMove, true);
+                            }
+                            else
+                            {
+                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, $"[blue]No previous move.[/]", true);
                             }
 
-                            // running to end of game or set point
-                            if (mode == 'e' || mode == 'p')
+                            lastMove = move;
+                            #endregion
+
+                            #region show next move
+                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
+                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 1, $"Algebra: {(int)roundIndex}. {moveAsAlgebra}", true);
+                            roundIndex += 0.5f; // increment by half for each move
+
+                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
+                            bool animate = mode is null;
+                            DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
+
+                            #endregion
+
+                            #region read / set mode from key
+                            while (true)
                             {
-                                if (mode == 'p' && roundIndex >= playbackToRound)
-                                {
-                                    mode = null;
-                                }
+                                // handle existing mode
 
-                                if (mode == 'e') DisplayPrompt("Playback to game end. Press (E) to exit playback, (F) to remove delay.");
-                                if (mode == 'p') DisplayPrompt("Playback to specified move. Press (P) to exit playback, (F) to remove delay.");
-
-                                char? key = DelayOrKeyPress(delay);
-                                if (key is not null)
+                                // running all games non-stop
+                                if (mode == 'x')
                                 {
-                                    if (key == 'f')
+                                    DisplayPrompt("Playing all games at max speed. Press (X) to stop playback.");
+                                    delay = 0;
+
+                                    char? key = DelayOrKeyPress(0);
+                                    if (key == 'x')
                                     {
-                                        delay = 0; // remove delay
-                                    }
-                                    else if (key == 'e' || mode == 'p')
-                                    {
-                                        mode = null;
+                                        mode = null; // exit playback
                                         delay = DisplaySettings.Delay; // reset delay
                                         break;
                                     }
+
+                                    break;
                                 }
 
-                                break;
-                            }
-
-                            // no mode set - need to prompt
-                            if (mode == null)
-                            {
-                                delay = DisplaySettings.Delay; // reset delay
-
-                                if (roundIndex > playbackToRound) // if we have played up to the playback target, we need a new key input
+                                // running to end of game or set point
+                                if (mode == 'e' || mode == 'p')
                                 {
-                                    playbackToRound = 1; 
-
-                                    DisplayPrompt("(S)tep | (B)ack | (P)lay | Play to (E)nd | (R)ollback | (Q)uit game | (Z) restart game | (X) play all");
-                                    mode = KeyPress();
-
-                                    if (mode == 'x')
+                                    if (mode == 'p' && roundIndex >= playbackToRound)
                                     {
-                                        continue;
+                                        mode = null;
                                     }
 
-                                    if (mode == 'e')
-                                    {
-                                        continue;
-                                    }
+                                    if (mode == 'e') DisplayPrompt("Playback to game end. Press (E) to exit playback, (F) to remove delay.");
+                                    if (mode == 'p') DisplayPrompt("Playback to specified move. Press (P) to exit playback, (F) to remove delay.");
 
-                                    if (mode == 'r')
+                                    char? key = DelayOrKeyPress(delay);
+                                    if (key is not null)
                                     {
-                                        try
+                                        if (key == 'f')
                                         {
-                                            DisplayPrompt("Rollback to move (round number + w|b optional ie 4 or 7w or 6b): ");
-                                            Console.CursorVisible = true;
-                                            string rollbackTo = Console.ReadLine()?.Trim() ?? string.Empty;
-                                            if (rollbackTo.Length > 0 && char.IsDigit(rollbackTo.LastOrDefault())) rollbackTo += 'w';
-                                            char colour = rollbackTo.Last();
+                                            delay = 0; // remove delay
+                                        }
+                                        else if (key == 'e' || mode == 'p')
+                                        {
+                                            mode = null;
+                                            delay = DisplaySettings.Delay; // reset delay
+                                            break;
+                                        }
+                                    }
 
-                                            rollbackToRound = int.Parse(rollbackTo.Substring(0, rollbackTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
-                                            if (rollbackToRound < 1 || rollbackToRound >= roundIndex || rollbackToRound > (gameToPlay.RoundCount + 1))
+                                    break;
+                                }
+
+                                // no mode set - need to prompt
+                                if (mode == null)
+                                {
+                                    delay = DisplaySettings.Delay; // reset delay
+
+                                    if (roundIndex > playbackToRound) // if we have played up to the playback target, we need a new key input
+                                    {
+                                        playbackToRound = 1;
+
+                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | Play to (E)nd | (R)ollback | (Q)uit game | (Z) restart game | (X) play all");
+                                        mode = KeyPress();
+
+                                        if (mode == 'x')
+                                        {
+                                            continue;
+                                        }
+
+                                        if (mode == 'e')
+                                        {
+                                            continue;
+                                        }
+
+                                        if (mode == 'r')
+                                        {
+                                            try
                                             {
-                                                rollbackToRound = 1;
-                                                throw new IndexOutOfRangeException();
+                                                DisplayPrompt("Rollback to move (round number + w|b optional ie 4 or 7w or 6b): ");
+                                                Console.CursorVisible = true;
+                                                string rollbackTo = Console.ReadLine()?.Trim() ?? string.Empty;
+                                                if (rollbackTo.Length > 0 && char.IsDigit(rollbackTo.LastOrDefault())) rollbackTo += 'w';
+                                                char colour = rollbackTo.Last();
+
+                                                rollbackToRound = int.Parse(rollbackTo.Substring(0, rollbackTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
+                                                if (rollbackToRound < 1 || rollbackToRound >= roundIndex || rollbackToRound > (gameToPlay.RoundCount + 1))
+                                                {
+                                                    rollbackToRound = 1;
+                                                    throw new IndexOutOfRangeException();
+                                                }
+                                                break;
                                             }
-                                            break;
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            DisplayErrorPrompt($"[red]Invalid rollback target.[/]");
-                                            continue;
-                                        }
-                                    }
-
-                                    if (mode == 'b')
-                                    {
-                                        if (roundIndex > 1.5)
-                                        {
-                                            rollbackToRound = roundIndex - 1f; // go back one move
-                                            mode = 'r'; // set rollback mode
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            DisplayErrorPrompt("[red]Cannot go back.[/]");
-                                            continue;
-                                        }
-                                    }
-
-                                    if (mode == 'z')
-                                    {
-                                        rollbackToRound = 1; // reset to start
-                                        mode = 'r';
-                                        break;
-                                    }
-
-                                    if (mode == 'p')
-                                    {
-                                        try
-                                        {
-                                            DisplayPrompt("Play to move (round number + w|b optional ie 4 or 7w or 6b): ");
-                                            Console.CursorVisible = true;
-                                            string runTo = Console.ReadLine()?.Trim() ?? string.Empty;
-                                            Console.CursorVisible = false;
-                                            if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault())) runTo += 'w';
-                                            char colour = runTo.Last();
-
-                                            playbackToRound = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
-                                            if (playbackToRound <= roundIndex || playbackToRound > (gameToPlay.RoundCount + 1)) playbackToRound = 0;
-
-                                            if (playbackToRound > 1)
+                                            catch (Exception ex)
                                             {
+                                                DisplayErrorPrompt($"[red]Invalid rollback target.[/]");
+                                                continue;
+                                            }
+                                        }
+
+                                        if (mode == 'b')
+                                        {
+                                            if (roundIndex > 1.5)
+                                            {
+                                                rollbackToRound = roundIndex - 1f; // go back one move
+                                                mode = 'r'; // set rollback mode
                                                 break;
                                             }
                                             else
                                             {
-                                                throw new IndexOutOfRangeException();
+                                                DisplayErrorPrompt("[red]Cannot go back.[/]");
+                                                continue;
                                             }
                                         }
-                                        catch (Exception ex)
+
+                                        if (mode == 'z')
                                         {
-                                            DisplayErrorPrompt($"[red]Invalid run target.[/]");
-                                            continue;
+                                            rollbackToRound = 1; // reset to start
+                                            mode = 'r';
+                                            break;
+                                        }
+
+                                        if (mode == 'p')
+                                        {
+                                            try
+                                            {
+                                                DisplayPrompt("Play to move (round number + w|b optional ie 4 or 7w or 6b): ");
+                                                Console.CursorVisible = true;
+                                                string runTo = Console.ReadLine()?.Trim() ?? string.Empty;
+                                                Console.CursorVisible = false;
+                                                if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault())) runTo += 'w';
+                                                char colour = runTo.Last();
+
+                                                playbackToRound = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
+                                                if (playbackToRound <= roundIndex || playbackToRound > (gameToPlay.RoundCount + 1)) playbackToRound = 0;
+
+                                                if (playbackToRound > 1)
+                                                {
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    throw new IndexOutOfRangeException();
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                DisplayErrorPrompt($"[red]Invalid run target.[/]");
+                                                continue;
+                                            }
+                                        }
+
+                                        if (mode == 'q')
+                                        {
+                                            break;
+                                        }
+
+                                        if (mode == 's')
+                                        {
+                                            mode = null;
+                                            break; // step through
                                         }
                                     }
-
-                                    if (mode == 'q')
+                                    else
                                     {
                                         break;
                                     }
-
-                                    if (mode == 's')
-                                    {
-                                        mode = null;
-                                        break; // step through
-                                    }
-                                }
-                                else
-                                {
-                                    break;
                                 }
                             }
-                        }                        
-                        #endregion
+                            #endregion
 
-                        void DisplayErrorPrompt(string message)
+                            void DisplayErrorPrompt(string message)
+                            {
+                                DisplayPrompt($"[red]{message}[/]");
+                                Thread.Sleep(1000);
+                                mode = null;
+                            }
+                        },
+                        (roundIndex, whoseTurn, move) =>
                         {
-                            DisplayPrompt($"[red]{message}[/]");
-                            Thread.Sleep(1000);
+                            #region tell the game replay engine what to do
+                            PlayControl control = new();
+                            if (mode == 'q') control.Stop = true;
+                            if (mode == 'r')
+                            {
+                                control.GoToRound = rollbackToRound;
+                            }
+
+                            if (mode == 'r') mode = null;
+                            return control;
+                            #endregion
+                        },
+                        message =>
+                        {
+
+                            ChessConsole.Write(0, DisplaySettings.ErrorLine, $"[red]{message}[/] ", true);
+                            wasX = (mode == 'x');
+                            mode = null;
+                            badGames++;
+                            return true;
+                        }
+                    );
+
+                    // game has ended
+                    if (mode != 'q' && mode != 'x')
+                    {
+                        ChessConsole.Write("Game over. (Enter) next game, (R)eplay this game.", true);
+                        char key = KeyPress();
+                        if (key == 'r')
+                        {
+                            replayGame = true;
                             mode = null;
                         }
-                    },
-                    (roundIndex, whoseTurn, move) =>
-                    {
-                        #region tell the game replay engine what to do
-                        PlayControl control = new();
-                        if (mode == 'q') control.Stop = true;
-                        if (mode == 'r')
+                        else
                         {
-                            control.GoToRound = rollbackToRound;
-                        }
-
-                        if (mode == 'r') mode = null;
-                        return control;
-                        #endregion
-                    }, 
-                    message => {
-
-                        ChessConsole.WriteLine(0, DisplaySettings.ErrorLine, $"[red]{message}[/]", true);
-                        badGames++;
-                        if (mode != 'x') KeyPress();
-                        return true;
+                            if (wasX) mode = 'x';
+                        }    
                     }
-                );
 
-                // game has ended
-                if (mode != 'q' && mode != 'x')
-                {
-                    ChessConsole.WriteLine(0, DisplaySettings.PromptLine, "Game over. Press any key to continue.", true);
-                    KeyPress();
+                    if (mode != 'x') mode = null; // x mode remains between games until cancelled
+
+                    ChessConsole.Clear();
                 }
-
-                if (mode != 'x') mode = null; // x mode remains between games until cancelled
-
-                ChessConsole.Clear();
+                while (replayGame);
+                replayGame = false;
             }
 
             ChessConsole.Clear();
