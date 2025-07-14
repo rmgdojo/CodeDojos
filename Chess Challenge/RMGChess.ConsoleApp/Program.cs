@@ -277,9 +277,9 @@ namespace RMGChess.ConsoleApp
                             return control;
                             #endregion
                         },
-                        message =>
+                        (message, roundIndex, whoseTurn) =>
                         {
-
+                            DisplayMoves(gameToPlay, roundIndex, whoseTurn);
                             ChessConsole.Write(0, DisplaySettings.ErrorLine, $"[red]{message}[/] ", true);
                             wasX = (mode == 'x');
                             mode = null;

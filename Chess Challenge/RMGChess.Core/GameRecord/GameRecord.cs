@@ -20,7 +20,7 @@ public class GameRecord
     public int MoveCount => _moves.Length;
     public int RoundCount => _rounds.Length;
 
-    public void Playback(Game game, GameRecord gameRecord, Action<float, Colour, string, Move, string, Move> beforeMove, Func<float, Colour, Move, PlayControl> afterMove, Func<string, bool> onError)
+    public void Playback(Game game, GameRecord gameRecord, Action<float, Colour, string, Move, string, Move> beforeMove, Func<float, Colour, Move, PlayControl> afterMove, Func<string, float, Colour, bool> onError)
     {
         game.Reset();
 
@@ -41,7 +41,7 @@ public class GameRecord
         }
     }
 
-    private (Move lastMove, string lastMoveAsAlgebra, int moveIndex) RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, Func<string, bool> onError)
+    private (Move lastMove, string lastMoveAsAlgebra, int moveIndex) RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, Func<string, float, Colour, bool> onError)
     {
         game.Reset();
         Move thisMove = null;
@@ -62,17 +62,17 @@ public class GameRecord
     }
 
     private (PlayControl control, Move move, string moveAsAlgebra) PlayRecordedMove(Game game, MoveRecord moveRecord, Move lastMove, string lastMoveAsAlgebra,
-        Action<float, Colour, string, Move, string, Move> beforeMove, Func<float, Colour, Move, PlayControl> afterMove, Func<string, bool> onError)
+        Action<float, Colour, string, Move, string, Move> beforeMove, Func<float, Colour, Move, PlayControl> afterMove, Func<string, float, Colour, bool> onError)
     {
         Move move = null;
         PlayControl control = null;
 
         string moveAsAlgebra = moveRecord.MoveAsAlgebra;
         Colour whoseTurn = moveRecord.WhoseTurn;
+        float actualRoundIndex = moveRecord.RoundIndex;
 
         try
         {
-            float actualRoundIndex = moveRecord.RoundIndex;
             move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
 
             beforeMove?.Invoke(actualRoundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove);
@@ -83,7 +83,7 @@ public class GameRecord
         }
         catch (Exception ex)
         {
-            if (onError?.Invoke($"Error in move '{moveAsAlgebra}': {ex.Message}") ?? true)
+            if (onError?.Invoke($"Error in move '{moveAsAlgebra}': {ex.Message}", actualRoundIndex, whoseTurn) ?? true)
             {
                 return (new PlayControl(stop: true), move, moveAsAlgebra); // stop processing if an error occurs
             }
