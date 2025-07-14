@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Drawing;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -42,6 +43,29 @@ namespace RMGChess.Core
         {
             _capturedPieces.Add(piece);
             _pieces.Remove(piece);
+        }
+
+        internal void HandlePromotion(Move move, char symbol)
+        {
+            Action<Move> callback = (move =>
+            {
+                Position position = move.To;
+                Piece piece = move.Piece;
+                _pieces.Remove(piece);
+                _board[position].RemovePiece();
+                Piece newPiece = symbol switch
+                {
+                    'Q' => new Queen(piece.Colour),
+                    'R' => new Rook(piece.Colour),
+                    'B' => new Bishop(piece.Colour),
+                    'N' => new Knight(piece.Colour),
+                    _ => throw new ArgumentException($"Invalid promotion symbol: {symbol}")
+                };
+                _pieces.Add(newPiece);
+                _board[position].SetupPiece(newPiece);
+            });
+
+            move.CallbackOnMoveExecuted(callback);
         }
 
         internal void AddHistory(Colour whoseTurn, Move move)

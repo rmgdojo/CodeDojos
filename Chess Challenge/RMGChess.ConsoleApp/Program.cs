@@ -380,18 +380,21 @@ namespace RMGChess.ConsoleApp
 
             if (from is not null && to is not null)
             {
-                //if (animateHighlight)
-                //{
-                //    for (int i = 2; i < 9; i++) // animate highlight for 4 cycles
-                //    {
-                //        WriteBoard(i % 2 == 0);
-                //        Thread.Sleep(100);
-                //    }
-                //}
-                //else
-                //{
+                if (animateHighlight)
+                {
                     WriteBoard(true);
-                //}
+                    Thread.Sleep(500); // wait for a moment before starting the animation
+
+                    for (int i = 1; i < 9; i++) // animate highlight for 4 cycles
+                    {
+                        WriteBoard(i % 2 == 0);
+                        Thread.Sleep(100);
+                    }
+                }
+                else
+                {
+                    WriteBoard(true);
+                }
             }
             else
             {
@@ -405,7 +408,7 @@ namespace RMGChess.ConsoleApp
                 int rowIndex = DisplaySettings.BoardTop;
                 for (int rank = 8; rank >= 1; rank--)
                 {
-                    ChessConsole.Write(DisplaySettings.BoardLeft, rowIndex++, $"{rank}");
+                    ChessConsole.Write(DisplaySettings.BoardLeft, rowIndex++, $"{rank} ");
                     for (char file = 'a'; file <= 'h'; file++)
                     {
                         string foregroundColour = "white";
@@ -448,7 +451,7 @@ namespace RMGChess.ConsoleApp
                     alt = !alt; // alternate the background color for the next line
                 }
 
-                ChessConsole.WriteLine(DisplaySettings.BoardLeft, rowIndex, " a  b  c  d  e  f  g  h");
+                ChessConsole.WriteLine(DisplaySettings.BoardLeft, rowIndex, "   a  b  c  d  e  f  g  h");
             }
         }
 

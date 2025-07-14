@@ -21,6 +21,8 @@ namespace RMGChess.Core
             };
 
             bool takesPiece = moveAsAlgebra.Contains("x");
+            bool isPromotion = moveAsAlgebra.Contains('=');
+            char? promotedPieceSymbol = null;
             Move move = null;
 
             if (!castling)
@@ -28,6 +30,12 @@ namespace RMGChess.Core
                 // we need to work out which piece is moving via induction (unless it's stated)
 
                 Piece piece = null;
+                if (isPromotion)
+                {
+                    promotedPieceSymbol = moveAsAlgebra.Last();
+                    moveAsAlgebra = moveAsAlgebra[..^2];
+                }
+
                 moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+'); // remove warts for check / checkmate
 
                 // check that the algebra now ends with a valid position (e4 etc)
@@ -97,6 +105,19 @@ namespace RMGChess.Core
                 }
 
                 move = new(piece, piece.Position, to, takesPiece ? board[to].Piece : null);
+
+                if (isPromotion)
+                {
+                    // check that this piece is on the first or last rank depending on colour
+                    if (piece is Pawn && ((to.Rank == 8 && piece.IsWhite) || (to.Rank == 1 && piece.IsBlack)))
+                    {
+                        board.Game.HandlePromotion(move, promotedPieceSymbol.Value);
+                    }
+                    else
+                    {
+                        throw new ChessException("Promotion can only be applied to pawns on the last rank.");
+                    }
+                }
             }
             else
             {

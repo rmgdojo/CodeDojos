@@ -7,6 +7,8 @@ namespace RMGChess.Core
 {
     public class Move
     {
+        private Action<Move> _onMoveExecuted;
+
         public Piece Piece { get; protected set; }
         public Position From { get; protected set; }
         public Position To { get; protected set; }
@@ -16,6 +18,16 @@ namespace RMGChess.Core
         public override string ToString()
         {
             return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{To}"; // always use full form for this
+        }
+
+        internal virtual void CallbackOnMoveExecuted(Action<Move> callback)
+        {
+            if (_onMoveExecuted is not null)
+            {
+                throw new InvalidOperationException("Callback already set for this move.");
+            }
+
+            _onMoveExecuted = callback;
         }
 
         internal virtual void Execute(Game game)
@@ -35,6 +47,9 @@ namespace RMGChess.Core
                 game.HandleCapture(taken);
             }
             board[To].PlacePiece(Piece);
+
+            _onMoveExecuted?.Invoke(this);
+            _onMoveExecuted = null;
         }
 
         internal Move Taking(Piece piece)
