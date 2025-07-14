@@ -380,19 +380,18 @@ namespace RMGChess.ConsoleApp
 
             if (from is not null && to is not null)
             {
-                if (animateHighlight)
-                {
-                    Thread.Sleep(100);
-                    for (int i = 2; i < 7; i++) // animate highlight for 4 cycles
-                    {
-                        WriteBoard(i % 2 == 0);
-                        Thread.Sleep(100);
-                    }
-                }
-                else
-                {
+                //if (animateHighlight)
+                //{
+                //    for (int i = 2; i < 9; i++) // animate highlight for 4 cycles
+                //    {
+                //        WriteBoard(i % 2 == 0);
+                //        Thread.Sleep(100);
+                //    }
+                //}
+                //else
+                //{
                     WriteBoard(true);
-                }
+                //}
             }
             else
             {
@@ -413,7 +412,7 @@ namespace RMGChess.ConsoleApp
                         string backgroundColour = alt ? "cyan" : "darkcyan";
                         string highlightColour = whoseTurn switch
                         {
-                            Colour.White => "magenta",
+                            Colour.White => "darkmagenta",
                             Colour.Black => "maroon",
                             _ => backgroundColour
                         };
