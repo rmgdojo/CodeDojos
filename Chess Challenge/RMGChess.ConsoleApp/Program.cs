@@ -33,10 +33,10 @@ namespace RMGChess.ConsoleApp
                 int delay = DisplaySettings.Delay;
                 bool replayGame = false;
 
-                DisplayGameInfo(gameIndex + 1, gameToPlay.Name);
-
                 do
                 {
+                    DisplayGameInfo(gameIndex + 1, gameToPlay.Name);
+
                     gameToPlay.Playback(game, gameToPlay,
                         (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove) =>
                         {
@@ -90,6 +90,25 @@ namespace RMGChess.ConsoleApp
                                     break;
                                 }
 
+                                // go to specified game
+                                if (mode == 'g')
+                                {
+                                    DisplayPrompt("Go to game (index): ");
+                                    Console.CursorVisible = true;
+                                    string gameNumber = Console.ReadLine()?.Trim() ?? string.Empty;
+                                    Console.CursorVisible = false;
+                                    if (int.TryParse(gameNumber, out int gameNum) && gameNum > 0 && gameNum <= gameRecords.Count)
+                                    {
+                                        gameIndex = gameNum - 2; // adjust for zero-based index and for loop increment
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        DisplayErrorPrompt("Invalid game number.");
+                                        continue;
+                                    }
+                                }
+
                                 // running to end of game or set point
                                 if (mode == 'e' || mode == 'p')
                                 {
@@ -128,7 +147,7 @@ namespace RMGChess.ConsoleApp
                                     {
                                         playbackToRound = 1;
 
-                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | Play to (E)nd | (R)ollback | (Q)uit game | (Z) restart game | (X) play all");
+                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | Play to (E)nd | (R)ollback | (Q)uit game | (G)o to game | (Z) restart game | (X) play all");
                                         mode = KeyPress();
 
                                         if (mode == 'x')
@@ -248,7 +267,7 @@ namespace RMGChess.ConsoleApp
                         {
                             #region tell the game replay engine what to do
                             PlayControl control = new();
-                            if (mode == 'q') control.Stop = true;
+                            if (mode == 'q' || mode == 'g') control.Stop = true;
                             if (mode == 'r')
                             {
                                 control.GoToRound = rollbackToRound;
@@ -270,7 +289,7 @@ namespace RMGChess.ConsoleApp
                     );
 
                     // game has ended
-                    if (mode != 'q' && mode != 'x')
+                    if (mode != 'q' && mode != 'x' && mode != 'g')
                     {
                         ChessConsole.Write("Game over. (Enter) next game, (R)eplay this game.", true);
                         char key = KeyPress();
