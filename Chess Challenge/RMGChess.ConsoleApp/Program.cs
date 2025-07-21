@@ -2,6 +2,7 @@
 using Spectre.Console;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -31,7 +32,7 @@ namespace RMGChess.ConsoleApp
                 GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
 
-                int delay = DisplaySettings.Delay;
+                int delay = DisplaySettings.Delay; // default delay
                 bool replayGame = false;
 
                 do
@@ -64,7 +65,7 @@ namespace RMGChess.ConsoleApp
                             roundIndex += 0.5f; // increment by half for each move
 
                             ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {moveDescription(move)}[/]", true);
-                            bool animate = mode is null;
+                            bool animate = false;// mode is null;
                             DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
 
                             #endregion
@@ -89,25 +90,6 @@ namespace RMGChess.ConsoleApp
                                     }
 
                                     break;
-                                }
-
-                                // go to specified game
-                                if (mode == 'g')
-                                {
-                                    DisplayPrompt("Go to game (index): ");
-                                    Console.CursorVisible = true;
-                                    string gameNumber = Console.ReadLine()?.Trim() ?? string.Empty;
-                                    Console.CursorVisible = false;
-                                    if (int.TryParse(gameNumber, out int gameNum) && gameNum > 0 && gameNum <= gameRecords.Count)
-                                    {
-                                        gameIndex = gameNum - 2; // adjust for zero-based index and for loop increment
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        DisplayErrorPrompt("Invalid game number.");
-                                        continue;
-                                    }
                                 }
 
                                 // running to end of game or set point
@@ -148,7 +130,7 @@ namespace RMGChess.ConsoleApp
                                     {
                                         playbackToRound = 1;
 
-                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | Play to (E)nd | (R)ollback | (Q)uit game | (G)o to game | (Z) restart game | (X) play all");
+                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | (E)nd | (R)ollback | (Q)uit game | (G)o to game | (Z) restart game | (X) play all");
                                         mode = KeyPress();
 
                                         if (mode == 'x')
@@ -165,16 +147,9 @@ namespace RMGChess.ConsoleApp
                                         {
                                             try
                                             {
-                                                DisplayPrompt("Rollback to move (round number + w|b optional ie 4 or 7w or 6b): ");
-                                                Console.CursorVisible = true;
-                                                string rollbackTo = Console.ReadLine()?.Trim() ?? string.Empty;
-                                                if (rollbackTo.Length > 0 && char.IsDigit(rollbackTo.LastOrDefault())) rollbackTo += 'w';
-                                                char colour = rollbackTo.Last();
-
-                                                rollbackToRound = int.Parse(rollbackTo.Substring(0, rollbackTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
-                                                if (rollbackToRound < 1 || rollbackToRound >= roundIndex || rollbackToRound > (gameToPlay.RoundCount + 1))
+                                                rollbackToRound = getRoundInput(false, true);
+                                                if (rollbackToRound >= roundIndex)
                                                 {
-                                                    rollbackToRound = 1;
                                                     throw new IndexOutOfRangeException();
                                                 }
                                                 break;
@@ -182,6 +157,31 @@ namespace RMGChess.ConsoleApp
                                             catch (Exception ex)
                                             {
                                                 DisplayErrorPrompt($"[red]Invalid rollback target.[/]");
+                                                continue;
+                                            }
+                                        }
+
+                                        if (mode == 'g')
+                                        {
+                                            try
+                                            {
+                                                string gameNumber = getUserInput("Go to game (game index): ");
+                                                if (int.TryParse(gameNumber, out int gameNum) && gameNum > 0 && gameNum <= gameRecords.Count)
+                                                {
+                                                    gameIndex = gameNum - 2; // adjust for zero-based index and for loop increment
+                                                }
+                                                else
+                                                {
+                                                    DisplayErrorPrompt("Invalid game number.");
+                                                    continue;
+                                                }
+
+                                                playbackToRound = getRoundInput(false);
+                                                break;
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                DisplayErrorPrompt($"[red]Invalid game target.[/]");
                                                 continue;
                                             }
                                         }
@@ -212,24 +212,8 @@ namespace RMGChess.ConsoleApp
                                         {
                                             try
                                             {
-                                                DisplayPrompt("Play to move (round number + w|b optional ie 4 or 7w or 6b): ");
-                                                Console.CursorVisible = true;
-                                                string runTo = Console.ReadLine()?.Trim() ?? string.Empty;
-                                                Console.CursorVisible = false;
-                                                if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault())) runTo += 'w';
-                                                char colour = runTo.Last();
-
-                                                playbackToRound = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
-                                                if (playbackToRound <= roundIndex || playbackToRound > (gameToPlay.RoundCount + 1)) playbackToRound = 0;
-
-                                                if (playbackToRound > 1)
-                                                {
-                                                    break;
-                                                }
-                                                else
-                                                {
-                                                    throw new IndexOutOfRangeException();
-                                                }
+                                                playbackToRound = getRoundInput(true);
+                                                break;
                                             }
                                             catch (Exception ex)
                                             {
@@ -248,6 +232,8 @@ namespace RMGChess.ConsoleApp
                                             mode = null;
                                             break; // step through
                                         }
+
+                                        mode = null; // reset mode if we didn't match any of the above
                                     }
                                     else
                                     {
@@ -256,6 +242,35 @@ namespace RMGChess.ConsoleApp
                                 }
                             }
                             #endregion
+
+                            float getRoundInput(bool dontGoBack = false, bool dontGoForward = false)
+                            {
+                                string runTo = getUserInput("Go to move (round number + w|b optional ie 4 or 7w or 6b) or ENTER for start: ");
+                                if (runTo == "") runTo = "1";
+                                if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault())) runTo += 'w';
+                                char colour = runTo.Last();
+
+                                float round = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim()) + (colour == 'b' ? 0.5f : 0f);
+                                if ((dontGoBack && round < roundIndex) || (dontGoForward && round >= roundIndex) || round > (gameToPlay.RoundCount + 1)) round = 0;
+                                if (round >= 1)
+                                {
+                                    return round;
+                                }
+                                else
+                                {
+                                    throw new IndexOutOfRangeException();
+                                }
+                            }
+
+                            string getUserInput(string prompt)
+                            {
+                                Console.CursorVisible = true;
+                                DisplayPrompt(prompt);
+                                Console.CursorVisible = true;
+                                string input = Console.ReadLine()?.Trim() ?? string.Empty;
+                                Console.CursorVisible = false;
+                                return input;
+                            }
 
                             void DisplayErrorPrompt(string message)
                             {
@@ -297,7 +312,8 @@ namespace RMGChess.ConsoleApp
                     // game has ended
                     if (mode != 'q' && mode != 'x' && mode != 'g')
                     {
-                        ChessConsole.Write("Game over. (Enter) next game, (R)eplay this game.", true);
+                        playbackToRound = 0;
+                        ChessConsole.Write(0, DisplaySettings.PromptLine, "Game over. (Enter) next game, (R)eplay this game.", true);
                         char key = KeyPress();
                         if (key == 'r')
                         {
@@ -306,6 +322,7 @@ namespace RMGChess.ConsoleApp
                         }
                         else
                         {
+                            replayGame = false;
                             if (wasX) mode = 'x';
                         }    
                     }
