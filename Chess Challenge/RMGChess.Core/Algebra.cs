@@ -12,6 +12,8 @@ namespace RMGChess.Core
                 throw new ArgumentException("Algebra cannot be empty.");
             }
 
+            moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+'); // remove warts for check / checkmate
+
             // is this a castling move?
             (bool castling, Side castlingType) = moveAsAlgebra switch
             {
@@ -36,8 +38,6 @@ namespace RMGChess.Core
                     moveAsAlgebra = moveAsAlgebra[..^2];
                 }
 
-                moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+'); // remove warts for check / checkmate
-
                 // check that the algebra now ends with a valid position (e4 etc)
                 Position to;
                 try
@@ -51,18 +51,21 @@ namespace RMGChess.Core
                 }
 
                 char pieceSymbol = moveAsAlgebra[0];
-                bool hasSymbol = "RNBQK".Contains(pieceSymbol);
+                bool isNotPawn = "RNBQK".Contains(pieceSymbol);
                 
                 IEnumerable<Piece> pieces = board.GetAllPiecesThatCanMoveTo(to).OfColour(whoIsMoving);
-                if (pieces.Count() == 1 && !hasSymbol)
+                if (pieces.Count() == 1 && !isNotPawn)
                 {
                     piece = pieces.First(); // got it in one
                 }
                 else
                 {
-                    // we need the notation to identify the piece
-                    if (hasSymbol)
-                    {
+                    pieceSymbol = isNotPawn ? pieceSymbol : 'P'; // if no symbol, assume pawn
+                    int index = isNotPawn ? 1 : 0; // if pawn, skip the symbol
+
+                    //we need the notation to identify the piece
+                    //if (hasSymbol)
+                    //{
                         pieces = pieces.Where(p => p.Symbol == pieceSymbol);
                         if (pieces.Count() == 1)
                         {
@@ -77,25 +80,19 @@ namespace RMGChess.Core
 
                             if (piece is null)
                             {
-                                // have to be supplied the file of the piece moving
-                                pieces = pieces.Where(p => p.Square?.File == moveAsAlgebra[1]);
-                                if (pieces.Count() == 1)
+                                piece = pieces.SingleOrDefault(p => p.Square?.File == moveAsAlgebra[index]);
+                                if (piece is null)
                                 {
-                                    piece = pieces.First();
-                                }
-                                else
-                                {
-                                    // have to be supplied the rank of the piece moving
-                                    piece = pieces.SingleOrDefault(p => p.Square?.Rank == moveAsAlgebra[2] - '0');
+                                    piece = pieces.SingleOrDefault(p => p.Square?.Rank == moveAsAlgebra[index] - '0');
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        // it's got to be a pawn, so it's the first pawn that can move to this square (there should be only one of this colour)
-                        piece = pieces.FirstOrDefault(p => p is Pawn);
-                    }
+                    //}
+                    //else
+                    //{
+                    //    // it's got to be a pawn, so it's the first pawn that can move to this square (there should be only one of this colour)
+                    //    piece = pieces.FirstOrDefault(p => p is Pawn);
+                    //}
                 }
 
                 if (piece is null)
@@ -104,20 +101,13 @@ namespace RMGChess.Core
                     throw new ChessException("Algebra cannot be parsed or move is invalid.");
                 }
 
-                move = new(piece, piece.Position, to, takesPiece ? board[to].Piece : null);
-
-                if (isPromotion)
-                {
-                    // check that this piece is on the first or last rank depending on colour
-                    if (piece is Pawn && ((to.Rank == 8 && piece.IsWhite) || (to.Rank == 1 && piece.IsBlack)))
-                    {
-                        board.Game.HandlePromotion(move, promotedPieceSymbol.Value);
-                    }
-                    else
-                    {
-                        throw new ChessException("Promotion can only be applied to pawns on the last rank.");
-                    }
-                }
+                move = new(
+                    piece,
+                    piece.Position,
+                    to,
+                    takesPiece ? board[to].Piece : null,
+                    isPromotion && promotedPieceSymbol.HasValue ? Piece.TypeFromSymbol(promotedPieceSymbol.Value) : null
+                    );
             }
             else
             {

@@ -4,6 +4,48 @@ namespace RMGChess.Core
 {
     public abstract class Piece
     {
+        public static Type TypeFromSymbol(char symbol)
+        {
+            return symbol switch
+            {
+                'K' => typeof(King),
+                'Q' => typeof(Queen),
+                'R' => typeof(Rook),
+                'B' => typeof(Bishop),
+                'N' => typeof(Knight),
+                'P' => typeof(Pawn),
+                _ => throw new ArgumentException($"Invalid piece symbol: {symbol}")
+            };
+        }
+
+        public static char SymbolFromType(Type type)
+        {
+            return type.Name.Substring(0, 2) switch
+            {
+                "Ki" => 'K',
+                "Qu" => 'Q',
+                "Ro" => 'R',
+                "Bi" => 'B',
+                "Kn" => 'N',
+                "Pa" => 'P',
+                _ => throw new ArgumentException($"Invalid piece type: {type.Name}")
+            };
+        }
+
+        public static Piece FromType(Type type, Colour colour)
+        {
+            return type switch
+            {
+                Type t when t == typeof(King) => new King(colour),
+                Type t when t == typeof(Queen) => new Queen(colour),
+                Type t when t == typeof(Rook) => new Rook(colour),
+                Type t when t == typeof(Bishop) => new Bishop(colour),
+                Type t when t == typeof(Knight) => new Knight(colour),
+                Type t when t == typeof(Pawn) => new Pawn(colour),
+                _ => throw new ArgumentException($"Invalid piece type: {type.Name}")
+            };
+        }
+
         public Colour Colour { get; init; }
         public bool IsWhite => Colour == Colour.White;
         public bool IsBlack => Colour == Colour.Black;

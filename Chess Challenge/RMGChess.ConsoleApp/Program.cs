@@ -19,6 +19,7 @@ namespace RMGChess.ConsoleApp
             bool wasX = false;
 
             // play through Magnus Carlsen game library
+            // TODO: Game 25 Move 44 - implement check mechanics so this works
             var gameRecords = GameLibrary.MagnusCarlsenGames;
             int badGames = 0;
 
@@ -46,7 +47,7 @@ namespace RMGChess.ConsoleApp
                             #region show previous move
                             if (lastMove is not null)
                             {
-                                string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra} ({lastMove.Piece} from {lastMove.From} to {lastMove.To}{(lastMove.TakesPiece ? " taking " + lastMove.PieceToTake : "")})[/]";
+                                string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra} ({moveDescription(lastMove)})[/]";
                                 ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, previousMove, true);
                             }
                             else
@@ -62,7 +63,7 @@ namespace RMGChess.ConsoleApp
                             ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 1, $"Algebra: {(int)roundIndex}. {moveAsAlgebra}", true);
                             roundIndex += 0.5f; // increment by half for each move
 
-                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {move.Piece} from {move.From} to {move.To} {(move.TakesPiece ? "taking " + move.PieceToTake : "")}[/]", true);
+                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {moveDescription(move)}[/]", true);
                             bool animate = mode is null;
                             DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
 
@@ -261,6 +262,11 @@ namespace RMGChess.ConsoleApp
                                 DisplayPrompt($"[red]{message}[/]");
                                 Thread.Sleep(1000);
                                 mode = null;
+                            }
+
+                            string moveDescription(Move move)
+                            {
+                                return $"{move.Piece} from {move.From} to {move.To}{(move.TakesPiece ? " taking " + move.PieceToTake : "")}{(move.IsPromotion ? " promotes to " + move.PromotesTo.Name : "")}";
                             }
                         },
                         (roundIndex, whoseTurn, move) =>

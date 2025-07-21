@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,27 +8,17 @@ namespace RMGChess.Core
 {
     public class Move
     {
-        private Action<Move> _onMoveExecuted;
-
         public Piece Piece { get; protected set; }
         public Position From { get; protected set; }
         public Position To { get; protected set; }
         public Direction Direction { get; protected set; }
         public bool TakesPiece => PieceToTake is not null;
         public Piece PieceToTake { get; protected set; }
+        public bool IsPromotion => Piece is Pawn && (To.Rank == (Piece.IsWhite ? 8 : 1) || To.Rank == (Piece.IsBlack ? 1 : 8));
+        public Type PromotesTo { get; protected set; }
         public override string ToString()
         {
-            return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{To}"; // always use full form for this
-        }
-
-        internal virtual void CallbackOnMoveExecuted(Action<Move> callback)
-        {
-            if (_onMoveExecuted is not null)
-            {
-                throw new InvalidOperationException("Callback already set for this move.");
-            }
-
-            _onMoveExecuted = callback;
+            return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{(IsPromotion ? $"={Piece.SymbolFromType(PromotesTo)}" : "")}{To}"; // always use full form for this
         }
 
         internal virtual void Execute(Game game)
@@ -46,10 +37,19 @@ namespace RMGChess.Core
                 Piece taken = board[To].RemovePiece();
                 game.HandleCapture(taken);
             }
-            board[To].PlacePiece(Piece);
+            if (IsPromotion)
+            {
+                if (PromotesTo == null)
+                {
+                    throw new InvalidMoveException("Promotion type must be specified when executing a promotion move.");
+                }
 
-            _onMoveExecuted?.Invoke(this);
-            _onMoveExecuted = null;
+                Piece newPiece = Piece.FromType(PromotesTo, Piece.Colour);
+                game.HandlePromotion(Piece, newPiece, To);
+                Piece = newPiece;
+            }
+
+            board[To].PlacePiece(Piece);
         }
 
         internal Move Taking(Piece piece)
@@ -76,13 +76,14 @@ namespace RMGChess.Core
             throw new ChessException("Invalid move direction");
         }
 
-        public Move(Piece piece, Position from, Position to, Piece pieceToTake = null)
+        public Move(Piece piece, Position from, Position to, Piece pieceToTake = null, Type promotesTo = null)
         {
             Piece = piece;
             From = from;
             To = to;
             PieceToTake = pieceToTake;
             Direction = GetDirection(from, to);
+            PromotesTo = promotesTo; // can be null even if IsPromotion is true
         }
 
         protected Move()

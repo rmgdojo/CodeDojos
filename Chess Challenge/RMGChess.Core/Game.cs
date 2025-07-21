@@ -6,7 +6,6 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RMGChess.Core
 {
-
     public class Game
     {
         private Dictionary<Colour, List<Move>> _history;
@@ -45,27 +44,25 @@ namespace RMGChess.Core
             _pieces.Remove(piece);
         }
 
-        internal void HandlePromotion(Move move, char symbol)
+        internal void HandlePromotion(Piece piece, Piece promotedPiece, Position position)
         {
-            Action<Move> callback = (move =>
+            if (piece is not Pawn)
             {
-                Position position = move.To;
-                Piece piece = move.Piece;
-                _pieces.Remove(piece);
-                _board[position].RemovePiece();
-                Piece newPiece = symbol switch
-                {
-                    'Q' => new Queen(piece.Colour),
-                    'R' => new Rook(piece.Colour),
-                    'B' => new Bishop(piece.Colour),
-                    'N' => new Knight(piece.Colour),
-                    _ => throw new ArgumentException($"Invalid promotion symbol: {symbol}")
-                };
-                _pieces.Add(newPiece);
-                _board[position].SetupPiece(newPiece);
-            });
+                throw new InvalidMoveException("Only pawns can be promoted.");
+            }
 
-            move.CallbackOnMoveExecuted(callback);
+            if (promotedPiece is Pawn)
+            {
+                throw new InvalidMoveException("Cannot promote a pawn to a pawn.");
+            }
+
+            if (position.Rank != (piece.IsWhite ? 8 : 1))
+            {
+                throw new InvalidMoveException($"Promotion can only be applied to pawns on the last rank. Current rank: {position.Rank}");
+            }
+
+            _pieces.Remove(piece);
+            _pieces.Add(promotedPiece);
         }
 
         internal void AddHistory(Colour whoseTurn, Move move)
