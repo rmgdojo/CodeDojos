@@ -18,6 +18,8 @@ namespace RMGChess.ConsoleApp
             float rollbackToRound = 1;
             float playbackToRound = 1;
             bool wasX = false;
+            bool wasError = false;
+            int errorMsgLength = 0;
 
             // play through Magnus Carlsen game library
             // TODO: Game 25 Move 44 - implement check mechanics so this works
@@ -29,6 +31,7 @@ namespace RMGChess.ConsoleApp
 
             for (int gameIndex = 0; gameIndex < gameRecords.Count; gameIndex++)
             {
+                wasError = false;
                 GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
 
@@ -301,8 +304,10 @@ namespace RMGChess.ConsoleApp
                         (message, roundIndex, whoseTurn) =>
                         {
                             DisplayMoves(gameToPlay, roundIndex, whoseTurn);
-                            ChessConsole.Write(0, DisplaySettings.ErrorLine, $"[red]{message}[/] ", true);
+                            ChessConsole.Write(0, DisplaySettings.ErrorLine, $"[red]{message}[/]. ", true);
                             wasX = (mode == 'x');
+                            wasError = true;
+                            errorMsgLength = message.Length + 2;
                             mode = null;
                             badGames++;
                             return true;
@@ -313,7 +318,7 @@ namespace RMGChess.ConsoleApp
                     if (mode != 'q' && mode != 'x' && mode != 'g')
                     {
                         playbackToRound = 0;
-                        ChessConsole.Write(0, DisplaySettings.PromptLine, "Game over. (Enter) next game, (R)eplay this game.", true);
+                        ChessConsole.Write(wasError ? errorMsgLength : 0, DisplaySettings.PromptLine, "Game over. (Enter) next game, (R)eplay this game.", true);
                         char key = KeyPress();
                         if (key == 'r')
                         {
