@@ -69,6 +69,7 @@ namespace RMGChess.ConsoleApp
 
                             ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {moveDescription(move)}[/]", true);
                             bool animate = false;// mode is null;
+                            var steps = move.Path.Steps; // need to trigger debugging
                             DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
 
                             #endregion
