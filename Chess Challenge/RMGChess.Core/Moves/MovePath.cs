@@ -20,9 +20,9 @@ namespace RMGChess.Core
             string output = "";
             foreach (Position step in Steps)
             {
-                output += $"{step} -> ";
+                output += $"{step}->";
             }
-            return output[..^4];
+            return output[..^2];
         }
 
         private IEnumerable<Position> GetSteps()

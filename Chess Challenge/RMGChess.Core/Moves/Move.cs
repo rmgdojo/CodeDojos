@@ -16,7 +16,6 @@ namespace RMGChess.Core
         public Piece PieceToTake { get; protected set; }
         public bool IsPromotion => Piece is Pawn && (To.Rank == (Piece.IsWhite ? 8 : 1) || To.Rank == (Piece.IsBlack ? 1 : 8));
         public Type PromotesTo { get; protected set; }
-        public bool PlacesOpponentKingInCheck { get; protected set; }
         public MovePath Path { get; protected set; }
 
         public override string ToString()
@@ -83,7 +82,7 @@ namespace RMGChess.Core
             throw new ChessException("Invalid move direction");
         }
 
-        public Move(Piece piece, Position from, Position to, Piece pieceToTake = null, Type promotesTo = null, bool placesOpponentKingInCheck = false)
+        public Move(Piece piece, Position from, Position to, Piece pieceToTake = null, Type promotesTo = null)
         {
             Piece = piece;
             From = from;
@@ -92,7 +91,6 @@ namespace RMGChess.Core
             Direction = GetDirection(from, to);
             Path = new MovePath(from, to, Direction);
             PromotesTo = promotesTo; // can be null even if IsPromotion is true
-            PlacesOpponentKingInCheck = placesOpponentKingInCheck;
         }
 
         protected Move()
