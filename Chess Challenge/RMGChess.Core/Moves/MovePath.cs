@@ -71,6 +71,12 @@ namespace RMGChess.Core
                     stepList.Add(next);
                     current = next;
                 }
+
+                if (!current.Equals(To))
+                {
+                    // shouldn't happen unless the truth table above is wrong
+                    throw new ShouldNeverHappenException($"Invalid knight move from {From} to {To} in direction {Direction}. Expected L-shaped path.");
+                }
             }
             else
             {
@@ -98,7 +104,7 @@ namespace RMGChess.Core
                     current = next;
                     if (next.Equals(To))
                     {
-                        break; // reached the destination
+                        break;
                     }
                 }
                 while (true);
