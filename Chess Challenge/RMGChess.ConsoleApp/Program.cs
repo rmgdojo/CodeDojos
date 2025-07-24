@@ -51,8 +51,9 @@ namespace RMGChess.ConsoleApp
                             #region show previous move
                             if (lastMove is not null)
                             {
-                                string previousMove = $"[blue]Previous move by {whoseTurn.Switch()}: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra} ({moveDescription(lastMove)})[/]";
-                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, previousMove, true);
+                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, $"Previous move by {whoseTurn.Switch()}.", true);
+                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine + 1, $"[blue]Algebra: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra}[/]", true);
+                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine + 2, $"[blue]{moveDescription(lastMove)}[/]", true);
                             }
                             else
                             {
@@ -64,10 +65,10 @@ namespace RMGChess.ConsoleApp
 
                             #region show next move
                             ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
-                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 1, $"Algebra: {(int)roundIndex}. {moveAsAlgebra}", true);
+                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 1, $"[green]Algebra: {(int)roundIndex}. {moveAsAlgebra}[/]", true);
                             roundIndex += 0.5f; // increment by half for each move
 
-                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]Moving {moveDescription(move)}[/]", true);
+                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]{moveDescription(move)}[/]", true);
                             bool animate = false;// mode is null;
                             DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
 
@@ -284,7 +285,22 @@ namespace RMGChess.ConsoleApp
 
                             string moveDescription(Move move)
                             {
-                                return $"{move.Piece} from {move.From} to {move.To}{(move.TakesPiece ? " taking " + move.PieceToTake : "")}{(move.IsPromotion ? " promotes to " + move.PromotesTo.Name : "")}";
+                                string output = null;
+                                if (move is CastlingMove castlingMove)
+                                {
+                                    Move rookMove = castlingMove.RookMove;
+                                    output = $"Castling {castlingMove.Side} {move.Piece} from {move.From} to {move.To} ({move.Path.ToString()}) and {rookMove.Piece} from {rookMove.From} to {rookMove.To} ({rookMove.Path.ToString()})";
+                                }
+                                else if (move is EnPassantMove)
+                                {
+                                    output = $"Moving {move.Piece} from {move.From} to {move.To} taking {move.PieceToTake} en passant ({move.Path.ToString()})";
+                                }
+                                else
+                                {
+                                    output = $"Moving {move.Piece} from {move.From} to {move.To}{(move.TakesPiece ? " taking " + move.PieceToTake : "")}{(move.IsPromotion ? " promotes to " + move.PromotesTo.Name : "")} ({move.Path.ToString()})";
+                                }
+
+                                return output;
                             }
                         },
                         (roundIndex, whoseTurn, move) =>

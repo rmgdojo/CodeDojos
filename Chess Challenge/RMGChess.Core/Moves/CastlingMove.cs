@@ -5,6 +5,8 @@ namespace RMGChess.Core
 {
     public class CastlingMove : Move
     {
+        public Move RookMove { get; private set; }
+
         public static bool CanCastle(King king, Side side)
         {
             Rook rook = GetMovingRook(king, side);
@@ -53,7 +55,7 @@ namespace RMGChess.Core
         {
             Board board = game.Board;
             King king = Piece as King;
-            Rook rook = GetMovingRook(king, Side) as Rook;
+            Rook rook = RookMove.Piece as Rook;
 
             if (Piece.HasMoved)
             {
@@ -70,18 +72,8 @@ namespace RMGChess.Core
                 throw new InvalidMoveException("Cannot castle with a rook that has moved.");
             }
 
-            // identify position that the rook will move to
-            Position rookTo = Side switch
-            {
-                Side.Kingside => Piece.IsWhite ? "f1" : "f8",
-                Side.Queenside => Piece.IsWhite ? "d1" : "d8",
-                _ => throw new ShouldNeverHappenException("Invalid castling side.")
-            };
-
-            Move rookMove = new Move(rook, rook.Position, rookTo);
-
             base.Execute(game);
-            rookMove.Execute(game);
+            RookMove.Execute(game);
         }
 
         public CastlingMove(King king, Side type)
@@ -89,13 +81,18 @@ namespace RMGChess.Core
             Piece = king;
             Side = type;
             From = king.Position;
-            To = type switch
+            
+            (To, Position rookTo) = type switch
             {
-                Side.Kingside => king.IsWhite ? "g1" :"g8",
-                Side.Queenside => king.IsWhite ? "c1" : "c8",
+                Side.Kingside => king.IsWhite ? ("g1", "f1") : ("g8", "f8"),
+                Side.Queenside => king.IsWhite ? ("c1", "d1") : ("c8","d8"),
                 _ => throw new ShouldNeverHappenException("Invalid castling side.")
             };
+
             Direction = GetDirection(From, To);
+            Rook rook = GetMovingRook(king, Side) as Rook;
+            RookMove = new Move(rook, rook.Position, rookTo);
+            Path = new MovePath(From, To, Direction);
         }
     }
 }

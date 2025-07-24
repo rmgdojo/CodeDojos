@@ -16,6 +16,8 @@ namespace RMGChess.Core
         public Piece PieceToTake { get; protected set; }
         public bool IsPromotion => Piece is Pawn && (To.Rank == (Piece.IsWhite ? 8 : 1) || To.Rank == (Piece.IsBlack ? 1 : 8));
         public Type PromotesTo { get; protected set; }
+        public MovePath Path { get; protected set; }
+
         public override string ToString()
         {
             return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{(IsPromotion ? $"={Piece.SymbolFromType(PromotesTo)}" : "")}{To}"; // always use full form for this
@@ -62,6 +64,10 @@ namespace RMGChess.Core
             int fileDifference = to.File - from.File;
             int rankDifference = to.Rank - from.Rank;
 
+            // knight moves are special
+            if (Math.Abs(fileDifference) == 1 && Math.Abs(rankDifference) == 2) return Direction.LShaped;
+            if (Math.Abs(fileDifference) == 2 && Math.Abs(rankDifference) == 1) return Direction.LShaped;
+
             if (fileDifference == 0 && rankDifference > 0) return Direction.Up;
             if (fileDifference == 0 && rankDifference < 0) return Direction.Down;
             if (rankDifference == 0 && fileDifference > 0) return Direction.Right;
@@ -83,11 +89,14 @@ namespace RMGChess.Core
             To = to;
             PieceToTake = pieceToTake;
             Direction = GetDirection(from, to);
+            Path = new MovePath(from, to, Direction);
             PromotesTo = promotesTo; // can be null even if IsPromotion is true
         }
 
         protected Move()
         {
+            // DO NOT REMOVE THIS
+            // It's used by CastlingMove and other derived classes (yes, really)
         }
 
         public static implicit operator string(Move move)
