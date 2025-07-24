@@ -47,7 +47,7 @@ namespace RMGChess.Core
                         {
                             { "left down", new List<(int, int)> { (0, -1), (0, -1), (-1, 0) } },
                             { "left up", new List<(int, int)> { (0, 1), (0, 1), (-1, 0) } },
-                            { "right down", new List<(int, int)> { (0, -1), (0, -1), (1, 0) } },
+                            { "right down", new List<(int, int)> { (0, -1), (0, -1), (-1, 0) } },
                             { "right up", new List<(int, int)> { (0, 1), (0, 1), (1, 0) } }
                         } 
                     },
