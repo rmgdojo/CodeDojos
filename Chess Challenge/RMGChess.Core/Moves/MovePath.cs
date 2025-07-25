@@ -28,7 +28,6 @@ namespace RMGChess.Core
         private IEnumerable<Position> GetSteps()
         {
             List<Position> stepList = new();
-            int steps = 1;
             Position current = From;
             Position next = null;
             int fileDifference = To.File - From.File;
@@ -82,7 +81,6 @@ namespace RMGChess.Core
                     }
 
                     stepList.Add(next);
-                    steps++;
                     current = next;
                     if (next.Equals(To))
                     {
