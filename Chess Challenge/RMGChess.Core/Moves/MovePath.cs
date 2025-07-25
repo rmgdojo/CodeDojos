@@ -38,44 +38,26 @@ namespace RMGChess.Core
 
             if (Direction == Direction.LShaped)
             {
-                // special case for knight moves
-                // two variants exist: two vertical and one horizontal (tvoh), or two horizontal and one vertical (thov)
-                // each can be left or right handed (relative to board files) and up or down (relative to the board ranks) 
-                Dictionary<string, Dictionary<string, List<(int fileChange, int rankChange)>>> moves = new()
+                // same idea as before, but simpler implementation #GHCP
+
+                // this is a lookup table for knight moves keyed by the file and rank difference
+                var knightMoves = new Dictionary<(int, int), (int fileChange, int rankChange)[]>
                 {
-                    { "tvoh", new Dictionary<string, List<(int, int)>>()
-                        {
-                            { "left down", new List<(int, int)> { (0, -1), (0, -1), (-1, 0) } },
-                            { "left up", new List<(int, int)> { (0, 1), (0, 1), (-1, 0) } },
-                            { "right down", new List<(int, int)> { (0, -1), (0, -1), (-1, 0) } },
-                            { "right up", new List<(int, int)> { (0, 1), (0, 1), (1, 0) } }
-                        } 
-                    },
-                    { "thov", new Dictionary<string, List<(int, int)>>()
-                        {
-                            { "left down", new List<(int, int)> { (-1, 0), (0, -1), (0, -1) } },
-                            { "left up", new List<(int, int)> { (-1, 0), (0, 1), (0, 1) } },
-                            { "right down", new List<(int, int)> { (1, 0), (0, -1), (0, -1) } },
-                            { "right up", new List<(int, int)> { (1, 0), (0, 1), (0, 1) } }
-                        }
-                    }
+                    [(2, 1)] = [(1, 0), (1, 0), (0, 1)],     // right up
+                    [(2, -1)] = [(1, 0), (1, 0), (0, -1)],   // right down
+                    [(-2, 1)] = [(-1, 0), (-1, 0), (0, 1)],  // left up
+                    [(-2, -1)] = [(-1, 0), (-1, 0), (0, -1)],// left down
+                    [(1, 2)] = [(0, 1), (0, 1), (1, 0)],     // up right
+                    [(-1, 2)] = [(0, 1), (0, 1), (-1, 0)],   // up left
+                    [(1, -2)] = [(0, -1), (0, -1), (1, 0)],  // down right
+                    [(-1, -2)] = [(0, -1), (0, -1), (-1, 0)] // down left
                 };
 
-                // determine the direction of the knight move
-                string moveType = Math.Abs(fileDifference) == 2 ? "thov" : "tvoh";
-                string direction = (fileDifference < 0 ? "left" : "right") + " " + (rankDifference < 0 ? "down" : "up");
-
-                foreach(var step in moves[moveType][direction])
+                foreach (var step in knightMoves[(fileDifference, rankDifference)])
                 {
                     next = new Position((char)(current.File + step.fileChange), current.Rank + step.rankChange);
                     stepList.Add(next);
                     current = next;
-                }
-
-                if (!current.Equals(To))
-                {
-                    // shouldn't happen unless the truth table above is wrong
-                    throw new ShouldNeverHappenException($"Invalid knight move from {From} to {To} in direction {Direction}. Expected L-shaped path.");
                 }
             }
             else
@@ -104,7 +86,7 @@ namespace RMGChess.Core
                     current = next;
                     if (next.Equals(To))
                     {
-                        break;
+                        break; // reached the destination
                     }
                 }
                 while (true);
