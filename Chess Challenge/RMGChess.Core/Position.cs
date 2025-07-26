@@ -20,12 +20,8 @@
 
         public override bool Equals(object obj)
         {
-            var position = obj as Position;
-            if (position == null)
-            {
-                return false;
-            }
-            return position.File == this.File && position.Rank == this.Rank;
+            if (obj is null || obj is not Position) return false;
+            return obj as Position == this;
         }
 
         public override int GetHashCode()
@@ -57,6 +53,37 @@
                 throw new InvalidPositionException($"Specfied position '{position.file}{position.rank}' is invalid.");
             }
             return new Position(position.file, position.rank);
+        }
+
+        // override ==
+        public static bool operator ==(Position position, string positionAsString)
+        {
+            if (position is null)
+            {
+                return positionAsString is null;
+            }
+
+            return position.ToString().ToLower() == positionAsString.ToLower();
+        }
+
+        public static bool operator !=(Position position, string positionAsString)
+        {
+            return !(position == positionAsString);
+        }
+
+        public static bool operator ==(Position position, Position other)
+        {
+            if (position is null)
+            {
+                return other is null;
+            }
+
+            return position.File == other.File && position.Rank == other.Rank;
+        }
+
+        public static bool operator !=(Position position, Position other)
+        {
+            return !(position == other);
         }
     }
 }

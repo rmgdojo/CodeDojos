@@ -82,7 +82,7 @@ namespace RMGChess.Core
 
                     stepList.Add(next);
                     current = next;
-                    if (next.Equals(To))
+                    if (next == To)
                     {
                         break; // reached the destination
                     }

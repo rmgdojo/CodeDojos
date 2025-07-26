@@ -6,13 +6,13 @@ namespace RMGChess.Core;
 
 public static class GameLibrary
 {
-    private static IList<GameRecord> _magnusCarlsenGames;
+    private static IReadOnlyList<GameRecord> _magnusCarlsenGames;
 
-    public static IList<GameRecord> MagnusCarlsenGames => _magnusCarlsenGames ??= 
+    public static IReadOnlyList<GameRecord> MagnusCarlsenGames => _magnusCarlsenGames ??= 
         GetGamesFromPGNString(ResourceHandler.ResourceToString("lichess_DannyTheDonkey_2023-07-20.pgn"));
 
-    private static IList<GameRecord> GetGamesFromPGNString(string pgnData)
+    private static IReadOnlyList<GameRecord> GetGamesFromPGNString(string pgnData)
     {
-        return PGNConverter.GetGameRecordsFromPGN(pgnData);
+        return PGNConverter.GetGameRecordsFromPGN(pgnData).AsReadOnly();
     }
 }

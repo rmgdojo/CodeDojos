@@ -26,7 +26,7 @@
 
         internal PieceCollection GetAllPiecesThatCanMoveTo(Position position)
         {
-            return Game.PiecesInPlay.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position))).ToPieceCollection();
+            return Game.PiecesInPlay.Where(p => GetValidMoves(p).Any(m => m.To == position)).ToPieceCollection();
         }
 
         internal IEnumerable<Move> GetValidMovesForAllPieces()
