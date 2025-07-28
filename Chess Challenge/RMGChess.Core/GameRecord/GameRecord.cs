@@ -5,6 +5,10 @@ using System.Security.AccessControl;
 
 namespace RMGChess.Core;
 
+public delegate void BeforeMoveHandler(float roundIndex, Colour whoseTurn, string moveAsAlgebra, Move move, string lastMoveAsAlgebra, Move lastMove);
+public delegate PlayControl AfterMoveHandler(float roundIndex, Colour whoseTurn, Move move);
+public delegate bool ErrorHandler(string errorMessage, float roundIndex, Colour whoseTurn);
+
 public class GameRecord
 {
     private MoveRecord[] _moves;
@@ -20,7 +24,7 @@ public class GameRecord
     public int MoveCount => _moves.Length;
     public int RoundCount => _rounds.Length;
 
-    public void Playback(Game game, GameRecord gameRecord, Action<float, Colour, string, Move, string, Move> beforeMove, Func<float, Colour, Move, PlayControl> afterMove, Func<string, float, Colour, bool> onError)
+    public void Playback(Game game, GameRecord gameRecord, BeforeMoveHandler beforeMove, AfterMoveHandler afterMove, ErrorHandler onError)
     {
         game.Reset();
 
@@ -41,7 +45,7 @@ public class GameRecord
         }
     }
 
-    private (Move lastMove, string lastMoveAsAlgebra, int moveIndex) RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, Func<string, float, Colour, bool> onError)
+    private (Move lastMove, string lastMoveAsAlgebra, int moveIndex) RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, ErrorHandler onError)
     {
         game.Reset();
         Move thisMove = null;
@@ -62,7 +66,7 @@ public class GameRecord
     }
 
     private (PlayControl control, Move move, string moveAsAlgebra) PlayRecordedMove(Game game, MoveRecord moveRecord, Move lastMove, string lastMoveAsAlgebra,
-        Action<float, Colour, string, Move, string, Move> beforeMove, Func<float, Colour, Move, PlayControl> afterMove, Func<string, float, Colour, bool> onError)
+        BeforeMoveHandler beforeMove, AfterMoveHandler afterMove, ErrorHandler onError)
     {
         Move move = null;
         PlayControl control = null;
