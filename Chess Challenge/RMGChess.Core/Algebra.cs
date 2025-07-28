@@ -63,36 +63,27 @@ namespace RMGChess.Core
                     pieceSymbol = isNotPawn ? pieceSymbol : 'P'; // if no symbol, assume pawn
                     int index = isNotPawn ? 1 : 0; // if pawn, skip the symbol
 
-                    //we need the notation to identify the piece
-                    //if (hasSymbol)
-                    //{
-                        pieces = pieces.Where(p => p.Symbol == pieceSymbol);
-                        if (pieces.Count() == 1)
+                    pieces = pieces.Where(p => p.Symbol == pieceSymbol);
+                    if (pieces.Count() == 1)
+                    {
+                        piece = pieces.First(); // no further qualification needed
+                    }
+                    else
+                    {
+                        if (moveAsAlgebra.Length == 3 && pieces.All(p => p.Symbol == pieces.First().Symbol))
                         {
-                            piece = pieces.First(); // no further qualification needed
+                            piece = pieces.OrderBy(p => p.Position.File).First();
                         }
-                        else
-                        {
-                            if (moveAsAlgebra.Length == 3 && pieces.All(p => p.Symbol == pieces.First().Symbol))
-                            {
-                                piece = pieces.OrderBy(p => p.Position.File).First();
-                            }
 
+                        if (piece is null)
+                        {
+                            piece = pieces.SingleOrDefault(p => p.Square?.File == moveAsAlgebra[index]);
                             if (piece is null)
                             {
-                                piece = pieces.SingleOrDefault(p => p.Square?.File == moveAsAlgebra[index]);
-                                if (piece is null)
-                                {
-                                    piece = pieces.SingleOrDefault(p => p.Square?.Rank == moveAsAlgebra[index] - '0');
-                                }
+                                piece = pieces.SingleOrDefault(p => p.Square?.Rank == moveAsAlgebra[index] - '0');
                             }
                         }
-                    //}
-                    //else
-                    //{
-                    //    // it's got to be a pawn, so it's the first pawn that can move to this square (there should be only one of this colour)
-                    //    piece = pieces.FirstOrDefault(p => p is Pawn);
-                    //}
+                    }
                 }
 
                 if (piece is null)

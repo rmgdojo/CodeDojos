@@ -27,14 +27,12 @@ namespace RMGChess.Core
             IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces();
             Move move = moveSelector(validMoves);
             move.Execute(this);
-            _history[move.Piece.Colour].Add(move);
         }
 
         internal bool Move(string moveAsAlgebra, Colour whoIsMoving)
         {
             Move move = Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving);
             move.Execute(this);
-            AddHistory(whoIsMoving, move);
             return true;
         }
 

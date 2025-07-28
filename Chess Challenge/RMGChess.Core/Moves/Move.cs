@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 
 namespace RMGChess.Core
@@ -52,6 +53,7 @@ namespace RMGChess.Core
             }
 
             board[To].PlacePiece(Piece);
+            game.AddHistory(Piece.Colour, this);
         }
 
         internal Move Taking(Piece piece)
