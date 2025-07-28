@@ -39,13 +39,9 @@ namespace RMGChess.Core
                 }
 
                 // check that the algebra now ends with a valid position (e4 etc)
-                Position to;
-                try
-                {
-                    to = moveAsAlgebra[^2..];
-                    var validPieces = board.GetAllPiecesThatCanMoveTo(to);
-                }
-                catch
+                Position to = moveAsAlgebra[^2..];
+                var square = board[to];
+                if (square is null)
                 {
                     throw new ArgumentException("Algebra must end with a valid position.");
                 }
