@@ -81,7 +81,6 @@ public class GameRecord
 
             beforeMove?.Invoke(actualRoundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove);
             move.Execute(game);
-            game.AddHistory(whoseTurn, move);
 
             control = afterMove?.Invoke(actualRoundIndex, whoseTurn, move) ?? new PlayControl();
         }
