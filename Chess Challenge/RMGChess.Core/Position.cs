@@ -31,6 +31,11 @@
 
         public Position(char file, int rank)
         {
+            if (file < 'a' || file > 'h' || rank < 1 || rank > 8)
+            {
+                throw new InvalidPositionException($"Specified position '{file}{rank}' is invalid.");
+            }
+
             File = file;
             Rank = rank;
         }

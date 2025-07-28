@@ -54,7 +54,10 @@ namespace RMGChess.Core
 
                 foreach (var step in knightMoves[(fileDifference, rankDifference)])
                 {
-                    next = new Position((char)(current.File + step.fileChange), current.Rank + step.rankChange);
+                    char newFile = (char)(current.File + step.fileChange);
+                    int newRank = current.Rank + step.rankChange;
+
+                    next = new Position(newFile, newRank); // will throw if invalid
                     stepList.Add(next);
                     current = next;
                 }
