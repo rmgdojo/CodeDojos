@@ -26,16 +26,6 @@ namespace RMGChess.Core
             }
         }
 
-        //internal PieceCollection GetAllPiecesThatCanMoveTo(Position position)
-        //{
-        //    IEnumerable<Move> availableMovesWhite = GetValidMovesForAllPieces(Colour.White).Where(move => move.To == position);
-        //    IEnumerable<Move> availableMovesBlack = GetValidMovesForAllPieces(Colour.Black).Where(move => move.To == position);
-
-        //    return new PieceCollection(
-        //        availableMovesWhite.Select(move => move.Piece).Concat(availableMovesBlack.Select(move => move.Piece))
-        //        );
-        //}
-
         internal IEnumerable<Move> GetValidMovesForAllPieces(Colour whoseTurn)
         {
             List<Move> validMoves = new(Game.PiecesInPlay.OfColour(whoseTurn).SelectMany(p => GetValidMoves(p)));
@@ -46,13 +36,7 @@ namespace RMGChess.Core
 
             // find any moves that put the opponent's king in check and set the check flag if so
             King opponentKing = Game.PiecesInPlay.SingleOrDefault<King>(whoseTurn.Switch());
-            foreach (Move move in validMoves)
-            {
-                if (WouldPutKingInCheck(move, opponentKing))
-                {
-                    move.SetCheck();
-                }
-            }
+            validMoves.Where(move => WouldPutKingInCheck(move, opponentKing)).ToList().ForEach(move => move.SetCheck());
 
             return validMoves;
         }

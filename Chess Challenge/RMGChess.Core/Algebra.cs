@@ -90,14 +90,6 @@ namespace RMGChess.Core
                 }
 
                 move = validMoves.FirstOrDefault(m => m.Piece == piece && m.To == to);
-
-                //move = new(
-                //    piece,
-                //    piece.Position,
-                //    to,
-                //    takesPiece ? board[to].Piece : null,
-                //    isPromotion && promotedPieceSymbol.HasValue ? Piece.TypeFromSymbol(promotedPieceSymbol.Value) : null
-                //    );
             }
             else
             {
