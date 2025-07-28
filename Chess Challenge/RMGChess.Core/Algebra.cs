@@ -12,6 +12,7 @@ namespace RMGChess.Core
                 throw new ArgumentException("Algebra cannot be empty.");
             }
 
+            IEnumerable<Move> validMoves = board.GetValidMovesForAllPieces(whoIsMoving);
             moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+'); // remove warts for check / checkmate
 
             // is this a castling move?
@@ -49,7 +50,7 @@ namespace RMGChess.Core
                 char pieceSymbol = moveAsAlgebra[0];
                 bool isNotPawn = "RNBQK".Contains(pieceSymbol);
                 
-                IEnumerable<Piece> pieces = board.GetAllPiecesThatCanMoveTo(to).OfColour(whoIsMoving);
+                IEnumerable<Piece> pieces = validMoves.Where(m => m.To == to).Select(m => m.Piece);
                 if (pieces.Count() == 1 && !isNotPawn)
                 {
                     piece = pieces.First(); // got it in one
@@ -88,13 +89,15 @@ namespace RMGChess.Core
                     throw new ChessException("Algebra cannot be parsed or move is invalid.");
                 }
 
-                move = new(
-                    piece,
-                    piece.Position,
-                    to,
-                    takesPiece ? board[to].Piece : null,
-                    isPromotion && promotedPieceSymbol.HasValue ? Piece.TypeFromSymbol(promotedPieceSymbol.Value) : null
-                    );
+                move = validMoves.FirstOrDefault(m => m.Piece == piece && m.To == to);
+
+                //move = new(
+                //    piece,
+                //    piece.Position,
+                //    to,
+                //    takesPiece ? board[to].Piece : null,
+                //    isPromotion && promotedPieceSymbol.HasValue ? Piece.TypeFromSymbol(promotedPieceSymbol.Value) : null
+                //    );
             }
             else
             {
@@ -110,8 +113,10 @@ namespace RMGChess.Core
             Piece piece = move.Piece;
             Position destination = move.To;
 
+            IEnumerable<Move> validMoves = board.GetValidMovesForAllPieces(piece.Colour);
+
             bool isPawn = piece is Pawn;
-            var pieces = board.GetAllPiecesThatCanMoveTo(destination).OfSameTypeAs(piece);
+            var pieces = validMoves.Where(m => m.Piece.Colour == piece.Colour && m.To == destination && m.Piece.Symbol == piece.Symbol).Select(m => m.Piece);
             int piecesCount = pieces.Count();
             bool moreThanOnePawn = isPawn && piecesCount > 1;
             bool allOnOneFile = pieces.All(p => p.Position.File == piece.Position.File);

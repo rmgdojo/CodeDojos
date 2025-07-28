@@ -144,5 +144,10 @@ namespace RMGChess.Core
             Colour = colour;
             Symbol = GetType().Name.ToUpper()[0];
         }
+
+        public Piece Clone()
+        {
+            return (Piece)MemberwiseClone();
+        }
     }
 }

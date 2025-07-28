@@ -63,10 +63,8 @@
         // override ==
         public static bool operator ==(Position position, string positionAsString)
         {
-            if (position is null)
-            {
-                return positionAsString is null;
-            }
+            if (position is null || positionAsString is null)
+                return position is null && positionAsString is null;
 
             return position.ToString().ToLower() == positionAsString.ToLower();
         }

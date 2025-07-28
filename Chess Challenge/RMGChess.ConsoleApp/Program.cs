@@ -300,6 +300,11 @@ namespace RMGChess.ConsoleApp
                                     output = $"Moving {move.Piece} from {move.From} to {move.To}{(move.TakesPiece ? " taking " + move.PieceToTake : "")}{(move.IsPromotion ? " promotes to " + move.PromotesTo.Name : "")} ({move.Path.ToString()})";
                                 }
 
+                                if (move.PutsOpponentInCheck)
+                                {
+                                    output += " CHECK";
+                                }
+
                                 return output;
                             }
                         },
