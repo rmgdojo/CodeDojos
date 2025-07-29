@@ -97,15 +97,21 @@ namespace RMGChess.ConsoleApp
                                 }
 
                                 // running to end of game or set point
-                                if (mode == 'e' || mode == 'p')
+                                if (mode == 'e' || mode == 'p' || mode == 'c')
                                 {
                                     if (mode == 'p' && roundIndex >= playbackToRound)
                                     {
                                         mode = null;
                                     }
 
+                                    if (mode == 'c' && move.PutsOpponentInCheck)
+                                    {
+                                        mode = null; 
+                                    }
+
                                     if (mode == 'e') DisplayPrompt("Playback to game end. Press (E) to exit playback, (F) to remove delay.");
                                     if (mode == 'p') DisplayPrompt("Playback to specified move. Press (P) to exit playback, (F) to remove delay.");
+                                    if (mode == 'c') DisplayPrompt("Playback to first check. Press (C) to exit playback, (F) to remove delay.");
 
                                     char? key = DelayOrKeyPress(delay);
                                     if (key is not null)
@@ -114,7 +120,7 @@ namespace RMGChess.ConsoleApp
                                         {
                                             delay = 0; // remove delay
                                         }
-                                        else if (key == 'e' || mode == 'p')
+                                        else if (key == 'e' || mode == 'p' || mode == 'c')
                                         {
                                             mode = null;
                                             delay = DisplaySettings.Delay; // reset delay
@@ -134,7 +140,7 @@ namespace RMGChess.ConsoleApp
                                     {
                                         playbackToRound = 1;
 
-                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | (E)nd | (R)ollback | (Q)uit game | (G)o to game | (Z) restart game | (X) play all");
+                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | (C)heck | (E)nd | (R)ollback | (Q)uit game | (G)o to game | (Z) restart game | (X) play all");
                                         mode = KeyPress();
 
                                         if (mode == 'x')
@@ -142,7 +148,7 @@ namespace RMGChess.ConsoleApp
                                             continue;
                                         }
 
-                                        if (mode == 'e')
+                                        if (mode == 'e' || mode == 'c')
                                         {
                                             continue;
                                         }
@@ -298,6 +304,11 @@ namespace RMGChess.ConsoleApp
                                 else
                                 {
                                     output = $"Moving {move.Piece} from {move.From} to {move.To}{(move.TakesPiece ? " taking " + move.PieceToTake : "")}{(move.IsPromotion ? " promotes to " + move.PromotesTo.Name : "")} ({move.Path.ToString()})";
+                                }
+
+                                if (move.PutsOpponentInCheck)
+                                {
+                                    output += " CHECK";
                                 }
 
                                 return output;

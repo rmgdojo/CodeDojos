@@ -20,21 +20,19 @@ namespace RMGChess.Core
         public PieceCollection CapturedPieces => _capturedPieces.ToPieceCollection(); // ditto
 
         public Move HistoryFor(Colour colour, int moveNumber) => _history[colour][moveNumber];
-        public Move LastMoveFor(Colour colour) => _history[colour].Last();        
+        public Move LastMoveFor(Colour colour) => _history[colour].Last();
 
         public void TakeTurn(Colour whoseTurn, Func<IEnumerable<Move>, Move> moveSelector)
         {
-            IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces();
+            IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces(whoseTurn);
             Move move = moveSelector(validMoves);
             move.Execute(this);
-            _history[move.Piece.Colour].Add(move);
         }
 
         internal bool Move(string moveAsAlgebra, Colour whoIsMoving)
         {
             Move move = Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving);
             move.Execute(this);
-            AddHistory(whoIsMoving, move);
             return true;
         }
 
@@ -120,6 +118,56 @@ namespace RMGChess.Core
         public Game()
         {
             Reset();
+        }
+
+        public Game Clone()
+        {
+            // Create a new Game instance without calling Reset()
+            var clone = (Game)MemberwiseClone();
+
+            // Initialize empty collections
+            clone._pieces = new List<Piece>();
+            clone._capturedPieces = new List<Piece>();
+
+            // Clone the board first
+            clone._board = new Board(clone);
+
+            // Create a mapping from original to cloned pieces
+            var pieceMap = new Dictionary<Piece, Piece>();
+
+            // Clone pieces and set up the board state
+            foreach (var piece in _pieces)
+            {
+                var clonedPiece = piece.Clone();
+                clone._pieces.Add(clonedPiece);
+                pieceMap[piece] = clonedPiece;
+
+                // Set up the piece on the cloned board
+                clone._board[piece.Position].SetupPiece(clonedPiece);
+            }
+
+            // Clone captured pieces
+            foreach (var piece in _capturedPieces)
+            {
+                var clonedPiece = piece.Clone();
+                clone._capturedPieces.Add(clonedPiece);
+                pieceMap[piece] = clonedPiece;
+            }
+
+            // Clone move history
+            clone._history = new Dictionary<Colour, List<Move>>();
+            foreach (var historyItem in _history)
+            {
+                var moveList = new List<Move>();
+                foreach (var move in historyItem.Value)
+                {
+                    var clonedMove = move.Clone(pieceMap[move.Piece], (move.PieceToTake is null ? null : pieceMap[move.PieceToTake]));
+                    moveList.Add(clonedMove);
+                }
+                clone._history[historyItem.Key] = moveList;
+            }
+
+            return clone;
         }
     }
 }

@@ -9,6 +9,11 @@ namespace RMGChess.Core
         public PieceCollection OfColour(Colour colour) => this.All(p => p.Colour == colour) ? this : this.Where(p => p.Colour == colour).ToPieceCollection();
         public PieceCollection OfSameTypeAs(Piece piece) => this.All(p => p.GetType() == piece.GetType()) ? this : this.Where(p => p.GetType() == piece.GetType()).ToPieceCollection();
 
+        public T SingleOrDefault<T>(Colour colour) where T : Piece
+        {
+            return (T)this.SingleOrDefault(p => p is T && p.Colour == colour);
+        }
+
         public PieceCollection(IEnumerable<Piece> pieces) : base(pieces.ToList()) { }   
     }
 

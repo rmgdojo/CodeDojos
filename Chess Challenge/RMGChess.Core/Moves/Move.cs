@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 
 namespace RMGChess.Core
@@ -13,6 +14,7 @@ namespace RMGChess.Core
         public Position To { get; protected set; }
         public Direction Direction { get; protected set; }
         public bool TakesPiece => PieceToTake is not null;
+        public bool PutsOpponentInCheck { get; protected set; }
         public Piece PieceToTake { get; protected set; }
         public bool IsPromotion => Piece is Pawn && (To.Rank == (Piece.IsWhite ? 8 : 1) || To.Rank == (Piece.IsBlack ? 1 : 8));
         public Type PromotesTo { get; protected set; }
@@ -34,29 +36,35 @@ namespace RMGChess.Core
 
             Piece.HasMoved = true;
             board[From].RemovePiece();
+
             if (TakesPiece)
             {
                 Piece taken = board[To].RemovePiece();
                 game.HandleCapture(taken);
             }
+
             if (IsPromotion)
             {
-                if (PromotesTo == null)
+                if (PromotesTo != null)
                 {
-                    throw new InvalidMoveException("Promotion type must be specified when executing a promotion move.");
+                    Piece newPiece = Piece.FromType(PromotesTo, Piece.Colour);
+                    game.HandlePromotion(Piece, newPiece, To);
+                    Piece = newPiece;
                 }
-
-                Piece newPiece = Piece.FromType(PromotesTo, Piece.Colour);
-                game.HandlePromotion(Piece, newPiece, To);
-                Piece = newPiece;
             }
 
             board[To].PlacePiece(Piece);
+            game.AddHistory(Piece.Colour, this);
         }
 
         internal Move Taking(Piece piece)
         {
             return new Move(Piece, From, To, piece);
+        }
+
+        internal void SetCheck()
+        {
+            PutsOpponentInCheck = true;
         }
 
         protected Direction GetDirection(Position from, Position to)
@@ -91,6 +99,11 @@ namespace RMGChess.Core
             Direction = GetDirection(from, to);
             Path = new MovePath(from, to, Direction);
             PromotesTo = promotesTo; // can be null even if IsPromotion is true
+        }
+
+        internal Move Clone(Piece clonedPiece, Piece clonedPieceToTake)
+        {
+            return new Move(clonedPiece, From, To, clonedPieceToTake, PromotesTo);
         }
 
         protected Move()

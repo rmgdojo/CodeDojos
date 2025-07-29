@@ -1,4 +1,6 @@
-﻿namespace RMGChess.Core
+﻿using System.IO.Pipelines;
+
+namespace RMGChess.Core
 {
     public class Board
     {
@@ -24,17 +26,22 @@
             }
         }
 
-        internal PieceCollection GetAllPiecesThatCanMoveTo(Position position)
+        internal IEnumerable<Move> GetValidMovesForAllPieces(Colour whoseTurn)
         {
-            return Game.PiecesInPlay.Where(p => GetValidMoves(p).Any(m => m.To.Equals(position))).ToPieceCollection();
+            List<Move> validMoves = new(Game.PiecesInPlay.OfColour(whoseTurn).SelectMany(p => GetValidMoves(p)));
+
+            // filter out moves by playing colour that would put our king in check
+            King ourKing = Game.PiecesInPlay.SingleOrDefault<King>(whoseTurn);
+            validMoves = validMoves.Where(move => !WouldPutKingInCheck(move, ourKing)).ToList();
+
+            // find any moves that put the opponent's king in check and set the check flag if so
+            King opponentKing = Game.PiecesInPlay.SingleOrDefault<King>(whoseTurn.Switch());
+            validMoves.Where(move => WouldPutKingInCheck(move, opponentKing)).ToList().ForEach(move => move.SetCheck());
+
+            return validMoves;
         }
 
-        internal IEnumerable<Move> GetValidMovesForAllPieces()
-        {
-            return Game.PiecesInPlay.SelectMany(p => GetValidMoves(p));
-        }
-
-        internal IEnumerable<Move> GetValidMoves(Piece piece)
+        private List<Move> GetValidMoves(Piece piece)
         {
             List<Move> validMoves = new();
             IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();
@@ -65,7 +72,7 @@
                 }
             }
 
-            // handle cases where a pawn could take a piece diagonally or en passant
+            // handle cases where a pawn could take a piece diagonally or en passent
             if (piece is Pawn pawn)
             {
                 Square left = pawn.IsWhite ? pawn.Square.UpLeft : pawn.Square.DownLeft;
@@ -108,6 +115,32 @@
             }
 
             return validMoves;
+        }
+
+        private bool WouldPutKingInCheck(Move move, King king)
+        {
+            if (king == null || king.Position == null) return false;
+
+            Colour opponentColour = king.Colour.Switch();
+
+            // Clone the game and board to simulate the move
+            Game clonedGame = Game.Clone();
+            Board clonedBoard = clonedGame.Board;
+
+            // Find the corresponding piece on the cloned board
+            Piece clonedPiece = clonedBoard[move.From].Piece;
+            Piece clonedPieceToTake = move.PieceToTake != null ? clonedBoard[move.PieceToTake.Position].Piece : null;
+
+            // Execute the move on the cloned board
+            Move simulatedMove = new Move(clonedPiece, move.From, move.To, clonedPieceToTake, move.PromotesTo);
+            simulatedMove.Execute(clonedGame);
+
+            // see if any opponent piece can attack the king now
+            var opponentMoves = clonedGame.PiecesInPlay
+                .OfColour(opponentColour)
+                .Where(p => p != clonedPieceToTake) // a piece we want to take cannot put us in check
+                .SelectMany(p => GetValidMoves(p));
+            return opponentMoves.Any(m => m.PieceToTake == king);
         }
 
         public Board(Game game)

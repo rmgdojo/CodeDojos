@@ -12,6 +12,7 @@ namespace RMGChess.Core
                 throw new ArgumentException("Algebra cannot be empty.");
             }
 
+            IEnumerable<Move> validMoves = board.GetValidMovesForAllPieces(whoIsMoving);
             moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+'); // remove warts for check / checkmate
 
             // is this a castling move?
@@ -39,13 +40,9 @@ namespace RMGChess.Core
                 }
 
                 // check that the algebra now ends with a valid position (e4 etc)
-                Position to;
-                try
-                {
-                    to = moveAsAlgebra[^2..];
-                    var validPieces = board.GetAllPiecesThatCanMoveTo(to);
-                }
-                catch
+                Position to = moveAsAlgebra[^2..];
+                var square = board[to];
+                if (square is null)
                 {
                     throw new ArgumentException("Algebra must end with a valid position.");
                 }
@@ -53,7 +50,7 @@ namespace RMGChess.Core
                 char pieceSymbol = moveAsAlgebra[0];
                 bool isNotPawn = "RNBQK".Contains(pieceSymbol);
                 
-                IEnumerable<Piece> pieces = board.GetAllPiecesThatCanMoveTo(to).OfColour(whoIsMoving);
+                IEnumerable<Piece> pieces = validMoves.Where(m => m.To == to).Select(m => m.Piece);
                 if (pieces.Count() == 1 && !isNotPawn)
                 {
                     piece = pieces.First(); // got it in one
@@ -63,36 +60,27 @@ namespace RMGChess.Core
                     pieceSymbol = isNotPawn ? pieceSymbol : 'P'; // if no symbol, assume pawn
                     int index = isNotPawn ? 1 : 0; // if pawn, skip the symbol
 
-                    //we need the notation to identify the piece
-                    //if (hasSymbol)
-                    //{
-                        pieces = pieces.Where(p => p.Symbol == pieceSymbol);
-                        if (pieces.Count() == 1)
+                    pieces = pieces.Where(p => p.Symbol == pieceSymbol);
+                    if (pieces.Count() == 1)
+                    {
+                        piece = pieces.First(); // no further qualification needed
+                    }
+                    else
+                    {
+                        if (moveAsAlgebra.Length == 3 && pieces.All(p => p.Symbol == pieces.First().Symbol))
                         {
-                            piece = pieces.First(); // no further qualification needed
+                            piece = pieces.OrderBy(p => p.Position.File).First();
                         }
-                        else
-                        {
-                            if (moveAsAlgebra.Length == 3 && pieces.All(p => p.Symbol == pieces.First().Symbol))
-                            {
-                                piece = pieces.OrderBy(p => p.Position.File).First();
-                            }
 
+                        if (piece is null)
+                        {
+                            piece = pieces.SingleOrDefault(p => p.Square?.File == moveAsAlgebra[index]);
                             if (piece is null)
                             {
-                                piece = pieces.SingleOrDefault(p => p.Square?.File == moveAsAlgebra[index]);
-                                if (piece is null)
-                                {
-                                    piece = pieces.SingleOrDefault(p => p.Square?.Rank == moveAsAlgebra[index] - '0');
-                                }
+                                piece = pieces.SingleOrDefault(p => p.Square?.Rank == moveAsAlgebra[index] - '0');
                             }
                         }
-                    //}
-                    //else
-                    //{
-                    //    // it's got to be a pawn, so it's the first pawn that can move to this square (there should be only one of this colour)
-                    //    piece = pieces.FirstOrDefault(p => p is Pawn);
-                    //}
+                    }
                 }
 
                 if (piece is null)
@@ -101,13 +89,7 @@ namespace RMGChess.Core
                     throw new ChessException("Algebra cannot be parsed or move is invalid.");
                 }
 
-                move = new(
-                    piece,
-                    piece.Position,
-                    to,
-                    takesPiece ? board[to].Piece : null,
-                    isPromotion && promotedPieceSymbol.HasValue ? Piece.TypeFromSymbol(promotedPieceSymbol.Value) : null
-                    );
+                move = validMoves.FirstOrDefault(m => m.Piece == piece && m.To == to);
             }
             else
             {
@@ -123,8 +105,10 @@ namespace RMGChess.Core
             Piece piece = move.Piece;
             Position destination = move.To;
 
+            IEnumerable<Move> validMoves = board.GetValidMovesForAllPieces(piece.Colour);
+
             bool isPawn = piece is Pawn;
-            var pieces = board.GetAllPiecesThatCanMoveTo(destination).OfSameTypeAs(piece);
+            var pieces = validMoves.Where(m => m.Piece.Colour == piece.Colour && m.To == destination && m.Piece.Symbol == piece.Symbol).Select(m => m.Piece);
             int piecesCount = pieces.Count();
             bool moreThanOnePawn = isPawn && piecesCount > 1;
             bool allOnOneFile = pieces.All(p => p.Position.File == piece.Position.File);
