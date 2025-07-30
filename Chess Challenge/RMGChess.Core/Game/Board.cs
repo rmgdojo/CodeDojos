@@ -33,6 +33,7 @@ namespace RMGChess.Core
             // check mechanics:
             // if you're not currently in check, you can't make a move that puts your king in check
             // if you *are* in check, you can only make moves that escape the check
+            // if there are no valid moves, it's checkmate or stalemate
             King ourKing = Game.PiecesInPlay.SingleOrDefault<King>(colourPlaying);
             if (Game.IsInCheck(colourPlaying))
             {
@@ -62,22 +63,28 @@ namespace RMGChess.Core
                 Square to = this[potentialMove.To];
 
                 // blockedDirections contains move directions that have already been blocked by a piece
+                // this works because potentialMoves always come out in each direction order
                 if (!blockedDirections.Contains(potentialMove.Direction))
                 {
                     if (to.IsOccupied)
                     {
+                        // can we capture the piece? No if it's a pawn because of the diagonal capture
                         if (piece is not Pawn && to.Piece.IsOpponentOf(piece))
                         {
+                            // move taking the piece
                             validMoves.Add(potentialMove.Taking(to.Piece));
                         }
 
+                        // occupied squares do not block knights, which jump
                         if (piece is not Knight)
                         {
+                            // note this direction is blocked
                             blockedDirections.Add(potentialMove.Direction);
                         }
                     }
                     else
                     {
+                        // empty square, we can go there
                         validMoves.Add(potentialMove);
                     }
                 }
@@ -100,12 +107,12 @@ namespace RMGChess.Core
                 }
 
                 // en passant
-                if (EnPassantMove.CanEnPassant(pawn, Direction.Left, out Pawn pawnToTake))
+                if (EnPassantMove.CanEnPassant(pawn, Direction.Left))
                 {
                     validMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
                 }
 
-                if (EnPassantMove.CanEnPassant(pawn, Direction.Right, out pawnToTake))
+                if (EnPassantMove.CanEnPassant(pawn, Direction.Right))
                 {
                     validMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
                 }
@@ -148,7 +155,6 @@ namespace RMGChess.Core
         private bool EscapesCheck(Move move, King king)
         {
             if (king == null || king.Position == null) return false;
-            Colour opponentColour = king.Colour.Switch();
 
             (Game clonedGame, _) = SimulateMove(move);
             return !clonedGame.IsInCheck(king.Colour);
