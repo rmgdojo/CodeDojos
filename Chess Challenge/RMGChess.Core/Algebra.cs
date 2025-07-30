@@ -90,6 +90,7 @@ namespace RMGChess.Core
                 }
 
                 move = validMoves.FirstOrDefault(m => m.Piece == piece && m.To == to);
+                if (move.IsPromotion) move.SetPromotesTo(Piece.TypeNameFromSymbol(promotedPieceSymbol.Value));
             }
             else
             {

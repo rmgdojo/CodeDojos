@@ -5,7 +5,7 @@ using System.Security.AccessControl;
 
 namespace RMGChess.Core;
 
-public delegate void BeforeMoveHandler(float roundIndex, Colour whoseTurn, string moveAsAlgebra, Move move, string lastMoveAsAlgebra, Move lastMove);
+public delegate void BeforeMoveHandler(float roundIndex, Colour whoseTurn, string moveAsAlgebra, Move move, string lastMoveAsAlgebra, Move lastMove, TimeSpan decodeTime);
 public delegate PlayControl AfterMoveHandler(float roundIndex, Colour whoseTurn, Move move);
 public delegate bool ErrorHandler(string errorMessage, float roundIndex, Colour whoseTurn);
 
@@ -71,9 +71,11 @@ public class GameRecord
 
         try
         {
+            DateTime start = DateTime.Now;
             move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
+            TimeSpan decodeTime = DateTime.Now - start;
 
-            beforeMove?.Invoke(actualRoundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove);
+            beforeMove?.Invoke(actualRoundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove, decodeTime);
             game.MakeMove(move);
 
             control = afterMove?.Invoke(actualRoundIndex, whoseTurn, move) ?? new PlayControl();

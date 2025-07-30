@@ -55,6 +55,11 @@
             throw new InvalidMoveException("Invalid en passant move.");
         }
 
+        internal override Move Clone(Piece clonedPiece, Piece clonedPieceToTake)
+        {
+            return new EnPassantMove(clonedPiece as Pawn, From, To);
+        }
+
         public EnPassantMove(Pawn piece, Position from, Position to) : base(piece, from, to)
         {
         }
