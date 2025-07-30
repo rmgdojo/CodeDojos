@@ -9,10 +9,16 @@ namespace RMGChess.Core
 {
     public class Move
     {
+        protected static void ExecuteMove(Game game, Move move)
+        {
+            move.Execute(game); // this is a protected method to allow derived classes to call up to here
+        }
+
         public Piece Piece { get; protected set; }
         public Position From { get; protected set; }
         public Position To { get; protected set; }
         public Direction Direction { get; protected set; }
+        public Colour WhoIsMoving => Piece.Colour;
         public bool TakesPiece => PieceToTake is not null;
         public bool PutsOpponentInCheck { get; protected set; }
         public Piece PieceToTake { get; protected set; }
@@ -26,6 +32,11 @@ namespace RMGChess.Core
         }
 
         internal virtual void Execute(Game game)
+        {
+            Execute(game, null);
+        }
+
+        protected virtual void Execute(Game game, Move childMove = null)
         {
             Board board = game.Board;
             Piece pieceToRemove = board[From].Piece;
@@ -54,7 +65,11 @@ namespace RMGChess.Core
             }
 
             board[To].PlacePiece(Piece);
-            game.AddHistory(Piece.Colour, this);
+
+            if (childMove != null)
+            {
+                childMove.Execute(game); // execute any child moves, like castling or en passant
+            }
         }
 
         internal Move Taking(Piece piece)

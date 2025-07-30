@@ -22,17 +22,20 @@ namespace RMGChess.Core
         public Move HistoryFor(Colour colour, int moveNumber) => _history[colour][moveNumber];
         public Move LastMoveFor(Colour colour) => _history[colour].Last();
 
+        public Move LastMove { get; private set; }
+
         public void TakeTurn(Colour whoseTurn, Func<IEnumerable<Move>, Move> moveSelector)
         {
             IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces(whoseTurn);
             Move move = moveSelector(validMoves);
-            move.Execute(this);
+            MakeMove(move);
         }
 
-        internal bool Move(string moveAsAlgebra, Colour whoIsMoving)
+        internal bool MakeMove(Move move)
         {
-            Move move = Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving);
             move.Execute(this);
+            _history[move.WhoIsMoving].Add(move);
+            LastMove = move; // store the last move made
             return true;
         }
 
@@ -61,11 +64,6 @@ namespace RMGChess.Core
 
             _pieces.Remove(piece);
             _pieces.Add(promotedPiece);
-        }
-
-        internal void AddHistory(Colour whoseTurn, Move move)
-        {
-            _history[whoseTurn].Add(move);
         }
 
         internal void Reset()

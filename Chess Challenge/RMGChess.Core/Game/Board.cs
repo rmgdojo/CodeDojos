@@ -133,7 +133,7 @@ namespace RMGChess.Core
 
             // Execute the move on the cloned board
             Move simulatedMove = new Move(clonedPiece, move.From, move.To, clonedPieceToTake, move.PromotesTo);
-            simulatedMove.Execute(clonedGame);
+            clonedGame.MakeMove(simulatedMove);
 
             // see if any opponent piece can attack the king now
             var opponentMoves = clonedGame.PiecesInPlay

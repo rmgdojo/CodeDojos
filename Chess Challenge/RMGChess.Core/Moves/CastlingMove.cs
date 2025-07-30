@@ -72,8 +72,7 @@ namespace RMGChess.Core
                 throw new InvalidMoveException("Cannot castle with a rook that has moved.");
             }
 
-            base.Execute(game);
-            RookMove.Execute(game);
+            base.Execute(game, RookMove); // execute the king's move first, then the rook's move
         }
 
         public CastlingMove(King king, Side type)
