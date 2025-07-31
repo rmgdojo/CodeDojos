@@ -10,7 +10,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void Constructor_ShouldSetProperties()
         {
-            var piece = Piece.FromType(typeof(Pawn), Colour.White);
+            var piece = Piece.FromType("Pawn", Colour.White);
             var from = new Position('e', 2);
             var to = new Position('e', 4);
             var move = new Move(piece, from, to);
@@ -24,7 +24,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void ToString_ShouldReturnExpectedFormat()
         {
-            var piece = Piece.FromType(typeof(Pawn), Colour.White);
+            var piece = Piece.FromType("Pawn", Colour.White);
             var from = new Position('e', 2);
             var to = new Position('e', 4);
             var move = new Move(piece, from, to);
@@ -39,7 +39,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void Constructor_ShouldSetProperties()
         {
-            var pawn = (Pawn)Piece.FromType(typeof(Pawn), Colour.White);
+            var pawn = (Pawn)Piece.FromType("Pawn", Colour.White);
             var from = new Position('e', 5);
             var to = new Position('d', 6);
             var move = new EnPassantMove(pawn, from, to);

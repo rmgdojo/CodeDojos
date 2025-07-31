@@ -26,16 +26,27 @@ namespace RMGChess.Core
             }
         }
 
-        internal IEnumerable<Move> GetValidMovesForAllPieces(Colour whoseTurn)
+        internal IEnumerable<Move> GetValidMovesForAllPieces(Colour colourPlaying)
         {
-            List<Move> validMoves = new(Game.PiecesInPlay.OfColour(whoseTurn).SelectMany(p => GetValidMoves(p)));
+            List<Move> validMoves = new(Game.PiecesInPlay.OfColour(colourPlaying).SelectMany(p => GetValidMoves(p)));
 
-            // filter out moves by playing colour that would put our king in check
-            King ourKing = Game.PiecesInPlay.SingleOrDefault<King>(whoseTurn);
-            validMoves = validMoves.Where(move => !WouldPutKingInCheck(move, ourKing)).ToList();
+            // check mechanics:
+            // if you're not currently in check, you can't make a move that puts your king in check
+            // if you *are* in check, you can only make moves that escape the check
+            // if there are no valid moves, it's checkmate or stalemate
+            King ourKing = Game.PiecesInPlay.SingleOrDefault<King>(colourPlaying);
+            if (Game.IsInCheck(colourPlaying))
+            {
+                // if we're in check, we can only make moves that escape the check
+                validMoves = validMoves.Where(move => EscapesCheck(move, ourKing)).ToList();
+            }
+            else
+            {   // if we're not in check, we can only make moves that do not put our king in check
+                validMoves = validMoves.Where(move => !WouldPutKingInCheck(move, ourKing)).ToList();
+            }
 
             // find any moves that put the opponent's king in check and set the check flag if so
-            King opponentKing = Game.PiecesInPlay.SingleOrDefault<King>(whoseTurn.Switch());
+            King opponentKing = Game.PiecesInPlay.SingleOrDefault<King>(colourPlaying.Switch());
             validMoves.Where(move => WouldPutKingInCheck(move, opponentKing)).ToList().ForEach(move => move.SetCheck());
 
             return validMoves;
@@ -51,22 +62,29 @@ namespace RMGChess.Core
                 Square from = this[potentialMove.From];
                 Square to = this[potentialMove.To];
 
+                // blockedDirections contains move directions that have already been blocked by a piece
+                // this works because potentialMoves always come out in each direction order
                 if (!blockedDirections.Contains(potentialMove.Direction))
                 {
                     if (to.IsOccupied)
                     {
+                        // can we capture the piece? No if it's a pawn because of the diagonal capture
                         if (piece is not Pawn && to.Piece.IsOpponentOf(piece))
                         {
+                            // move taking the piece
                             validMoves.Add(potentialMove.Taking(to.Piece));
                         }
 
+                        // occupied squares do not block knights, which jump
                         if (piece is not Knight)
                         {
+                            // note this direction is blocked
                             blockedDirections.Add(potentialMove.Direction);
                         }
                     }
                     else
                     {
+                        // empty square, we can go there
                         validMoves.Add(potentialMove);
                     }
                 }
@@ -89,12 +107,12 @@ namespace RMGChess.Core
                 }
 
                 // en passant
-                if (EnPassantMove.CanEnPassant(pawn, Direction.Left, out Pawn pawnToTake))
+                if (EnPassantMove.CanEnPassant(pawn, Direction.Left))
                 {
                     validMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
                 }
 
-                if (EnPassantMove.CanEnPassant(pawn, Direction.Right, out pawnToTake))
+                if (EnPassantMove.CanEnPassant(pawn, Direction.Right))
                 {
                     validMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
                 }
@@ -117,12 +135,8 @@ namespace RMGChess.Core
             return validMoves;
         }
 
-        private bool WouldPutKingInCheck(Move move, King king)
+        private (Game simulatedGame, Piece clonedPieceToTake) SimulateMove(Move move)
         {
-            if (king == null || king.Position == null) return false;
-
-            Colour opponentColour = king.Colour.Switch();
-
             // Clone the game and board to simulate the move
             Game clonedGame = Game.Clone();
             Board clonedBoard = clonedGame.Board;
@@ -132,15 +146,37 @@ namespace RMGChess.Core
             Piece clonedPieceToTake = move.PieceToTake != null ? clonedBoard[move.PieceToTake.Position].Piece : null;
 
             // Execute the move on the cloned board
-            Move simulatedMove = new Move(clonedPiece, move.From, move.To, clonedPieceToTake, move.PromotesTo);
-            simulatedMove.Execute(clonedGame);
+            Move simulatedMove = move.Clone(clonedPiece, clonedPieceToTake);
+            clonedGame.MakeMove(simulatedMove);
 
-            // see if any opponent piece can attack the king now
+            return (clonedGame, clonedPieceToTake);
+        }
+
+        private bool EscapesCheck(Move move, King king)
+        {
+            if (king == null || king.Position == null) return false;
+
+            (Game clonedGame, _) = SimulateMove(move);
+            return !clonedGame.IsInCheck(king.Colour);
+        }
+
+        private bool WouldPutKingInCheck(Move move, King king)
+        {
+            if (king == null || king.Position == null) return false;
+
+            Colour opponentColour = king.Colour.Switch();
+            (Game clonedGame, Piece clonedPieceToTake) = SimulateMove(move);
+
+            // get the next set of moves
             var opponentMoves = clonedGame.PiecesInPlay
                 .OfColour(opponentColour)
                 .Where(p => p != clonedPieceToTake) // a piece we want to take cannot put us in check
                 .SelectMany(p => GetValidMoves(p));
-            return opponentMoves.Any(m => m.PieceToTake == king);
+
+            // is there a valid move for the opponent that attacks our king?
+            bool result = opponentMoves.Any(m => m.PieceToTake == king);
+
+            return result;
         }
 
         public Board(Game game)

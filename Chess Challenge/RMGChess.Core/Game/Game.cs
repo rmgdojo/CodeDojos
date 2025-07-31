@@ -11,6 +11,7 @@ namespace RMGChess.Core
         private Dictionary<Colour, List<Move>> _history;
         private List<Piece> _pieces;
         private List<Piece> _capturedPieces;
+        private List<Piece> _promotedPieces; // pieces taken off the board and replaced with promoted pieces
 
         private Board _board;
 
@@ -19,20 +20,30 @@ namespace RMGChess.Core
         public PieceCollection PiecesInPlay => _pieces.ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
         public PieceCollection CapturedPieces => _capturedPieces.ToPieceCollection(); // ditto
 
+        public Move LastMove { get; private set; }
+
         public Move HistoryFor(Colour colour, int moveNumber) => _history[colour][moveNumber];
-        public Move LastMoveFor(Colour colour) => _history[colour].Last();
+        public Move LastMoveFor(Colour colour) => _history[colour].LastOrDefault();
+
+        public bool IsInCheck(Colour colour)
+        {
+            Move lastMove = LastMoveFor(colour.Switch());
+            if (lastMove is null) return false;
+            return lastMove.PutsOpponentInCheck;
+        }
 
         public void TakeTurn(Colour whoseTurn, Func<IEnumerable<Move>, Move> moveSelector)
         {
             IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces(whoseTurn);
             Move move = moveSelector(validMoves);
-            move.Execute(this);
+            MakeMove(move);
         }
 
-        internal bool Move(string moveAsAlgebra, Colour whoIsMoving)
+        internal bool MakeMove(Move move)
         {
-            Move move = Algebra.DecodeAlgebra(moveAsAlgebra, Board, whoIsMoving);
             move.Execute(this);
+            _history[move.WhoIsMoving].Add(move);
+            LastMove = move; // store the last move made
             return true;
         }
 
@@ -60,12 +71,8 @@ namespace RMGChess.Core
             }
 
             _pieces.Remove(piece);
+            _promotedPieces.Add(piece);
             _pieces.Add(promotedPiece);
-        }
-
-        internal void AddHistory(Colour whoseTurn, Move move)
-        {
-            _history[whoseTurn].Add(move);
         }
 
         internal void Reset()
@@ -73,6 +80,7 @@ namespace RMGChess.Core
             _history = new Dictionary<Colour, List<Move>>() { { Colour.White, new List<Move>() }, { Colour.Black, new List<Move>() } };
             _pieces = new List<Piece>();
             _capturedPieces = new List<Piece>();
+            _promotedPieces = new List<Piece>();
 
             _board = new Board(this);
             SetupNewBoard();
@@ -128,6 +136,7 @@ namespace RMGChess.Core
             // Initialize empty collections
             clone._pieces = new List<Piece>();
             clone._capturedPieces = new List<Piece>();
+            clone._promotedPieces = new List<Piece>();
 
             // Clone the board first
             clone._board = new Board(clone);
@@ -151,6 +160,14 @@ namespace RMGChess.Core
             {
                 var clonedPiece = piece.Clone();
                 clone._capturedPieces.Add(clonedPiece);
+                pieceMap[piece] = clonedPiece;
+            }
+
+            // Clone promoted pieces
+            foreach (var piece in _promotedPieces)
+            {
+                var clonedPiece = piece.Clone();
+                clone._promotedPieces.Add(clonedPiece);
                 pieceMap[piece] = clonedPiece;
             }
 

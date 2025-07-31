@@ -4,23 +4,23 @@ namespace RMGChess.Core
 {
     public abstract class Piece
     {
-        public static Type TypeFromSymbol(char symbol)
+        public static string TypeNameFromSymbol(char symbol)
         {
             return symbol switch
             {
-                'K' => typeof(King),
-                'Q' => typeof(Queen),
-                'R' => typeof(Rook),
-                'B' => typeof(Bishop),
-                'N' => typeof(Knight),
-                'P' => typeof(Pawn),
+                'K' => "King",
+                'Q' => "Queen",
+                'R' => "Rook",
+                'B' => "Bishop",
+                'N' => "Knight",
+                'P' => "Pawn",
                 _ => throw new ArgumentException($"Invalid piece symbol: {symbol}")
             };
         }
 
-        public static char SymbolFromType(Type type)
+        public static char SymbolFromType(string type)
         {
-            return type.Name.Substring(0, 2) switch
+            return type.Substring(0, 2) switch
             {
                 "Ki" => 'K',
                 "Qu" => 'Q',
@@ -28,21 +28,21 @@ namespace RMGChess.Core
                 "Bi" => 'B',
                 "Kn" => 'N',
                 "Pa" => 'P',
-                _ => throw new ArgumentException($"Invalid piece type: {type.Name}")
+                _ => throw new ArgumentException($"Invalid piece type: {type}")
             };
         }
 
-        public static Piece FromType(Type type, Colour colour)
+        public static Piece FromType(string type, Colour colour)
         {
             return type switch
             {
-                Type t when t == typeof(King) => new King(colour),
-                Type t when t == typeof(Queen) => new Queen(colour),
-                Type t when t == typeof(Rook) => new Rook(colour),
-                Type t when t == typeof(Bishop) => new Bishop(colour),
-                Type t when t == typeof(Knight) => new Knight(colour),
-                Type t when t == typeof(Pawn) => new Pawn(colour),
-                _ => throw new ArgumentException($"Invalid piece type: {type.Name}")
+                "King" => new King(colour),
+                "Queen" => new Queen(colour),
+                "Rook" => new Rook(colour),
+                "Bishop" => new Bishop(colour),
+                "Knight" => new Knight(colour),
+                "Pawn" => new Pawn(colour),
+                _ => throw new ArgumentException($"Invalid piece type: {type}")
             };
         }
 

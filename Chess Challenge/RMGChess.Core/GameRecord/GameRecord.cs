@@ -5,7 +5,7 @@ using System.Security.AccessControl;
 
 namespace RMGChess.Core;
 
-public delegate void BeforeMoveHandler(float roundIndex, Colour whoseTurn, string moveAsAlgebra, Move move, string lastMoveAsAlgebra, Move lastMove);
+public delegate void BeforeMoveHandler(float roundIndex, Colour whoseTurn, string moveAsAlgebra, Move move, string lastMoveAsAlgebra, Move lastMove, TimeSpan decodeTime);
 public delegate PlayControl AfterMoveHandler(float roundIndex, Colour whoseTurn, Move move);
 public delegate bool ErrorHandler(string errorMessage, float roundIndex, Colour whoseTurn);
 
@@ -40,29 +40,23 @@ public class GameRecord
             }
             else if (control.GoToRound > 0)
             {
-                (lastMove, lastMoveAsAlgebra, i) = RestartAndFastForwardRecordedGame(game, gameRecord, control.GoToRound, onError);
+                RestartAndFastForwardRecordedGame(game, gameRecord, control.GoToRound, onError);
             }
         }
     }
 
-    private (Move lastMove, string lastMoveAsAlgebra, int moveIndex) RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, ErrorHandler onError)
+    private void RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, ErrorHandler onError)
     {
         game.Reset();
-        Move thisMove = null;
-        string thisMoveAsAlgebra = null;
 
         if (roundToFastForwardTo > 1)
         {
             int limit = (int)(roundToFastForwardTo * 2) - 2;
             for (int i = 0; i < limit; i++)
             {
-                (_, thisMove, thisMoveAsAlgebra) = PlayRecordedMove(game, gameRecord._moves[i], null, null, null, null, onError);
+                PlayRecordedMove(game, gameRecord._moves[i], null, null, null, null, onError);
             }
-
-            return (thisMove, thisMoveAsAlgebra, limit);
         }
-
-        return (null, null, 0);
     }
 
     private (PlayControl control, Move move, string moveAsAlgebra) PlayRecordedMove(Game game, MoveRecord moveRecord, Move lastMove, string lastMoveAsAlgebra,
@@ -77,10 +71,12 @@ public class GameRecord
 
         try
         {
+            DateTime start = DateTime.Now;
             move = Algebra.DecodeAlgebra(moveAsAlgebra, game.Board, whoseTurn);
+            TimeSpan decodeTime = DateTime.Now - start;
 
-            beforeMove?.Invoke(actualRoundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove);
-            move.Execute(game);
+            beforeMove?.Invoke(actualRoundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove, decodeTime);
+            game.MakeMove(move);
 
             control = afterMove?.Invoke(actualRoundIndex, whoseTurn, move) ?? new PlayControl();
         }

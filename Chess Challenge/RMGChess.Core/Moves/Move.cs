@@ -9,23 +9,34 @@ namespace RMGChess.Core
 {
     public class Move
     {
+        protected static void ExecuteMove(Game game, Move move)
+        {
+            move.Execute(game); // this is a protected method to allow derived classes to call up to here
+        }
+
         public Piece Piece { get; protected set; }
         public Position From { get; protected set; }
         public Position To { get; protected set; }
         public Direction Direction { get; protected set; }
+        public Colour WhoIsMoving => Piece.Colour;
         public bool TakesPiece => PieceToTake is not null;
         public bool PutsOpponentInCheck { get; protected set; }
         public Piece PieceToTake { get; protected set; }
-        public bool IsPromotion => Piece is Pawn && (To.Rank == (Piece.IsWhite ? 8 : 1) || To.Rank == (Piece.IsBlack ? 1 : 8));
-        public Type PromotesTo { get; protected set; }
+        public bool IsPromotion { get; protected set; }
+        public string PromotesTo { get; protected set; }
         public MovePath Path { get; protected set; }
 
         public override string ToString()
         {
-            return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{(IsPromotion ? $"={Piece.SymbolFromType(PromotesTo)}" : "")}{To}"; // always use full form for this
+            return $"{Piece.Symbol}{From}{(TakesPiece ? $"x{PieceToTake.Symbol}" : "")}{(IsPromotion ? $"={PromotesTo}" : "")}{To}"; // always use full form for this
         }
 
         internal virtual void Execute(Game game)
+        {
+            Execute(game, null);
+        }
+
+        protected virtual void Execute(Game game, Move childMove = null)
         {
             Board board = game.Board;
             Piece pieceToRemove = board[From].Piece;
@@ -54,7 +65,11 @@ namespace RMGChess.Core
             }
 
             board[To].PlacePiece(Piece);
-            game.AddHistory(Piece.Colour, this);
+
+            if (childMove != null)
+            {
+                childMove.Execute(game); // execute any child moves, like castling or en passant
+            }
         }
 
         internal Move Taking(Piece piece)
@@ -65,6 +80,11 @@ namespace RMGChess.Core
         internal void SetCheck()
         {
             PutsOpponentInCheck = true;
+        }
+
+        internal void SetPromotesTo(string type)
+        {
+            PromotesTo = type;
         }
 
         protected Direction GetDirection(Position from, Position to)
@@ -90,7 +110,7 @@ namespace RMGChess.Core
             throw new ChessException("Invalid move direction");
         }
 
-        public Move(Piece piece, Position from, Position to, Piece pieceToTake = null, Type promotesTo = null)
+        public Move(Piece piece, Position from, Position to, Piece pieceToTake = null, string promotesTo = null)
         {
             Piece = piece;
             From = from;
@@ -98,10 +118,11 @@ namespace RMGChess.Core
             PieceToTake = pieceToTake;
             Direction = GetDirection(from, to);
             Path = new MovePath(from, to, Direction);
-            PromotesTo = promotesTo; // can be null even if IsPromotion is true
+            IsPromotion = Piece is Pawn && (To.Rank == (Piece.IsWhite ? 8 : 1) || To.Rank == (Piece.IsBlack ? 1 : 8));
+            PromotesTo = IsPromotion ? promotesTo : null; // can be null even if IsPromotion is true
         }
 
-        internal Move Clone(Piece clonedPiece, Piece clonedPieceToTake)
+        internal virtual Move Clone(Piece clonedPiece, Piece clonedPieceToTake)
         {
             return new Move(clonedPiece, From, To, clonedPieceToTake, PromotesTo);
         }

@@ -43,7 +43,7 @@ namespace RMGChess.ConsoleApp
                     DisplayGameInfo(gameIndex + 1, gameToPlay.Name);
 
                     gameToPlay.Playback(game, gameToPlay,
-                        (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove) =>
+                        (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove, decodeTime) =>
                         {
                             DisplayMoves(gameToPlay, roundIndex, whoseTurn);
                             DisplayBoard(game.Board);
@@ -303,13 +303,15 @@ namespace RMGChess.ConsoleApp
                                 }
                                 else
                                 {
-                                    output = $"Moving {move.Piece} from {move.From} to {move.To}{(move.TakesPiece ? " taking " + move.PieceToTake : "")}{(move.IsPromotion ? " promotes to " + move.PromotesTo.Name : "")} ({move.Path.ToString()})";
+                                    output = $"Moving {move.Piece} from {move.From} to {move.To}{(move.TakesPiece ? " taking " + move.PieceToTake : "")}{(move.IsPromotion ? " promotes to " + move.PromotesTo : "")} ({move.Path.ToString()})";
                                 }
 
                                 if (move.PutsOpponentInCheck)
                                 {
                                     output += " CHECK";
                                 }
+
+                                //output += $" {decodeTime}";
 
                                 return output;
                             }

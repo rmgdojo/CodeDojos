@@ -72,24 +72,43 @@ namespace RMGChess.Core
                 throw new InvalidMoveException("Cannot castle with a rook that has moved.");
             }
 
-            base.Execute(game);
-            RookMove.Execute(game);
+            base.Execute(game, RookMove); // execute the king's move first, then the rook's move
         }
 
-        public CastlingMove(King king, Side type)
+        internal override Move Clone(Piece clonedPiece, Piece clonedPieceToTake)
+        {
+            King clonedKing = clonedPiece as King;
+            Rook clonedRook = GetMovingRook(clonedKing, Side);
+
+            CastlingMove clonedMove = (CastlingMove)MemberwiseClone();
+            clonedMove.Piece = clonedPiece;
+            clonedMove.RookMove = RookMove.Clone(clonedRook, clonedPieceToTake);
+            
+            return clonedMove;
+        }
+
+        private Position SetupMove(King king, Side type)
         {
             Piece = king;
             Side = type;
             From = king.Position;
-            
+
             (To, Position rookTo) = type switch
             {
                 Side.Kingside => king.IsWhite ? ("g1", "f1") : ("g8", "f8"),
-                Side.Queenside => king.IsWhite ? ("c1", "d1") : ("c8","d8"),
+                Side.Queenside => king.IsWhite ? ("c1", "d1") : ("c8", "d8"),
                 _ => throw new ShouldNeverHappenException("Invalid castling side.")
             };
 
             Direction = GetDirection(From, To);
+
+            return rookTo;
+        }
+
+        public CastlingMove(King king, Side type)
+        {
+            Position rookTo = SetupMove(king, type);
+
             Rook rook = GetMovingRook(king, Side) as Rook;
             RookMove = new Move(rook, rook.Position, rookTo);
             Path = new MovePath(From, To, Direction);

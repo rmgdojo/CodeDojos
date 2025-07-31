@@ -12,9 +12,9 @@ namespace RMGChess.Test.Unit
         {
             var pieces = new[]
             {
-                Piece.FromType(typeof(Pawn), Colour.White),
-                Piece.FromType(typeof(Knight), Colour.Black),
-                Piece.FromType(typeof(Rook), Colour.White)
+                Piece.FromType("Pawn", Colour.White),
+                Piece.FromType("Knight", Colour.Black),
+                Piece.FromType("Rook", Colour.White)
             };
             var collection = new PieceCollection(pieces);
             var whitePieces = collection.OfColour(Colour.White);
@@ -28,9 +28,9 @@ namespace RMGChess.Test.Unit
         {
             var pieces = new[]
             {
-                Piece.FromType(typeof(Pawn), Colour.White),
-                Piece.FromType(typeof(Pawn), Colour.Black),
-                Piece.FromType(typeof(Knight), Colour.White)
+                Piece.FromType("Pawn", Colour.White),
+                Piece.FromType("Pawn", Colour.Black),
+                Piece.FromType("Knight", Colour.White)
             };
             var collection = new PieceCollection(pieces);
             var pawns = collection.OfSameTypeAs(pieces[0]);

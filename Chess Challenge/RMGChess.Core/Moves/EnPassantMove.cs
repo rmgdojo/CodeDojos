@@ -2,6 +2,11 @@
 {
     public class EnPassantMove : Move
     {
+        public static bool CanEnPassant(Pawn pawn, Direction direction)
+        {
+            return CanEnPassant(pawn, direction, out _);
+        }
+
         public static bool CanEnPassant(Pawn pawn, Direction direction, out Pawn pawnToTake)
         {
             if (pawn?.Square?.Board is not null) // guard check, all three must not be null
@@ -53,6 +58,11 @@
             }
                 
             throw new InvalidMoveException("Invalid en passant move.");
+        }
+
+        internal override Move Clone(Piece clonedPiece, Piece clonedPieceToTake)
+        {
+            return new EnPassantMove(clonedPiece as Pawn, From, To);
         }
 
         public EnPassantMove(Pawn piece, Position from, Position to) : base(piece, from, to)
