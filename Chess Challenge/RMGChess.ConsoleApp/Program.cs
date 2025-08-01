@@ -22,7 +22,6 @@ namespace RMGChess.ConsoleApp
             int errorMsgLength = 0;
 
             // play through Magnus Carlsen game library
-            // TODO: Game 25 Move 44 - implement check mechanics so this works
             var gameRecords = GameLibrary.MagnusCarlsenGames;
             int badGames = 0;
 
@@ -69,6 +68,15 @@ namespace RMGChess.ConsoleApp
                             roundIndex += 0.5f; // increment by half for each move
 
                             ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]{moveDescription(move)}[/]", true);
+                            if (game.IsInCheck(whoseTurn))
+                            {
+                                ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 3, $"[green]{whoseTurn} is in check[/]".ToUpper(), true);
+                            }
+                            else
+                            {
+                                ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 3, "", true);
+                            }
+
                             bool animate = false;// mode is null;
                             DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
 
@@ -295,7 +303,7 @@ namespace RMGChess.ConsoleApp
                                 if (move is CastlingMove castlingMove)
                                 {
                                     Move rookMove = castlingMove.RookMove;
-                                    output = $"Castling {castlingMove.Side} {move.Piece} from {move.From} to {move.To} ({move.Path.ToString()}) and {rookMove.Piece} from {rookMove.From} to {rookMove.To} ({rookMove.Path.ToString()})";
+                                    output = $"Castling {(castlingMove.Side == Side.Queenside ? "QS" : "KS")} {move.Piece} from {move.From} to {move.To} ({move.Path.ToString()}) and {rookMove.Piece} from {rookMove.From} to {rookMove.To} ({rookMove.Path.ToString()})";
                                 }
                                 else if (move is EnPassantMove)
                                 {
@@ -310,8 +318,6 @@ namespace RMGChess.ConsoleApp
                                 {
                                     output += " CHECK";
                                 }
-
-                                //output += $" {decodeTime}";
 
                                 return output;
                             }

@@ -26,41 +26,64 @@ namespace RMGChess.Core
             }
         }
 
-        internal IEnumerable<Move> GetValidMovesForAllPieces(Colour colourPlaying)
+        internal IEnumerable<Move> GetValidMovesFor(Colour colourPlaying)
         {
-            List<Move> validMoves = new(Game.PiecesInPlay.OfColour(colourPlaying).SelectMany(p => GetValidMoves(p)));
+            List<Move> validMoves = GetPossibleMovesFor(Game, colourPlaying);
 
-            // check mechanics:
-            // if you're not currently in check, you can't make a move that puts your king in check
-            // if you *are* in check, you can only make moves that escape the check
-            // if there are no valid moves, it's checkmate or stalemate
-            King ourKing = Game.PiecesInPlay.SingleOrDefault<King>(colourPlaying);
-            if (Game.IsInCheck(colourPlaying))
+            // remove moves that would capture the opponent's king (you can't do that)
+            validMoves = validMoves.Where(move => move.PieceToTake is not King).ToList();
+
+            // remove moves that would put our own king in check
+            List<Move> movesToRemove = new();
+            foreach (Move move in validMoves)
             {
-                // if we're in check, we can only make moves that escape the check
-                validMoves = validMoves.Where(move => EscapesCheck(move, ourKing)).ToList();
+                // simulate the move, then get the opponent possible moves and see if any of them would attack our king
+                Game simulatedGame = SimulateMove(move);
+                List<Move> opponentMoves = GetPossibleMovesFor(simulatedGame, colourPlaying.Switch());
+                foreach(Move opponentMove in opponentMoves)
+                {
+                    if (opponentMove.PieceToTake is King)
+                    {
+                        // this move would put our king in check, so we can't do it
+                        movesToRemove.Add(move);
+                        break; // no need to check further, we found a move that puts our king in check
+                    }
+                }
             }
-            else
-            {   // if we're not in check, we can only make moves that do not put our king in check
-                validMoves = validMoves.Where(move => !WouldPutKingInCheck(move, ourKing)).ToList();
-            }
+            validMoves = validMoves.Except(movesToRemove).ToList();
 
-            // find any moves that put the opponent's king in check and set the check flag if so
-            King opponentKing = Game.PiecesInPlay.SingleOrDefault<King>(colourPlaying.Switch());
-            validMoves.Where(move => WouldPutKingInCheck(move, opponentKing)).ToList().ForEach(move => move.SetCheck());
+            // check if any of our moves would put the opponent's king in check
+            foreach (Move move in validMoves)
+            {
+                // simulate the move, then check if it puts the opponent's king in check
+                Game simulatedGame = SimulateMove(move);
+                List<Move> simulatedNextMoves = GetPossibleMovesFor(simulatedGame, colourPlaying);
+                if (simulatedNextMoves.Any(m => m.PieceToTake is King))
+                {
+                    // this move puts the opponent's king in check
+                    move.SetCheck();
+                }
+            }
 
             return validMoves;
         }
 
-        private List<Move> GetValidMoves(Piece piece)
+        private List<Move> GetPossibleMovesFor(Game game, Colour colour)
+        {
+            return game.PiecesInPlay.OfColour(colour)
+                .SelectMany(piece => GetPossibleMovesFor(game.Board, piece))
+                .ToList();
+        }
+
+        private List<Move> GetPossibleMovesFor(Board board, Piece piece)
         {
             List<Move> validMoves = new();
             IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();
             List<Direction> blockedDirections = new();
             foreach (Move potentialMove in potentialMoves)
             {
-                Square from = this[potentialMove.From];
-                Square to = this[potentialMove.To];
+                Square from = board[potentialMove.From];
+                Square to = board[potentialMove.To];
 
                 // blockedDirections contains move directions that have already been blocked by a piece
                 // this works because potentialMoves always come out in each direction order
@@ -135,7 +158,7 @@ namespace RMGChess.Core
             return validMoves;
         }
 
-        private (Game simulatedGame, Piece clonedPieceToTake) SimulateMove(Move move)
+        private Game SimulateMove(Move move)
         {
             // Clone the game and board to simulate the move
             Game clonedGame = Game.Clone();
@@ -149,34 +172,8 @@ namespace RMGChess.Core
             Move simulatedMove = move.Clone(clonedPiece, clonedPieceToTake);
             clonedGame.MakeMove(simulatedMove);
 
-            return (clonedGame, clonedPieceToTake);
-        }
-
-        private bool EscapesCheck(Move move, King king)
-        {
-            if (king == null || king.Position == null) return false;
-
-            (Game clonedGame, _) = SimulateMove(move);
-            return !clonedGame.IsInCheck(king.Colour);
-        }
-
-        private bool WouldPutKingInCheck(Move move, King king)
-        {
-            if (king == null || king.Position == null) return false;
-
-            Colour opponentColour = king.Colour.Switch();
-            (Game clonedGame, Piece clonedPieceToTake) = SimulateMove(move);
-
-            // get the next set of moves
-            var opponentMoves = clonedGame.PiecesInPlay
-                .OfColour(opponentColour)
-                .Where(p => p != clonedPieceToTake) // a piece we want to take cannot put us in check
-                .SelectMany(p => GetValidMoves(p));
-
-            // is there a valid move for the opponent that attacks our king?
-            bool result = opponentMoves.Any(m => m.PieceToTake == king);
-
-            return result;
+            // we'll send the cloned game back, so its state can be inspected
+            return clonedGame;
         }
 
         public Board(Game game)

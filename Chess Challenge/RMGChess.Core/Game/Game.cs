@@ -34,7 +34,7 @@ namespace RMGChess.Core
 
         public void TakeTurn(Colour whoseTurn, Func<IEnumerable<Move>, Move> moveSelector)
         {
-            IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces(whoseTurn);
+            IEnumerable<Move> validMoves = Board.GetValidMovesFor(whoseTurn);
             Move move = moveSelector(validMoves);
             MakeMove(move);
         }

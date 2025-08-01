@@ -12,7 +12,7 @@ namespace RMGChess.Core
                 throw new ArgumentException("Algebra cannot be empty.");
             }
 
-            IEnumerable<Move> validMoves = board.GetValidMovesForAllPieces(whoIsMoving);
+            IEnumerable<Move> validMoves = board.GetValidMovesFor(whoIsMoving);
             moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+'); // remove warts for check / checkmate
 
             // is this a castling move?
@@ -95,7 +95,7 @@ namespace RMGChess.Core
             else
             {
                 King king = board.Game.PiecesInPlay.First(p => p is King && p.Colour == whoIsMoving) as King;
-                move = new CastlingMove(king, castlingType);
+                move = validMoves.FirstOrDefault(m => m.Piece == king && m is CastlingMove cm && cm.Side == castlingType);
             }
 
             return move;
@@ -106,7 +106,7 @@ namespace RMGChess.Core
             Piece piece = move.Piece;
             Position destination = move.To;
 
-            IEnumerable<Move> validMoves = board.GetValidMovesForAllPieces(piece.Colour);
+            IEnumerable<Move> validMoves = board.GetValidMovesFor(piece.Colour);
 
             bool isPawn = piece is Pawn;
             var pieces = validMoves.Where(m => m.Piece.Colour == piece.Colour && m.To == destination && m.Piece.Symbol == piece.Symbol).Select(m => m.Piece);
