@@ -87,6 +87,11 @@ namespace RMGChess.Core
             return potentialMoves;
         }
 
+        internal Piece Clone()
+        {
+            return (Piece)MemberwiseClone();
+        }
+
         private IList<Move> GetVerticalMoves()
         {
             IList<Move> potentialMoves = new List<Move>();
@@ -143,11 +148,6 @@ namespace RMGChess.Core
         {
             Colour = colour;
             Symbol = GetType().Name.ToUpper()[0];
-        }
-
-        public Piece Clone()
-        {
-            return (Piece)MemberwiseClone();
         }
     }
 }

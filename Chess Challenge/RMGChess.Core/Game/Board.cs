@@ -80,92 +80,90 @@ namespace RMGChess.Core
 
         private List<Move> GetPossibleMovesFor(Game game, Colour colour)
         {
-            return game.PiecesInPlay.OfColour(colour)
-                .SelectMany(piece => GetPossibleMovesFor(game.Board, piece))
-                .ToList();
-        }
-
-        private List<Move> GetPossibleMovesFor(Board board, Piece piece)
-        {
-            List<Move> possibleMoves = new();
-            IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();
-            List<Direction> blockedDirections = new();
-            foreach (Move potentialMove in potentialMoves)
-            {
-                Square from = board[potentialMove.From];
-                Square to = board[potentialMove.To];
-
-                // blockedDirections contains move directions that have already been blocked by a piece
-                // this works because potentialMoves always come out in each direction order
-                if (!blockedDirections.Contains(potentialMove.Direction))
+            Board board = game.Board;
+            return game.PiecesInPlay.OfColour(colour).SelectMany(
+                piece => 
                 {
-                    if (to.IsOccupied)
+                    List<Move> possibleMoves = new();
+                    IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();
+                    List<Direction> blockedDirections = new();
+                    foreach (Move potentialMove in potentialMoves)
                     {
-                        // can we capture the piece? No if it's a pawn because of the diagonal capture
-                        if (piece is not Pawn && to.Piece.IsOpponentOf(piece))
-                        {
-                            // move taking the piece
-                            possibleMoves.Add(potentialMove.Taking(to.Piece));
-                        }
+                        Square from = board[potentialMove.From];
+                        Square to = board[potentialMove.To];
 
-                        // occupied squares do not block knights, which jump
-                        if (piece is not Knight)
+                        // blockedDirections contains move directions that have already been blocked by a piece
+                        // this works because potentialMoves always come out in each direction order
+                        if (!blockedDirections.Contains(potentialMove.Direction))
                         {
-                            // note this direction is blocked
-                            blockedDirections.Add(potentialMove.Direction);
+                            if (to.IsOccupied)
+                            {
+                                // can we capture the piece? No if it's a pawn because of the diagonal capture
+                                if (piece is not Pawn && to.Piece.IsOpponentOf(piece))
+                                {
+                                    // move taking the piece
+                                    possibleMoves.Add(potentialMove.Taking(to.Piece));
+                                }
+
+                                // occupied squares do not block knights, which jump
+                                if (piece is not Knight)
+                                {
+                                    // note this direction is blocked
+                                    blockedDirections.Add(potentialMove.Direction);
+                                }
+                            }
+                            else
+                            {
+                                // empty square, we can go there
+                                possibleMoves.Add(potentialMove);
+                            }
                         }
                     }
-                    else
+
+                    // handle cases where a pawn could take a piece diagonally or en passent
+                    if (piece is Pawn pawn)
                     {
-                        // empty square, we can go there
-                        possibleMoves.Add(potentialMove);
+                        Square left = pawn.IsWhite ? pawn.Square.UpLeft : pawn.Square.DownLeft;
+                        Square right = pawn.IsWhite ? pawn.Square.UpRight : pawn.Square.DownRight;
+
+                        // normal capture
+                        if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(piece))
+                        {
+                            possibleMoves.Add(new Move(pawn, pawn.Position, left.Position).Taking(left.Piece));
+                        }
+                        if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
+                        {
+                            possibleMoves.Add(new Move(pawn, pawn.Position, right.Position).Taking(right.Piece));
+                        }
+
+                        // en passant
+                        if (EnPassantMove.CanEnPassant(pawn, Direction.Left))
+                        {
+                            possibleMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
+                        }
+
+                        if (EnPassantMove.CanEnPassant(pawn, Direction.Right))
+                        {
+                            possibleMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
+                        }
                     }
-                }
-            }
 
-            // handle cases where a pawn could take a piece diagonally or en passent
-            if (piece is Pawn pawn)
-            {
-                Square left = pawn.IsWhite ? pawn.Square.UpLeft : pawn.Square.DownLeft;
-                Square right = pawn.IsWhite ? pawn.Square.UpRight : pawn.Square.DownRight;
+                    // what about castling?
+                    if (piece is King king)
+                    {
+                        if (CastlingMove.CanCastle(king, Side.Queenside))
+                        {
+                            possibleMoves.Add(new CastlingMove(king, Side.Queenside));
+                        }
 
-                // normal capture
-                if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(piece))
-                {
-                    possibleMoves.Add(new Move(pawn, pawn.Position, left.Position).Taking(left.Piece));
-                }
-                if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
-                {
-                    possibleMoves.Add(new Move(pawn, pawn.Position, right.Position).Taking(right.Piece));
-                }
+                        if (CastlingMove.CanCastle(king, Side.Kingside))
+                        {
+                            possibleMoves.Add(new CastlingMove(king, Side.Kingside));
+                        }
+                    }
 
-                // en passant
-                if (EnPassantMove.CanEnPassant(pawn, Direction.Left))
-                {
-                    possibleMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
-                }
-
-                if (EnPassantMove.CanEnPassant(pawn, Direction.Right))
-                {
-                    possibleMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
-                }
-            }
-
-            // what about castling?
-            if (piece is King king)
-            {
-                if (CastlingMove.CanCastle(king, Side.Queenside))
-                {
-                    possibleMoves.Add(new CastlingMove(king, Side.Queenside));
-                }
-
-                if (CastlingMove.CanCastle(king, Side.Kingside))
-                {
-                    possibleMoves.Add(new CastlingMove(king, Side.Kingside));
-                }
-            }
-
-            return possibleMoves;
+                    return possibleMoves;
+                }).ToList();
         }
 
         private Game SimulateMove(Move move)
