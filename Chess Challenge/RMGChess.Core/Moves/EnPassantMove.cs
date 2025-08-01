@@ -18,7 +18,7 @@
                 Square leftDestination = left?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
                 Square rightDestination = right?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
 
-                if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(pawn) && left.Piece is Pawn)
+                if (direction == Direction.Left && left is not null && left.IsOccupied && left.Piece.IsOpponentOf(pawn) && left.Piece is Pawn)
                 {
                     // may be able to en passant left
                     if (leftDestination is not null && board.Game.LastMoveFor(left.Piece.Colour).To == leftDestination.Position)
@@ -28,7 +28,7 @@
                     }
                 }
 
-                if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(pawn) && right.Piece is Pawn)
+                if (direction == Direction.Right && right is not null && right.IsOccupied && right.Piece.IsOpponentOf(pawn) && right.Piece is Pawn)
                 {
                     // may be able to en passant right
                     if (rightDestination is not null && board.Game.LastMoveFor(right.Piece.Colour).To == rightDestination.Position)
@@ -67,6 +67,16 @@
 
         public EnPassantMove(Pawn piece, Position from, Position to) : base(piece, from, to)
         {
+            // convert directions from regular pawn capture move
+            // (up left / down left == left, up right / down right == right)
+            if (Direction == Direction.UpLeft || Direction == Direction.DownLeft)
+            {
+                Direction = Direction.Left;
+            }
+            else if (Direction == Direction.UpRight || Direction == Direction.DownRight)
+            {
+                Direction = Direction.Right;
+            }
         }
     }
 }
