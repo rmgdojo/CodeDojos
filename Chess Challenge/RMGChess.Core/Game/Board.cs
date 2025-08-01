@@ -28,16 +28,24 @@ namespace RMGChess.Core
 
         internal IEnumerable<Move> GetValidMovesFor(Colour colourPlaying)
         {
+            /* We have three kinds of moves:
+             * - Potential moves: all the moves a piece could make on an *empty* board from its current position
+             * - Possible moves: all the potential moves that are possible on the current board, before applying check mechanics
+             * - Valid moves: all the possible moves that do not put the player's king in check, and may or may not put the opponent's king in check
+             */
+
             List<Move> validMoves = GetPossibleMovesFor(Game, colourPlaying);
 
-            // remove moves that would capture the opponent's king (you can't do that)
+            // remove moves that would capture the opponent's king (taking a king is not possible)
+            
             validMoves = validMoves.Where(move => move.PieceToTake is not King).ToList();
 
             // remove moves that would put our own king in check
+            
             List<Move> movesToRemove = new();
             foreach (Move move in validMoves)
             {
-                // simulate the move, then get the opponent possible moves and see if any of them would attack our king
+                // simulate the move, then get the opponent's possible next moves and see if any of them would attack our king
                 Game simulatedGame = SimulateMove(move);
                 List<Move> opponentMoves = GetPossibleMovesFor(simulatedGame, colourPlaying.Switch());
                 foreach(Move opponentMove in opponentMoves)
@@ -46,21 +54,23 @@ namespace RMGChess.Core
                     {
                         // this move would put our king in check, so we can't do it
                         movesToRemove.Add(move);
-                        break; // no need to check further, we found a move that puts our king in check
                     }
                 }
             }
             validMoves = validMoves.Except(movesToRemove).ToList();
 
             // check if any of our moves would put the opponent's king in check
+            
             foreach (Move move in validMoves)
             {
-                // simulate the move, then check if it puts the opponent's king in check
+                // simulate the move, then:
+                // ignore the next opponent move and check *our* possible next moves from this position
+                // see if any of them would attack the opponent's king
                 Game simulatedGame = SimulateMove(move);
                 List<Move> simulatedNextMoves = GetPossibleMovesFor(simulatedGame, colourPlaying);
                 if (simulatedNextMoves.Any(m => m.PieceToTake is King))
                 {
-                    // this move puts the opponent's king in check
+                    // this move puts the opponent's king in check, so we mark it as such
                     move.SetCheck();
                 }
             }
@@ -77,7 +87,7 @@ namespace RMGChess.Core
 
         private List<Move> GetPossibleMovesFor(Board board, Piece piece)
         {
-            List<Move> validMoves = new();
+            List<Move> possibleMoves = new();
             IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();
             List<Direction> blockedDirections = new();
             foreach (Move potentialMove in potentialMoves)
@@ -95,7 +105,7 @@ namespace RMGChess.Core
                         if (piece is not Pawn && to.Piece.IsOpponentOf(piece))
                         {
                             // move taking the piece
-                            validMoves.Add(potentialMove.Taking(to.Piece));
+                            possibleMoves.Add(potentialMove.Taking(to.Piece));
                         }
 
                         // occupied squares do not block knights, which jump
@@ -108,7 +118,7 @@ namespace RMGChess.Core
                     else
                     {
                         // empty square, we can go there
-                        validMoves.Add(potentialMove);
+                        possibleMoves.Add(potentialMove);
                     }
                 }
             }
@@ -122,22 +132,22 @@ namespace RMGChess.Core
                 // normal capture
                 if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(piece))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Position, left.Position).Taking(left.Piece));
+                    possibleMoves.Add(new Move(pawn, pawn.Position, left.Position).Taking(left.Piece));
                 }
                 if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Position, right.Position).Taking(right.Piece));
+                    possibleMoves.Add(new Move(pawn, pawn.Position, right.Position).Taking(right.Piece));
                 }
 
                 // en passant
                 if (EnPassantMove.CanEnPassant(pawn, Direction.Left))
                 {
-                    validMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
+                    possibleMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
                 }
 
                 if (EnPassantMove.CanEnPassant(pawn, Direction.Right))
                 {
-                    validMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
+                    possibleMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
                 }
             }
 
@@ -146,16 +156,16 @@ namespace RMGChess.Core
             {
                 if (CastlingMove.CanCastle(king, Side.Queenside))
                 {
-                    validMoves.Add(new CastlingMove(king, Side.Queenside));
+                    possibleMoves.Add(new CastlingMove(king, Side.Queenside));
                 }
 
                 if (CastlingMove.CanCastle(king, Side.Kingside))
                 {
-                    validMoves.Add(new CastlingMove(king, Side.Kingside));
+                    possibleMoves.Add(new CastlingMove(king, Side.Kingside));
                 }
             }
 
-            return validMoves;
+            return possibleMoves;
         }
 
         private Game SimulateMove(Move move)
