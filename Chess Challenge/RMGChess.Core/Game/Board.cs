@@ -131,6 +131,7 @@ namespace RMGChess.Core
                         {
                             possibleMoves.Add(new Move(pawn, pawn.Position, left.Position).Taking(left.Piece));
                         }
+
                         if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
                         {
                             possibleMoves.Add(new Move(pawn, pawn.Position, right.Position).Taking(right.Piece));

@@ -40,7 +40,7 @@ namespace RMGChess.Core
                 // same idea as before, but simpler implementation #GHCP
 
                 // this is a lookup table for knight moves keyed by the file and rank difference
-                var knightMoves = new Dictionary<(int, int), (int fileChange, int rankChange)[]>
+                Dictionary<(int, int), (int fileChange, int rankChange)[]> knightMoves = new()
                 {
                     [(2, 1)] = [(1, 0), (1, 0), (0, 1)],     // right up
                     [(2, -1)] = [(1, 0), (1, 0), (0, -1)],   // right down

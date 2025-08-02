@@ -41,7 +41,7 @@ namespace RMGChess.Core
 
                 // check that the algebra now ends with a valid position (e4 etc)
                 Position to = moveAsAlgebra[^2..];
-                var square = board[to];
+                Square square = board[to];
                 if (square is null)
                 {
                     throw new ArgumentException("Algebra must end with a valid position.");
@@ -109,7 +109,7 @@ namespace RMGChess.Core
             IEnumerable<Move> validMoves = board.GetValidMovesFor(piece.Colour);
 
             bool isPawn = piece is Pawn;
-            var pieces = validMoves.Where(m => m.Piece.Colour == piece.Colour && m.To == destination && m.Piece.Symbol == piece.Symbol).Select(m => m.Piece);
+            IEnumerable<Piece> pieces = validMoves.Where(m => m.Piece.Colour == piece.Colour && m.To == destination && m.Piece.Symbol == piece.Symbol).Select(m => m.Piece);
             int piecesCount = pieces.Count();
             bool moreThanOnePawn = isPawn && piecesCount > 1;
             bool allOnOneFile = pieces.All(p => p.Position.File == piece.Position.File);

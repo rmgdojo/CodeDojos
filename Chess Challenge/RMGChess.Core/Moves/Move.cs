@@ -58,9 +58,9 @@ namespace RMGChess.Core
             {
                 if (PromotesTo != null)
                 {
-                    Piece newPiece = Piece.FromType(PromotesTo, Piece.Colour);
-                    game.HandlePromotion(Piece, newPiece, To);
-                    Piece = newPiece;
+                    Piece promotedPiece = Piece.FromType(PromotesTo, Piece.Colour);
+                    game.HandlePromotion(Piece, promotedPiece);
+                    Piece = promotedPiece; // update the piece to the promoted one
                 }
             }
 
