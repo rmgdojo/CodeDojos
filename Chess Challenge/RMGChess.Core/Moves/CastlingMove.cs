@@ -51,6 +51,16 @@ namespace RMGChess.Core
 
         public Side Side { get; private set; }
 
+        public override string ToString()
+        {
+            return Side switch
+            {
+                Side.Kingside => $"O-O",
+                Side.Queenside => $"O-O-O",
+                _ => throw new ShouldNeverHappenException("Invalid castling side.")
+            };
+        }
+
         internal override void Execute(Game game)
         {
             Board board = game.Board;

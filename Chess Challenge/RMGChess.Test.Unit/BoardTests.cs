@@ -33,7 +33,7 @@ namespace RMGChess.Test.Unit
         {
             var game = new Game();
             var board = game.Board;
-            var moves = board.GetValidMovesForAllPieces(Colour.White);
+            var moves = board.GetValidMovesFor(Colour.White);
             Assert.That(moves, Is.Not.Null);
             Assert.That(moves.Count(), Is.GreaterThanOrEqualTo(0));
         }

@@ -21,23 +21,23 @@ namespace RMGChess.Test.Unit
         [Test]
         public void SymbolFromType_ShouldReturnCorrectSymbol()
         {
-            Assert.That(Piece.SymbolFromType("King"), Is.EqualTo('K'));
-            Assert.That(Piece.SymbolFromType("Queen"), Is.EqualTo('Q'));
-            Assert.That(Piece.SymbolFromType("Rook"), Is.EqualTo('R'));
-            Assert.That(Piece.SymbolFromType("Bishop"), Is.EqualTo('B'));
-            Assert.That(Piece.SymbolFromType("Knight"), Is.EqualTo('N'));
-            Assert.That(Piece.SymbolFromType("Pawn"), Is.EqualTo('P'));
+            Assert.That(Piece.SymbolFromTypeName("King"), Is.EqualTo('K'));
+            Assert.That(Piece.SymbolFromTypeName("Queen"), Is.EqualTo('Q'));
+            Assert.That(Piece.SymbolFromTypeName("Rook"), Is.EqualTo('R'));
+            Assert.That(Piece.SymbolFromTypeName("Bishop"), Is.EqualTo('B'));
+            Assert.That(Piece.SymbolFromTypeName("Knight"), Is.EqualTo('N'));
+            Assert.That(Piece.SymbolFromTypeName("Pawn"), Is.EqualTo('P'));
         }
 
         [Test]
         public void FromType_ShouldReturnInstanceOfCorrectType()
         {
-            Assert.That(Piece.FromType("King", Colour.White), Is.InstanceOf<King>());
-            Assert.That(Piece.FromType("Queen", Colour.Black), Is.InstanceOf<Queen>());
-            Assert.That(Piece.FromType("Rook", Colour.White), Is.InstanceOf<Rook>());
-            Assert.That(Piece.FromType("Bishop", Colour.Black), Is.InstanceOf<Bishop>());
-            Assert.That(Piece.FromType("Knight", Colour.White), Is.InstanceOf<Knight>());
-            Assert.That(Piece.FromType("Pawn", Colour.Black), Is.InstanceOf<Pawn>());
+            Assert.That(Piece.FromTypeName("King", Colour.White), Is.InstanceOf<King>());
+            Assert.That(Piece.FromTypeName("Queen", Colour.Black), Is.InstanceOf<Queen>());
+            Assert.That(Piece.FromTypeName("Rook", Colour.White), Is.InstanceOf<Rook>());
+            Assert.That(Piece.FromTypeName("Bishop", Colour.Black), Is.InstanceOf<Bishop>());
+            Assert.That(Piece.FromTypeName("Knight", Colour.White), Is.InstanceOf<Knight>());
+            Assert.That(Piece.FromTypeName("Pawn", Colour.Black), Is.InstanceOf<Pawn>());
         }
     }
 
@@ -47,7 +47,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void Pawn_Properties_ShouldBeCorrect()
         {
-            var pawn = (Pawn)Piece.FromType("Pawn", Colour.White);
+            var pawn = (Pawn)Piece.FromTypeName("Pawn", Colour.White);
             Assert.That(pawn.Value, Is.EqualTo(1));
             Assert.That(pawn.MaxSquares, Is.EqualTo(1));
             Assert.That(pawn.MoveTypes.HasFlag(MoveType.Vertical), Is.True);
@@ -60,7 +60,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void Rook_Properties_ShouldBeCorrect()
         {
-            var rook = (Rook)Piece.FromType("Rook", Colour.White);
+            var rook = (Rook)Piece.FromTypeName("Rook", Colour.White);
             Assert.That(rook.Value, Is.EqualTo(5));
             Assert.That(rook.MoveTypes.HasFlag(MoveType.Horizontal), Is.True);
             Assert.That(rook.MoveTypes.HasFlag(MoveType.Vertical), Is.True);
@@ -73,7 +73,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void Knight_Properties_ShouldBeCorrect()
         {
-            var knight = (Knight)Piece.FromType("Knight", Colour.White);
+            var knight = (Knight)Piece.FromTypeName("Knight", Colour.White);
             Assert.That(knight.Value, Is.EqualTo(3));
             Assert.That(knight.MaxSquares, Is.EqualTo(3));
             Assert.That(knight.MoveTypes.HasFlag(MoveType.LShaped), Is.True);
@@ -87,7 +87,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void Bishop_Properties_ShouldBeCorrect()
         {
-            var bishop = (Bishop)Piece.FromType("Bishop", Colour.White);
+            var bishop = (Bishop)Piece.FromTypeName("Bishop", Colour.White);
             Assert.That(bishop.Value, Is.EqualTo(3));
             Assert.That(bishop.MoveTypes.HasFlag(MoveType.Diagonal), Is.True);
         }
@@ -99,7 +99,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void Queen_Properties_ShouldBeCorrect()
         {
-            var queen = (Queen)Piece.FromType("Queen", Colour.White);
+            var queen = (Queen)Piece.FromTypeName("Queen", Colour.White);
             Assert.That(queen.Value, Is.EqualTo(9));
             Assert.That(queen.MoveTypes.HasFlag(MoveType.Vertical), Is.True);
             Assert.That(queen.MoveTypes.HasFlag(MoveType.Horizontal), Is.True);
@@ -113,7 +113,7 @@ namespace RMGChess.Test.Unit
         [Test]
         public void King_Properties_ShouldBeCorrect()
         {
-            var king = (King)Piece.FromType("King", Colour.White);
+            var king = (King)Piece.FromTypeName("King", Colour.White);
             Assert.That(king.Value, Is.EqualTo(10));
             Assert.That(king.MaxSquares, Is.EqualTo(1));
             Assert.That(king.MoveTypes.HasFlag(MoveType.Castling), Is.True);

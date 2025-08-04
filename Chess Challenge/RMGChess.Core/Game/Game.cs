@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,7 +12,9 @@ namespace RMGChess.Core
         private Dictionary<Colour, List<Move>> _history;
         private List<Piece> _pieces;
         private List<Piece> _capturedPieces;
-        private List<Piece> _promotedPieces; // pieces taken off the board and replaced with promoted pieces
+
+        // we need to keep a list of pieces removed by promotion, because history items include the original piece
+        private List<Piece> _promotedPieces;
 
         private Board _board;
 
@@ -34,9 +37,59 @@ namespace RMGChess.Core
 
         public void TakeTurn(Colour whoseTurn, Func<IEnumerable<Move>, Move> moveSelector)
         {
-            IEnumerable<Move> validMoves = Board.GetValidMovesForAllPieces(whoseTurn);
+            IEnumerable<Move> validMoves = Board.GetValidMovesFor(whoseTurn);
             Move move = moveSelector(validMoves);
             MakeMove(move);
+        }
+
+        internal Game Clone()
+        {
+            // we need a new game instance with cloned pieces and board
+            // use MemberwiseClone so that we don't use the default constructor, since this sets up the initial board state
+            // the collections etc on the clone game will be the same references, so we need to clone them as well
+            Game clone = (Game)MemberwiseClone();
+            clone._board = new Board(clone);
+            clone._pieces = new List<Piece>();
+            clone._capturedPieces = new List<Piece>();
+            clone._promotedPieces = new List<Piece>();
+
+            Dictionary<Piece, Piece> pieceMap = new();
+            // create a map of original pieces to cloned pieces
+            MapClone(_pieces, clone._pieces, pieceMap);
+            MapClone(_capturedPieces, clone._capturedPieces, pieceMap);
+            MapClone(_promotedPieces, clone._promotedPieces, pieceMap);
+
+            // place the cloned pieces on the cloned board
+            foreach (Piece piece in _pieces)
+            {
+                Position position = piece.Position;
+                clone._board[position].PlacePiece(pieceMap[piece]);
+            }
+
+            // copy the history
+            clone._history = new Dictionary<Colour, List<Move>>();
+            foreach (var historyItem in _history)
+            {
+                List<Move> moveList = new();
+                foreach (Move move in historyItem.Value)
+                {
+                    Move clonedMove = move.Clone(pieceMap[move.Piece], (move.PieceToTake is null ? null : pieceMap[move.PieceToTake]));
+                    moveList.Add(clonedMove);
+                }
+                clone._history[historyItem.Key] = moveList;
+            }
+
+            return clone;
+
+            void MapClone(List<Piece> originalList, List<Piece> cloneList, Dictionary<Piece, Piece> pieceMap)
+            {
+                foreach (Piece piece in originalList)
+                {
+                    Piece clonedPiece = piece.Clone();
+                    cloneList.Add(clonedPiece);
+                    pieceMap[piece] = clonedPiece;
+                }
+            }
         }
 
         internal bool MakeMove(Move move)
@@ -53,23 +106,8 @@ namespace RMGChess.Core
             _pieces.Remove(piece);
         }
 
-        internal void HandlePromotion(Piece piece, Piece promotedPiece, Position position)
+        internal void HandlePromotion(Piece piece, Piece promotedPiece)
         {
-            if (piece is not Pawn)
-            {
-                throw new InvalidMoveException("Only pawns can be promoted.");
-            }
-
-            if (promotedPiece is Pawn)
-            {
-                throw new InvalidMoveException("Cannot promote a pawn to a pawn.");
-            }
-
-            if (position.Rank != (piece.IsWhite ? 8 : 1))
-            {
-                throw new InvalidMoveException($"Promotion can only be applied to pawns on the last rank. Current rank: {position.Rank}");
-            }
-
             _pieces.Remove(piece);
             _promotedPieces.Add(piece);
             _pieces.Add(promotedPiece);
@@ -126,65 +164,6 @@ namespace RMGChess.Core
         public Game()
         {
             Reset();
-        }
-
-        public Game Clone()
-        {
-            // Create a new Game instance without calling Reset()
-            var clone = (Game)MemberwiseClone();
-
-            // Initialize empty collections
-            clone._pieces = new List<Piece>();
-            clone._capturedPieces = new List<Piece>();
-            clone._promotedPieces = new List<Piece>();
-
-            // Clone the board first
-            clone._board = new Board(clone);
-
-            // Create a mapping from original to cloned pieces
-            var pieceMap = new Dictionary<Piece, Piece>();
-
-            // Clone pieces and set up the board state
-            foreach (var piece in _pieces)
-            {
-                var clonedPiece = piece.Clone();
-                clone._pieces.Add(clonedPiece);
-                pieceMap[piece] = clonedPiece;
-
-                // Set up the piece on the cloned board
-                clone._board[piece.Position].SetupPiece(clonedPiece);
-            }
-
-            // Clone captured pieces
-            foreach (var piece in _capturedPieces)
-            {
-                var clonedPiece = piece.Clone();
-                clone._capturedPieces.Add(clonedPiece);
-                pieceMap[piece] = clonedPiece;
-            }
-
-            // Clone promoted pieces
-            foreach (var piece in _promotedPieces)
-            {
-                var clonedPiece = piece.Clone();
-                clone._promotedPieces.Add(clonedPiece);
-                pieceMap[piece] = clonedPiece;
-            }
-
-            // Clone move history
-            clone._history = new Dictionary<Colour, List<Move>>();
-            foreach (var historyItem in _history)
-            {
-                var moveList = new List<Move>();
-                foreach (var move in historyItem.Value)
-                {
-                    var clonedMove = move.Clone(pieceMap[move.Piece], (move.PieceToTake is null ? null : pieceMap[move.PieceToTake]));
-                    moveList.Add(clonedMove);
-                }
-                clone._history[historyItem.Key] = moveList;
-            }
-
-            return clone;
         }
     }
 }

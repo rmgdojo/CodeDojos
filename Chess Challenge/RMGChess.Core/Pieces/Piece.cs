@@ -18,7 +18,7 @@ namespace RMGChess.Core
             };
         }
 
-        public static char SymbolFromType(string type)
+        public static char SymbolFromTypeName(string type)
         {
             return type.Substring(0, 2) switch
             {
@@ -32,7 +32,7 @@ namespace RMGChess.Core
             };
         }
 
-        public static Piece FromType(string type, Colour colour)
+        public static Piece FromTypeName(string type, Colour colour)
         {
             return type switch
             {
@@ -85,6 +85,11 @@ namespace RMGChess.Core
             }
 
             return potentialMoves;
+        }
+
+        internal Piece Clone()
+        {
+            return (Piece)MemberwiseClone();
         }
 
         private IList<Move> GetVerticalMoves()
@@ -143,11 +148,6 @@ namespace RMGChess.Core
         {
             Colour = colour;
             Symbol = GetType().Name.ToUpper()[0];
-        }
-
-        public Piece Clone()
-        {
-            return (Piece)MemberwiseClone();
         }
     }
 }

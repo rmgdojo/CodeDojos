@@ -58,9 +58,9 @@ namespace RMGChess.Core
             {
                 if (PromotesTo != null)
                 {
-                    Piece newPiece = Piece.FromType(PromotesTo, Piece.Colour);
-                    game.HandlePromotion(Piece, newPiece, To);
-                    Piece = newPiece;
+                    Piece promotedPiece = Piece.FromTypeName(PromotesTo, Piece.Colour);
+                    game.HandlePromotion(Piece, promotedPiece);
+                    Piece = promotedPiece; // update the piece to the promoted one
                 }
             }
 
@@ -85,6 +85,11 @@ namespace RMGChess.Core
         internal void SetPromotesTo(string type)
         {
             PromotesTo = type;
+        }
+
+        internal virtual Move Clone(Piece clonedPiece, Piece clonedPieceToTake)
+        {
+            return new Move(clonedPiece, From, To, clonedPieceToTake, PromotesTo);
         }
 
         protected Direction GetDirection(Position from, Position to)
@@ -120,11 +125,6 @@ namespace RMGChess.Core
             Path = new MovePath(from, to, Direction);
             IsPromotion = Piece is Pawn && (To.Rank == (Piece.IsWhite ? 8 : 1) || To.Rank == (Piece.IsBlack ? 1 : 8));
             PromotesTo = IsPromotion ? promotesTo : null; // can be null even if IsPromotion is true
-        }
-
-        internal virtual Move Clone(Piece clonedPiece, Piece clonedPieceToTake)
-        {
-            return new Move(clonedPiece, From, To, clonedPieceToTake, PromotesTo);
         }
 
         protected Move()

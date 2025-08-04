@@ -26,116 +26,148 @@ namespace RMGChess.Core
             }
         }
 
-        internal IEnumerable<Move> GetValidMovesForAllPieces(Colour colourPlaying)
+        internal IEnumerable<Move> GetValidMovesFor(Colour colourPlaying)
         {
-            List<Move> validMoves = new(Game.PiecesInPlay.OfColour(colourPlaying).SelectMany(p => GetValidMoves(p)));
+            /* We have three kinds of moves:
+             * - Potential moves: all the moves a piece could make on an *empty* board from its current position
+             * - Possible moves: all the potential moves that are possible on the current board, before applying check mechanics
+             * - Valid moves: all the possible moves that do not put the player's king in check, and may or may not put the opponent's king in check
+             */
 
-            // check mechanics:
-            // if you're not currently in check, you can't make a move that puts your king in check
-            // if you *are* in check, you can only make moves that escape the check
-            // if there are no valid moves, it's checkmate or stalemate
-            King ourKing = Game.PiecesInPlay.SingleOrDefault<King>(colourPlaying);
-            if (Game.IsInCheck(colourPlaying))
+            List<Move> validMoves = GetPossibleMovesFor(Game, colourPlaying);
+
+            // remove moves that would capture the opponent's king (taking a king is not possible)
+            
+            validMoves = validMoves.Where(move => move.PieceToTake is not King).ToList();
+
+            // remove moves that would put our own king in check
+            
+            List<Move> movesToRemove = new();
+            foreach (Move move in validMoves)
             {
-                // if we're in check, we can only make moves that escape the check
-                validMoves = validMoves.Where(move => EscapesCheck(move, ourKing)).ToList();
-            }
-            else
-            {   // if we're not in check, we can only make moves that do not put our king in check
-                validMoves = validMoves.Where(move => !WouldPutKingInCheck(move, ourKing)).ToList();
-            }
-
-            // find any moves that put the opponent's king in check and set the check flag if so
-            King opponentKing = Game.PiecesInPlay.SingleOrDefault<King>(colourPlaying.Switch());
-            validMoves.Where(move => WouldPutKingInCheck(move, opponentKing)).ToList().ForEach(move => move.SetCheck());
-
-            return validMoves;
-        }
-
-        private List<Move> GetValidMoves(Piece piece)
-        {
-            List<Move> validMoves = new();
-            IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();
-            List<Direction> blockedDirections = new();
-            foreach (Move potentialMove in potentialMoves)
-            {
-                Square from = this[potentialMove.From];
-                Square to = this[potentialMove.To];
-
-                // blockedDirections contains move directions that have already been blocked by a piece
-                // this works because potentialMoves always come out in each direction order
-                if (!blockedDirections.Contains(potentialMove.Direction))
+                // simulate the move, then get the opponent's possible next moves and see if any of them would attack our king
+                Game simulatedGame = SimulateMove(move);
+                List<Move> opponentMoves = GetPossibleMovesFor(simulatedGame, colourPlaying.Switch());
+                foreach(Move opponentMove in opponentMoves)
                 {
-                    if (to.IsOccupied)
+                    if (opponentMove.PieceToTake is King)
                     {
-                        // can we capture the piece? No if it's a pawn because of the diagonal capture
-                        if (piece is not Pawn && to.Piece.IsOpponentOf(piece))
-                        {
-                            // move taking the piece
-                            validMoves.Add(potentialMove.Taking(to.Piece));
-                        }
-
-                        // occupied squares do not block knights, which jump
-                        if (piece is not Knight)
-                        {
-                            // note this direction is blocked
-                            blockedDirections.Add(potentialMove.Direction);
-                        }
-                    }
-                    else
-                    {
-                        // empty square, we can go there
-                        validMoves.Add(potentialMove);
+                        // this move would put our king in check, so we can't do it
+                        movesToRemove.Add(move);
                     }
                 }
             }
+            validMoves = validMoves.Except(movesToRemove).ToList();
 
-            // handle cases where a pawn could take a piece diagonally or en passent
-            if (piece is Pawn pawn)
+            // check if any of our moves would put the opponent's king in check
+            
+            foreach (Move move in validMoves)
             {
-                Square left = pawn.IsWhite ? pawn.Square.UpLeft : pawn.Square.DownLeft;
-                Square right = pawn.IsWhite ? pawn.Square.UpRight : pawn.Square.DownRight;
-
-                // normal capture
-                if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(piece))
+                // simulate the move, then:
+                // ignore the next opponent move and check *our* possible next moves from this position
+                // see if any of them would attack the opponent's king
+                Game simulatedGame = SimulateMove(move);
+                List<Move> simulatedNextMoves = GetPossibleMovesFor(simulatedGame, colourPlaying);
+                if (simulatedNextMoves.Any(m => m.PieceToTake is King))
                 {
-                    validMoves.Add(new Move(pawn, pawn.Position, left.Position).Taking(left.Piece));
-                }
-                if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
-                {
-                    validMoves.Add(new Move(pawn, pawn.Position, right.Position).Taking(right.Piece));
-                }
-
-                // en passant
-                if (EnPassantMove.CanEnPassant(pawn, Direction.Left))
-                {
-                    validMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
-                }
-
-                if (EnPassantMove.CanEnPassant(pawn, Direction.Right))
-                {
-                    validMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
-                }
-            }
-
-            // what about castling?
-            if (piece is King king)
-            {
-                if (CastlingMove.CanCastle(king, Side.Queenside))
-                {
-                    validMoves.Add(new CastlingMove(king, Side.Queenside));
-                }
-
-                if (CastlingMove.CanCastle(king, Side.Kingside))
-                {
-                    validMoves.Add(new CastlingMove(king, Side.Kingside));
+                    // this move puts the opponent's king in check, so we mark it as such
+                    move.SetCheck();
                 }
             }
 
             return validMoves;
         }
 
-        private (Game simulatedGame, Piece clonedPieceToTake) SimulateMove(Move move)
+        private List<Move> GetPossibleMovesFor(Game game, Colour colour)
+        {
+            Board board = game.Board;
+            return game.PiecesInPlay.OfColour(colour).SelectMany(
+                piece => 
+                {
+                    List<Move> possibleMoves = new();
+                    IEnumerable<Move> potentialMoves = piece.GetPotentialMoves();
+                    List<Direction> blockedDirections = new();
+                    foreach (Move potentialMove in potentialMoves)
+                    {
+                        Square from = board[potentialMove.From];
+                        Square to = board[potentialMove.To];
+
+                        // blockedDirections contains move directions that have already been blocked by a piece
+                        // this works because potentialMoves always come out in each direction order
+                        if (!blockedDirections.Contains(potentialMove.Direction))
+                        {
+                            if (to.IsOccupied)
+                            {
+                                // can we capture the piece? No if it's a pawn because of the diagonal capture
+                                if (piece is not Pawn && to.Piece.IsOpponentOf(piece))
+                                {
+                                    // move taking the piece
+                                    possibleMoves.Add(potentialMove.Taking(to.Piece));
+                                }
+
+                                // occupied squares do not block knights, which jump
+                                if (piece is not Knight)
+                                {
+                                    // note this direction is blocked
+                                    blockedDirections.Add(potentialMove.Direction);
+                                }
+                            }
+                            else
+                            {
+                                // empty square, we can go there
+                                possibleMoves.Add(potentialMove);
+                            }
+                        }
+                    }
+
+                    // handle cases where a pawn could take a piece diagonally or en passent
+                    if (piece is Pawn pawn)
+                    {
+                        Square left = pawn.IsWhite ? pawn.Square.UpLeft : pawn.Square.DownLeft;
+                        Square right = pawn.IsWhite ? pawn.Square.UpRight : pawn.Square.DownRight;
+
+                        // normal capture
+                        if (left is not null && left.IsOccupied && left.Piece.IsOpponentOf(piece))
+                        {
+                            possibleMoves.Add(new Move(pawn, pawn.Position, left.Position).Taking(left.Piece));
+                        }
+
+                        if (right is not null && right.IsOccupied && right.Piece.IsOpponentOf(piece))
+                        {
+                            possibleMoves.Add(new Move(pawn, pawn.Position, right.Position).Taking(right.Piece));
+                        }
+
+                        // en passant
+                        if (EnPassantMove.CanEnPassant(pawn, Direction.Left))
+                        {
+                            possibleMoves.Add(new EnPassantMove(pawn, pawn.Position, left.Position));
+                        }
+
+                        if (EnPassantMove.CanEnPassant(pawn, Direction.Right))
+                        {
+                            possibleMoves.Add(new EnPassantMove(pawn, pawn.Position, right.Position));
+                        }
+                    }
+
+                    // what about castling?
+                    if (piece is King king)
+                    {
+                        if (CastlingMove.CanCastle(king, Side.Queenside))
+                        {
+                            possibleMoves.Add(new CastlingMove(king, Side.Queenside));
+                        }
+
+                        if (CastlingMove.CanCastle(king, Side.Kingside))
+                        {
+                            possibleMoves.Add(new CastlingMove(king, Side.Kingside));
+                        }
+                    }
+
+                    return possibleMoves;
+                }).ToList();
+        }
+
+        private Game SimulateMove(Move move)
         {
             // Clone the game and board to simulate the move
             Game clonedGame = Game.Clone();
@@ -149,34 +181,8 @@ namespace RMGChess.Core
             Move simulatedMove = move.Clone(clonedPiece, clonedPieceToTake);
             clonedGame.MakeMove(simulatedMove);
 
-            return (clonedGame, clonedPieceToTake);
-        }
-
-        private bool EscapesCheck(Move move, King king)
-        {
-            if (king == null || king.Position == null) return false;
-
-            (Game clonedGame, _) = SimulateMove(move);
-            return !clonedGame.IsInCheck(king.Colour);
-        }
-
-        private bool WouldPutKingInCheck(Move move, King king)
-        {
-            if (king == null || king.Position == null) return false;
-
-            Colour opponentColour = king.Colour.Switch();
-            (Game clonedGame, Piece clonedPieceToTake) = SimulateMove(move);
-
-            // get the next set of moves
-            var opponentMoves = clonedGame.PiecesInPlay
-                .OfColour(opponentColour)
-                .Where(p => p != clonedPieceToTake) // a piece we want to take cannot put us in check
-                .SelectMany(p => GetValidMoves(p));
-
-            // is there a valid move for the opponent that attacks our king?
-            bool result = opponentMoves.Any(m => m.PieceToTake == king);
-
-            return result;
+            // we'll send the cloned game back, so its state can be inspected
+            return clonedGame;
         }
 
         public Board(Game game)

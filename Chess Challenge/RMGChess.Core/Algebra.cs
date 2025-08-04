@@ -12,7 +12,7 @@ namespace RMGChess.Core
                 throw new ArgumentException("Algebra cannot be empty.");
             }
 
-            IEnumerable<Move> validMoves = board.GetValidMovesForAllPieces(whoIsMoving);
+            IEnumerable<Move> validMoves = board.GetValidMovesFor(whoIsMoving);
             moveAsAlgebra = moveAsAlgebra.TrimEnd('#', '+'); // remove warts for check / checkmate
 
             // is this a castling move?
@@ -41,7 +41,7 @@ namespace RMGChess.Core
 
                 // check that the algebra now ends with a valid position (e4 etc)
                 Position to = moveAsAlgebra[^2..];
-                var square = board[to];
+                Square square = board[to];
                 if (square is null)
                 {
                     throw new ArgumentException("Algebra must end with a valid position.");
@@ -95,7 +95,7 @@ namespace RMGChess.Core
             else
             {
                 King king = board.Game.PiecesInPlay.First(p => p is King && p.Colour == whoIsMoving) as King;
-                move = new CastlingMove(king, castlingType);
+                move = validMoves.FirstOrDefault(m => m.Piece == king && m is CastlingMove cm && cm.Side == castlingType);
             }
 
             return move;
@@ -106,10 +106,10 @@ namespace RMGChess.Core
             Piece piece = move.Piece;
             Position destination = move.To;
 
-            IEnumerable<Move> validMoves = board.GetValidMovesForAllPieces(piece.Colour);
+            IEnumerable<Move> validMoves = board.GetValidMovesFor(piece.Colour);
 
             bool isPawn = piece is Pawn;
-            var pieces = validMoves.Where(m => m.Piece.Colour == piece.Colour && m.To == destination && m.Piece.Symbol == piece.Symbol).Select(m => m.Piece);
+            IEnumerable<Piece> pieces = validMoves.Where(m => m.Piece.Colour == piece.Colour && m.To == destination && m.Piece.Symbol == piece.Symbol).Select(m => m.Piece);
             int piecesCount = pieces.Count();
             bool moreThanOnePawn = isPawn && piecesCount > 1;
             bool allOnOneFile = pieces.All(p => p.Position.File == piece.Position.File);
