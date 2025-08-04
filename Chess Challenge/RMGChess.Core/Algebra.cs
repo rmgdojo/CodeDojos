@@ -50,7 +50,7 @@ namespace RMGChess.Core
                 char pieceSymbol = moveAsAlgebra[0];
                 bool isNotPawn = "RNBQK".Contains(pieceSymbol);
                 
-                IEnumerable<Piece> pieces = validMoves.Where(m => m.To == to).Select(m => m.Piece);
+                IEnumerable<Piece> pieces = validMoves.Where(m => m.To == to).Select(m => m.Piece).Distinct();
                 if (pieces.Count() == 1 && !isNotPawn)
                 {
                     piece = pieces.First(); // got it in one
