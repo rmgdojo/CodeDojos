@@ -13,15 +13,16 @@
             {
                 Board board = pawn.Square.Board;
 
-                Square left = pawn.Square.Left;
-                Square right = pawn.Square.Right;
-                Square leftDestination = left?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
-                Square rightDestination = right?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
+                Square left = pawn.Square.Left?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
+                Square right = pawn.Square.Right?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
+                //Square leftDestination = left?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
+                //Square rightDestination = right?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
 
                 if (direction == Direction.Left && left is not null && left.IsOccupied && left.Piece.IsOpponentOf(pawn) && left.Piece is Pawn)
                 {
+                    Move lastMove = board.Game.LastMoveFor(left.Piece.Colour);
                     // may be able to en passant left
-                    if (leftDestination is not null && board.Game.LastMoveFor(left.Piece.Colour).To == leftDestination.Position)
+                    if (lastMove.To == left.Position && lastMove.Direction == Direction.Down)
                     {
                         pawnToTake = left.Piece as Pawn;
                         return true;
@@ -30,8 +31,9 @@
 
                 if (direction == Direction.Right && right is not null && right.IsOccupied && right.Piece.IsOpponentOf(pawn) && right.Piece is Pawn)
                 {
+                    Move lastMove = board.Game.LastMoveFor(right.Piece.Colour);
                     // may be able to en passant right
-                    if (rightDestination is not null && board.Game.LastMoveFor(right.Piece.Colour).To == rightDestination.Position)
+                    if (lastMove.To == right.Position && lastMove.Direction == Direction.Down)
                     {
                         pawnToTake = right.Piece as Pawn;
                         return true;

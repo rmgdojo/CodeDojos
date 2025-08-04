@@ -18,7 +18,7 @@ namespace RMGChess.Core
             };
         }
 
-        public static char SymbolFromType(string type)
+        public static char SymbolFromTypeName(string type)
         {
             return type.Substring(0, 2) switch
             {
@@ -32,7 +32,7 @@ namespace RMGChess.Core
             };
         }
 
-        public static Piece FromType(string type, Colour colour)
+        public static Piece FromTypeName(string type, Colour colour)
         {
             return type switch
             {
