@@ -60,7 +60,11 @@ namespace RMGChess.Core
             MapClone(_promotedPieces, clone._promotedPieces, pieceMap);
 
             // place the cloned pieces on the cloned board
-            _pieces.ForEach(piece => clone._board[piece.Position].PlacePiece(piece));
+            foreach (Piece piece in _pieces)
+            {
+                Position position = piece.Position;
+                clone._board[position].PlacePiece(pieceMap[piece]);
+            }
 
             // copy the history
             clone._history = new Dictionary<Colour, List<Move>>();
