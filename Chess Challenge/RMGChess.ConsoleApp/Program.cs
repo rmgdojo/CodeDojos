@@ -20,6 +20,7 @@ namespace RMGChess.ConsoleApp
             bool wasX = false;
             bool wasError = false;
             int errorMsgLength = 0;
+            Colour lastTurn = Colour.White;
 
             // play through Magnus Carlsen game library
             var gameRecords = GameLibrary.MagnusCarlsenGames;
@@ -46,6 +47,7 @@ namespace RMGChess.ConsoleApp
                         {
                             DisplayMoves(gameToPlay, roundIndex, whoseTurn);
                             DisplayBoard(game.Board);
+                            lastTurn = whoseTurn;
 
                             #region show previous move
                             if (lastMove is not null)
@@ -353,6 +355,7 @@ namespace RMGChess.ConsoleApp
                     // game has ended
                     if (mode != 'q' && mode != 'x' && mode != 'g')
                     {
+                        DisplayBoard(game.Board, lastTurn, null, null, false);
                         playbackToRound = 0;
                         ChessConsole.Write(wasError ? errorMsgLength : 0, DisplaySettings.PromptLine, "Game over. (Enter) next game, (R)eplay this game.", true);
                         char key = KeyPress();
