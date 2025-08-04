@@ -40,12 +40,12 @@ public class GameRecord
             }
             else if (control.GoToRound > 0)
             {
-                RestartAndFastForwardRecordedGame(game, gameRecord, control.GoToRound, onError);
+                i = RestartAndFastForwardRecordedGame(game, gameRecord, control.GoToRound, onError);
             }
         }
     }
 
-    private void RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, ErrorHandler onError)
+    private int RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, ErrorHandler onError)
     {
         game.Reset();
 
@@ -56,7 +56,10 @@ public class GameRecord
             {
                 PlayRecordedMove(game, gameRecord._moves[i], null, null, null, null, onError);
             }
+            return limit;
         }
+
+        return 0;
     }
 
     private (PlayControl control, Move move, string moveAsAlgebra) PlayRecordedMove(Game game, MoveRecord moveRecord, Move lastMove, string lastMoveAsAlgebra,
