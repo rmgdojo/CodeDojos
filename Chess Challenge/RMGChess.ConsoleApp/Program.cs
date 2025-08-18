@@ -357,7 +357,7 @@ namespace RMGChess.ConsoleApp
                         },
                         (message, roundIndex, whoseTurn, lastMove, move) =>
                         {
-                            DisplayBoard(game.Board, whoseTurn, lastMove.From, lastMove.To, false);
+                            DisplayBoard(game.Board, whoseTurn, lastMove?.From, lastMove?.To, false);
                             DisplayMoves(gameToPlay, roundIndex, whoseTurn);
                             ChessConsole.Write(0, DisplaySettings.ErrorLine, $"[red]{message}[/]. ", true);
                             wasX = (mode == 'x');

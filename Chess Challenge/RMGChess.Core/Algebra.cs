@@ -24,8 +24,8 @@ namespace RMGChess.Core
             };
 
             bool takesPiece = moveAsAlgebra.Contains("x");
-            bool isPromotion = moveAsAlgebra.Contains('=');
-            char? promotedPieceSymbol = null;
+            bool isPromotion = IsPromotion(moveAsAlgebra, out char? promotedPieceSymbol, out string moveWithoutPromotion);
+            if (isPromotion) moveAsAlgebra = moveWithoutPromotion;
             Move move = null;
 
             if (!castling)
@@ -33,11 +33,6 @@ namespace RMGChess.Core
                 // we need to work out which piece is moving via induction (unless it's stated)
 
                 Piece piece = null;
-                if (isPromotion)
-                {
-                    promotedPieceSymbol = moveAsAlgebra.Last();
-                    moveAsAlgebra = moveAsAlgebra[..^2];
-                }
 
                 // check that the algebra now ends with a valid position (e4 etc)
                 Position to = moveAsAlgebra[^2..];
@@ -50,7 +45,7 @@ namespace RMGChess.Core
                 char pieceSymbol = moveAsAlgebra[0];
                 bool isNotPawn = "RNBQK".Contains(pieceSymbol);
                 
-                IEnumerable<Piece> pieces = validMoves.Where(m => m.To == to).Select(m => m.Piece);
+                IEnumerable<Piece> pieces = validMoves.Where(m => m.To == to).Select(m => m.Piece).Distinct();
                 if (pieces.Count() == 1 && !isNotPawn)
                 {
                     piece = pieces.First(); // got it in one
@@ -156,5 +151,43 @@ namespace RMGChess.Core
 
             return algebra.ToString();
         }
+
+        private static bool IsPromotion(string moveAsAlgebra, out char? promotedPieceSymbol, out string moveWithoutPromotion)
+        {
+            promotedPieceSymbol = null;
+            moveWithoutPromotion = null;
+
+            bool isPromotion = moveAsAlgebra.Contains('=');
+            if (isPromotion)
+            {
+                promotedPieceSymbol = moveAsAlgebra.Last();
+                moveWithoutPromotion = moveAsAlgebra[..^2];
+                return true;
+            }
+
+            isPromotion = moveAsAlgebra.EndsWith(')') && moveAsAlgebra[..^2].Contains('(');
+            if (isPromotion)
+            {
+                promotedPieceSymbol = moveAsAlgebra[^2..].First();
+                moveWithoutPromotion = moveAsAlgebra[..^3];
+                return true;
+            }
+
+            bool lastIsPieceSymbol = "RNBQK".Contains(moveAsAlgebra.Last());
+            if (lastIsPieceSymbol && moveAsAlgebra.Length > 2)
+            {
+                promotedPieceSymbol = moveAsAlgebra.Last();
+                Position to = moveAsAlgebra[^3..^1];
+                if ((to.Rank == 1 || to.Rank == 8 && !isPromotion))
+                {
+                    moveWithoutPromotion = moveAsAlgebra[..^1];
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
     }
 }

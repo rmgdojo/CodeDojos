@@ -105,7 +105,7 @@
 [ECO "B43"]
 [Termination "Normal"]
 
-1. e4 c5 2. Nc3 e6 3. Nf3 a6 4. d4 cxd4 5. Nxd4 b5 6. Nb3 Bb7 7. Bd3 Nc6 8. O-O Nf6 9. a4 b4 10. Ne2 Be7 11. Ng3 O-O 12. a5 d5 13. Qe2 Ne5 14. exd5 Nxd3 15. Qxd3 Bxd5 16. Re1 Qc7 17. Be3 Rac8 18. Qxa6 Qxc2 19. Nd4 Qxb2 20. Reb1 Qc3 21. Rc1 Qb2 22. Qxc8 Rxc8 23. Rxc8+ Bf8 24. Rcc1 e5 25. Nde2 Ng4 26. a6 Nxe3 27. fxe3 Qd2 28. Kf2 Qd3 29. a7 h5 30. a8=Q Bxa8 31. Rxa8 h4 32. Nf1 b3 33. Rcc8 b2 34. Rxf8+ Kh7 35. Rab8 b1=Q 36. Rxb1 Qf5+ 37. Kg1 Qxb1 38. Rxf7 Kg6 39. Rf2 Qe4 40. h3 Qd3 41. Nc1 Qe4 42. Nb3 Qc4 43. Nbd2 Qd3 44. Nf3 Qe4 45. N3h2 Kh7 46. Ng4 Kg6 47. Nfh2 1-0
+1. e4 c5 2. Nc3 e6 3. Nf3 a6 4. d4 cxd4 5. Nxd4 b5 6. Nb3 Bb7 7. Bd3 Nc6 8. O-O Nf6 9. a4 b4 10. Ne2 Be7 11. Ng3 O-O 12. a5 d5 13. Qe2 Ne5 14. exd5 Nxd3 15. Qxd3 Bxd5 16. Re1 Qc7 17. Be3 Rac8 18. Qxa6 Qxc2 19. Nd4 Qxb2 20. Reb1 Qc3 21. Rc1 Qb2 22. Qxc8 Rxc8 23. Rxc8+ Bf8 24. Rcc1 e5 25. Nde2 Ng4 26. a6 Nxe3 27. fxe3 Qd2 28. Kf2 Qd3 29. a7 h5 30. a8Q Bxa8 31. Rxa8 h4 32. Nf1 b3 33. Rcc8 b2 34. Rxf8+ Kh7 35. Rab8 b1=Q 36. Rxb1 Qf5+ 37. Kg1 Qxb1 38. Rxf7 Kg6 39. Rf2 Qe4 40. h3 Qd3 41. Nc1 Qe4 42. Nb3 Qc4 43. Nbd2 Qd3 44. Nf3 Qe4 45. N3h2 Kh7 46. Ng4 Kg6 47. Nfh2 1-0
 
 
 [Event "Rated Bullet game"]
@@ -281,7 +281,7 @@
 [ECO "E48"]
 [Termination "Time forfeit"]
 
-1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3 d5 6. Nge2 c5 7. cxd5 Nxd5 8. a3 Bxc3+ 9. bxc3 Ne7 10. O-O Nd7 11. e4 Qc7 12. Ng3 e5 13. d5 Qd6 14. c4 b6 15. f4 Bb7 16. f5 b5 17. Nh5 bxc4 18. Bxc4 Nf6 19. Bg5 Nxh5 20. Qxh5 f6 21. Be3 Nc8 22. Rf3 Nb6 23. Rh3 Nxc4 24. Qxh7+ Kf7 25. Qg6+ Ke7 26. Rh7 Rf7 27. Rxg7 Rxg7 28. Qxg7+ Kd8 29. Qxb7 Rb8 30. Qxa7 Nxe3 31. h3 Rb2 32. g4 Qb6 33. Qxb6+ Rxb6 34. Rc1 c4 35. Kf2 Rb3 36. Ke2 Rxa3 37. Rb1 Kc7 38. Rb5 Kd6 39. h4 Ng2 40. g5 Nf4+ 41. Kd2 Rh3 42. g6 Rxh4 43. Rb8 Kc5 44. Kc3 Rh3+ 45. Kc2 Rg3 46. Rc8+ Kd4 47. d6 Rg2+ 48. Kb1 Nd3 49. d7 Kc3 50. Rxc4+ Kb3 51. d8=Q 1-0
+1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 O-O 5. Bd3 d5 6. Nge2 c5 7. cxd5 Nxd5 8. a3 Bxc3+ 9. bxc3 Ne7 10. O-O Nd7 11. e4 Qc7 12. Ng3 e5 13. d5 Qd6 14. c4 b6 15. f4 Bb7 16. f5 b5 17. Nh5 bxc4 18. Bxc4 Nf6 19. Bg5 Nxh5 20. Qxh5 f6 21. Be3 Nc8 22. Rf3 Nb6 23. Rh3 Nxc4 24. Qxh7+ Kf7 25. Qg6+ Ke7 26. Rh7 Rf7 27. Rxg7 Rxg7 28. Qxg7+ Kd8 29. Qxb7 Rb8 30. Qxa7 Nxe3 31. h3 Rb2 32. g4 Qb6 33. Qxb6+ Rxb6 34. Rc1 c4 35. Kf2 Rb3 36. Ke2 Rxa3 37. Rb1 Kc7 38. Rb5 Kd6 39. h4 Ng2 40. g5 Nf4+ 41. Kd2 Rh3 42. g6 Rxh4 43. Rb8 Kc5 44. Kc3 Rh3+ 45. Kc2 Rg3 46. Rc8+ Kd4 47. d6 Rg2+ 48. Kb1 Nd3 49. d7 Kc3 50. Rxc4+ Kb3 51. d8(Q) 1-0
 
 
 [Event "Rated Bullet game"]

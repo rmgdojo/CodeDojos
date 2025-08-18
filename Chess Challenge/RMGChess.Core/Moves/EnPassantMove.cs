@@ -2,40 +2,37 @@
 {
     public class EnPassantMove : Move
     {
+        public Pawn PawnToTakeEnPassant { get; init; }
+        public bool TakesPawnEnPassant => PawnToTakeEnPassant is not null;
+        public Direction EnPassantDirection { get; init; }
+
         public static bool CanEnPassant(Pawn pawn, Direction direction)
         {
             return CanEnPassant(pawn, direction, out _);
         }
 
-        public static bool CanEnPassant(Pawn pawn, Direction direction, out Pawn pawnToTake)
+        public static bool CanEnPassant(Pawn pawn, Direction enPassantDirection, out Pawn pawnToTake)
         {
             if (pawn?.Square?.Board is not null) // guard check, all three must not be null
             {
+                Direction trueDirection = enPassantDirection switch
+                {
+                    Direction.Left => pawn.IsWhite ? Direction.UpLeft : Direction.DownLeft,
+                    Direction.Right => pawn.IsWhite ? Direction.UpRight : Direction.DownRight,
+                    _ => enPassantDirection
+                };
+
                 Board board = pawn.Square.Board;
+                Square to = pawn.Square.GetNeighbour(trueDirection);
+                Square opponentSquare = to?.GetNeighbour(pawn.IsWhite ? Direction.Down : Direction.Up);
 
-                Square left = pawn.Square.Left?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
-                Square right = pawn.Square.Right?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
-                //Square leftDestination = left?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
-                //Square rightDestination = right?.GetNeighbour(pawn.IsWhite ? Direction.Up : Direction.Down);
-
-                if (direction == Direction.Left && left is not null && left.IsOccupied && left.Piece.IsOpponentOf(pawn) && left.Piece is Pawn)
+                if (opponentSquare is not null && opponentSquare.IsOccupied && opponentSquare.Piece.IsOpponentOf(pawn) && opponentSquare.Piece is Pawn)
                 {
-                    Move lastMove = board.Game.LastMoveFor(left.Piece.Colour);
-                    // may be able to en passant left
-                    if (lastMove.To == left.Position && lastMove.Direction == Direction.Down)
+                    Move lastMove = board.Game.LastMoveFor(opponentSquare.Piece.Colour);
+                    // may be able to en passant
+                    if (lastMove.To == opponentSquare.Position && lastMove.Direction == Direction.Down)
                     {
-                        pawnToTake = left.Piece as Pawn;
-                        return true;
-                    }
-                }
-
-                if (direction == Direction.Right && right is not null && right.IsOccupied && right.Piece.IsOpponentOf(pawn) && right.Piece is Pawn)
-                {
-                    Move lastMove = board.Game.LastMoveFor(right.Piece.Colour);
-                    // may be able to en passant right
-                    if (lastMove.To == right.Position && lastMove.Direction == Direction.Down)
-                    {
-                        pawnToTake = right.Piece as Pawn;
+                        pawnToTake = opponentSquare.Piece as Pawn;
                         return true;
                     }
                 }
@@ -45,11 +42,16 @@
             return false;
         }
 
+        public override string ToString()
+        {
+            return $"{base.ToString()}.e.p";
+        }
+
         internal override void Execute(Game game)
         {
             Board board = game?.Board;
             // check whether we can take the pawn en passant
-            if (board is not null && CanEnPassant(Piece as Pawn, Direction, out Pawn pawnToTake))
+            if (board is not null && CanEnPassant(Piece as Pawn, EnPassantDirection, out Pawn pawnToTake))
             {
                 Colour opponentColour = Piece.IsWhite ? Colour.Black : Colour.White;
                 board[pawnToTake.Position].RemovePiece();
@@ -58,7 +60,7 @@
                 base.Execute(game);
                 return;
             }
-                
+
             throw new InvalidMoveException("Invalid en passant move.");
         }
 
@@ -69,15 +71,23 @@
 
         public EnPassantMove(Pawn piece, Position from, Position to) : base(piece, from, to)
         {
-            // convert directions from regular pawn capture move
-            // (up left / down left == left, up right / down right == right)
-            if (Direction == Direction.UpLeft || Direction == Direction.DownLeft)
+            // direction will be the actual direction of the move (worked out from from -> to)
+            // but we need to work out the en passant direction (left or right)
+            EnPassantDirection = Direction switch
             {
-                Direction = Direction.Left;
-            }
-            else if (Direction == Direction.UpRight || Direction == Direction.DownRight)
+                Direction.UpLeft => Direction.Left,
+                Direction.UpRight => Direction.Right,
+                Direction.DownLeft => Direction.Left,
+                Direction.DownRight => Direction.Right,
+                _ => Direction
+            };
+
+            // if this is being cloned as a history item, the square will be null - this is potentially a problem but that's a TODO
+            if (piece is not null && piece.Square is not null && CanEnPassant(piece, EnPassantDirection))
             {
-                Direction = Direction.Right;
+                Square square = piece.Square.Board[to];
+                Piece pieceToTakeEnPassant = piece.IsWhite ? square?.Down.Piece ?? null : square?.Up.Piece ?? null;
+                if (pieceToTakeEnPassant is Pawn) PawnToTakeEnPassant = pieceToTakeEnPassant as Pawn;
             }
         }
     }
