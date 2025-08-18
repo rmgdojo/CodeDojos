@@ -2,10 +2,6 @@
 {
     public class EnPassantMove : Move
     {
-        public Pawn PawnToTakeEnPassant { get; init; }
-        public bool TakesPawnEnPassant => PawnToTakeEnPassant is not null;
-        public Direction EnPassantDirection { get; init; }
-
         public static bool CanEnPassant(Pawn pawn, Direction direction)
         {
             return CanEnPassant(pawn, direction, out _);
@@ -41,6 +37,10 @@
             pawnToTake = null;
             return false;
         }
+
+        public Pawn PawnToTakeEnPassant { get; init; }
+        public bool TakesPawnEnPassant => PawnToTakeEnPassant is not null;
+        public Direction EnPassantDirection { get; init; }
 
         public override string ToString()
         {
