@@ -11,7 +11,7 @@ namespace RMGChess.ConsoleApp
 
         public static void WriteLine(bool clearLine = false)
         {
-            if (clearLine) ClearLine(Console.CursorTop + 1); // clear the current line if requested
+            if (clearLine) ClearLine(Console.CursorTop + 1);
             Console.WriteLine();
         }
 
@@ -49,15 +49,26 @@ namespace RMGChess.ConsoleApp
             Console.SetCursorPosition(left, top);
             AnsiConsole.Markup(text);
         }
+        public static void ClearLineRight(int left, int top)
+        {
+            Write(left, top, string.Empty, true, false);
+        }
+
+        public static void ClearLineLeft(int left, int top)
+        {
+            Write(left, top, string.Empty, false, true);
+        }
+
+        public static void ClearLine(int row)
+        {
+            Write(0, row, string.Empty, true, false);
+        }
 
         public static void ClearLine(params int[] rows)
         {
             foreach (int row in rows)
             {
-                (int left, int top) = Console.GetCursorPosition();
-                Console.SetCursorPosition(0, row);
-                Console.Write(new string(' ', Console.WindowWidth)); // clear the line by writing spaces
-                Console.SetCursorPosition(left, top); // reset cursor position to the start of the line
+                ClearLine(row);
             }
         }
     }

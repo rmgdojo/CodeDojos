@@ -10,16 +10,19 @@ namespace RMGChess.ConsoleApp
 {
     public partial class Program
     {
-        public static DisplaySettings DisplaySettings = new DisplaySettings();
+        public static DisplaySettings DisplaySettings = new();
 
         static void Main(string[] args)
         {
+            bool invisibleUntilError = false;
+
             char? mode = null;
             float rollbackToRound = 1;
             float playbackToRound = 1;
             bool wasX = false;
             bool wasError = false;
             int errorMsgLength = 0;
+            Colour lastTurn = Colour.White;
 
             // play through Magnus Carlsen game library
             var gameRecords = GameLibrary.MagnusCarlsenGames;
@@ -40,47 +43,31 @@ namespace RMGChess.ConsoleApp
                 do
                 {
                     DisplayGameInfo(gameIndex + 1, gameToPlay.Name);
+                    if (invisibleUntilError)
+                    {
+                        ChessConsole.WriteLine(0, 3, "Will play all games invisibly until an error occurs...");
+                    }
 
                     gameToPlay.Playback(game, gameToPlay,
                         (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove, decodeTime) =>
                         {
+                            if (invisibleUntilError)
+                            {
+                                lastTurn = whoseTurn;
+                                lastMove = move;
+                                return;
+                            }
+
                             DisplayMoves(gameToPlay, roundIndex, whoseTurn);
                             DisplayBoard(game.Board);
+                            lastTurn = whoseTurn;
 
-                            #region show previous move
-                            if (lastMove is not null)
-                            {
-                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, $"Previous move by {whoseTurn.Switch()}.", true);
-                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine + 1, $"[blue]Algebra: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra}[/]", true);
-                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine + 2, $"[blue]{moveDescription(lastMove)}[/]", true);
-                            }
-                            else
-                            {
-                                ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, $"[blue]No previous move.[/]", true);
-                            }
-
+                            DisplayPreviousMove();
                             lastMove = move;
-                            #endregion
-
-                            #region show next move
-                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
-                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 1, $"[green]Algebra: {(int)roundIndex}. {moveAsAlgebra}[/]", true);
-                            roundIndex += 0.5f; // increment by half for each move
-
-                            ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]{moveDescription(move)}[/]", true);
-                            if (game.IsInCheck(whoseTurn))
-                            {
-                                ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 3, $"[green]{whoseTurn} is in check[/]".ToUpper(), true);
-                            }
-                            else
-                            {
-                                ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 3, "", true);
-                            }
+                            DisplayNextMove();
 
                             bool animate = false;// mode is null;
                             DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
-
-                            #endregion
 
                             #region read / set mode from key
                             while (true)
@@ -183,7 +170,7 @@ namespace RMGChess.ConsoleApp
                                         {
                                             try
                                             {
-                                                string gameNumber = getUserInput("Go to game (game index): ");
+                                                string gameNumber = GetUserInput("Go to game (game index): ");
                                                 if (int.TryParse(gameNumber, out int gameNum) && gameNum > 0 && gameNum <= gameRecords.Count)
                                                 {
                                                     gameIndex = gameNum - 2; // adjust for zero-based index and for loop increment
@@ -263,7 +250,7 @@ namespace RMGChess.ConsoleApp
 
                             float getRoundInput(bool dontGoBack = false, bool dontGoForward = false)
                             {
-                                string runTo = getUserInput("Go to move (round number + w|b optional ie 4 or 7w or 6b) or ENTER for start: ");
+                                string runTo = GetUserInput("Go to move (round number + w|b optional ie 4 or 7w or 6b) or ENTER for start: ");
                                 if (runTo == "") runTo = "1";
                                 if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault())) runTo += 'w';
                                 char colour = runTo.Last();
@@ -280,7 +267,7 @@ namespace RMGChess.ConsoleApp
                                 }
                             }
 
-                            string getUserInput(string prompt)
+                            string GetUserInput(string prompt)
                             {
                                 Console.CursorVisible = true;
                                 DisplayPrompt(prompt);
@@ -290,14 +277,39 @@ namespace RMGChess.ConsoleApp
                                 return input;
                             }
 
-                            void DisplayErrorPrompt(string message)
+                            void DisplayPreviousMove()
                             {
-                                DisplayPrompt($"[red]{message}[/]");
-                                Thread.Sleep(1000);
-                                mode = null;
+                                if (lastMove is not null)
+                                {
+                                    ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, $"Previous move by {whoseTurn.Switch()}.", true);
+                                    ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine + 1, $"[blue]Algebra: {(Math.Ceiling(roundIndex) - 1)}. {lastMoveAsAlgebra}[/]", true);
+                                    ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine + 2, $"[blue]{GetMoveDescription(lastMove)}[/]", true);
+                                }
+                                else
+                                {
+                                    ChessConsole.Write(DisplaySettings.RightHandBlockColumn, DisplaySettings.PreviousMoveLine, $"[blue]No previous move.[/]", true);
+                                }
+                            }                            
+
+                            void DisplayNextMove()
+                            {
+                                ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine, $"{whoseTurn} to play.");
+                                ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 1, $"[green]Algebra: {(int)roundIndex}. {moveAsAlgebra}[/]", true);
+                                roundIndex += 0.5f; // increment by half for each move
+
+                                ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 2, $"[green]{GetMoveDescription(move)}[/]", true);
+                                if (game.IsInCheck(whoseTurn))
+                                {
+                                    ChessConsole.WriteLine(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 3, $"[green]{whoseTurn} is in check[/]".ToUpper(), true);
+                                }
+                                else
+                                {
+                                    ChessConsole.ClearLineRight(DisplaySettings.RightHandBlockColumn, DisplaySettings.NextMoveLine + 3);
+                                }
                             }
 
-                            string moveDescription(Move move)
+
+                            string GetMoveDescription(Move move)
                             {
                                 string output = null;
                                 if (move is CastlingMove castlingMove)
@@ -321,6 +333,13 @@ namespace RMGChess.ConsoleApp
 
                                 return output;
                             }
+
+                            void DisplayErrorPrompt(string message)
+                            {
+                                DisplayPrompt($"[red]{message}[/]");
+                                Thread.Sleep(1000);
+                                mode = null;
+                            }
                         },
                         (roundIndex, whoseTurn, move) =>
                         {
@@ -336,8 +355,9 @@ namespace RMGChess.ConsoleApp
                             return control;
                             #endregion
                         },
-                        (message, roundIndex, whoseTurn) =>
+                        (message, roundIndex, whoseTurn, lastMove, move) =>
                         {
+                            DisplayBoard(game.Board, whoseTurn, lastMove.From, lastMove.To, false);
                             DisplayMoves(gameToPlay, roundIndex, whoseTurn);
                             ChessConsole.Write(0, DisplaySettings.ErrorLine, $"[red]{message}[/]. ", true);
                             wasX = (mode == 'x');
@@ -345,13 +365,15 @@ namespace RMGChess.ConsoleApp
                             errorMsgLength = message.Length + 2;
                             mode = null;
                             badGames++;
+                            invisibleUntilError = false;
                             return true;
                         }
                     );
 
                     // game has ended
-                    if (mode != 'q' && mode != 'x' && mode != 'g')
+                    if (!invisibleUntilError && mode != 'q' && mode != 'x' && mode != 'g')
                     {
+                        DisplayBoard(game.Board, lastTurn, null, null, false);
                         playbackToRound = 0;
                         ChessConsole.Write(wasError ? errorMsgLength : 0, DisplaySettings.PromptLine, "Game over. (Enter) next game, (R)eplay this game.", true);
                         char key = KeyPress();
@@ -391,39 +413,6 @@ namespace RMGChess.ConsoleApp
             }
         }
 
-        private static char KeyPress()
-        {
-            char key = char.ToLower(Console.ReadKey(true).KeyChar);
-            return key;
-        }
-
-        private static char? DelayOrKeyPress(int delayInMilliseconds)
-        {
-            char? key = null;
-            if (delayInMilliseconds > 0)
-            {
-                DateTime startDelay = DateTime.Now;
-                while (DateTime.Now < startDelay.AddMilliseconds(delayInMilliseconds))
-                {
-                    if (Console.KeyAvailable)
-                    {
-                        key = char.ToLower(Console.ReadKey(true).KeyChar);
-                        return key;
-                    }
-                }
-            }
-            else
-            {
-                if (Console.KeyAvailable)
-                {
-                    key = char.ToLower(Console.ReadKey(true).KeyChar);
-                    return key;
-                }
-            }
-
-            return null;
-        }
-
         private static void DisplayGameInfo(int gameIndex, string gameName)
         {
             string title = $"Game {gameIndex}: {gameName}";
@@ -439,8 +428,6 @@ namespace RMGChess.ConsoleApp
 
         private static void DisplayBoard(Board board, Colour whoseTurn, Position from, Position to, bool animateHighlight)
         {
-            bool alt = false;
-
             if (from is not null && to is not null)
             {
                 if (animateHighlight)
@@ -468,6 +455,7 @@ namespace RMGChess.ConsoleApp
 
             void WriteBoard(bool highlight)
             {
+                bool alt = false;
                 int rowIndex = DisplaySettings.BoardTop;
                 for (int rank = 8; rank >= 1; rank--)
                 {
@@ -568,6 +556,39 @@ namespace RMGChess.ConsoleApp
 
                 return $"{round}.\u00A0{whiteMove}\u00A0{blackMove} ";
             }
+        }
+
+        private static char KeyPress()
+        {
+            char key = char.ToLower(Console.ReadKey(true).KeyChar);
+            return key;
+        }
+
+        private static char? DelayOrKeyPress(int delayInMilliseconds)
+        {
+            char? key = null;
+            if (delayInMilliseconds > 0)
+            {
+                DateTime startDelay = DateTime.Now;
+                while (DateTime.Now < startDelay.AddMilliseconds(delayInMilliseconds))
+                {
+                    if (Console.KeyAvailable)
+                    {
+                        key = char.ToLower(Console.ReadKey(true).KeyChar);
+                        return key;
+                    }
+                }
+            }
+            else
+            {
+                if (Console.KeyAvailable)
+                {
+                    key = char.ToLower(Console.ReadKey(true).KeyChar);
+                    return key;
+                }
+            }
+
+            return null;
         }
     }
 }

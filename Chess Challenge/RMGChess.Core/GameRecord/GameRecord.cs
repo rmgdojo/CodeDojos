@@ -7,7 +7,7 @@ namespace RMGChess.Core;
 
 public delegate void BeforeMoveHandler(float roundIndex, Colour whoseTurn, string moveAsAlgebra, Move move, string lastMoveAsAlgebra, Move lastMove, TimeSpan decodeTime);
 public delegate PlayControl AfterMoveHandler(float roundIndex, Colour whoseTurn, Move move);
-public delegate bool ErrorHandler(string errorMessage, float roundIndex, Colour whoseTurn);
+public delegate bool ErrorHandler(string errorMessage, float roundIndex, Colour whoseTurn, Move lastMove, Move thisMove);
 
 public class GameRecord
 {
@@ -82,7 +82,7 @@ public class GameRecord
         }
         catch (Exception ex)
         {
-            if (onError?.Invoke($"Error in move '{moveAsAlgebra}': {ex.Message}", actualRoundIndex, whoseTurn) ?? true)
+            if (onError?.Invoke($"Error in move '{moveAsAlgebra}': {ex.Message}", actualRoundIndex, whoseTurn, lastMove, move) ?? true)
             {
                 return (new PlayControl(stop: true), move, moveAsAlgebra); // stop processing if an error occurs
             }
