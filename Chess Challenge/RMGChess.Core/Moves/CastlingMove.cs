@@ -5,8 +5,6 @@ namespace RMGChess.Core
 {
     public class CastlingMove : Move
     {
-        public Move RookMove { get; private set; }
-
         public static bool CanCastle(King king, Side side)
         {
             Rook rook = GetMovingRook(king, side);
@@ -49,6 +47,7 @@ namespace RMGChess.Core
             return king.Square.Board[rookSquare].Piece as Rook;
         }
 
+        public Move RookMove { get; private set; }
         public Side Side { get; private set; }
 
         public override string ToString()
