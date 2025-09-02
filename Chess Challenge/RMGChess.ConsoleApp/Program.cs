@@ -48,7 +48,7 @@ namespace RMGChess.ConsoleApp
                         ChessConsole.WriteLine(0, 3, "Will play all games invisibly until an error occurs...");
                     }
 
-                    gameToPlay.Playback(game, gameToPlay,
+                    gameToPlay.Playback(game,
                         (roundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove, decodeTime) =>
                         {
                             if (invisibleUntilError)
