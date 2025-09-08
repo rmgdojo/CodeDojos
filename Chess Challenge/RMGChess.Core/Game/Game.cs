@@ -40,6 +40,7 @@ namespace RMGChess.Core
         public PieceCollection PiecesInPlay => _pieces.ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
         public PieceCollection CapturedPieces => _capturedPieces.ToPieceCollection(); // ditto
 
+        public event EventHandler OnGameStarted;
         public event EventHandler<OnReadyToMoveEventArgs> OnReadyToMove;
         public event EventHandler<OnAfterMoveEventArgs> OnAfterMove;
         public event EventHandler<OnGameEndedEventArgs> OnGameEnded;
@@ -74,6 +75,7 @@ namespace RMGChess.Core
             {
                 _gameThread = new Thread(GameLoop);
                 _gameThread.Start();
+                OnGameStarted?.Invoke(this, EventArgs.Empty);
             }
         }
 
