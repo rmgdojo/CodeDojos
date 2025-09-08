@@ -24,28 +24,28 @@ public class GameRecord
     public int MoveCount => _moves.Length;
     public int RoundCount => _rounds.Length;
 
-    public void Playback(Game game, GameRecord gameRecord, BeforeMoveHandler beforeMove, AfterMoveHandler afterMove, ErrorHandler onError)
+    public void Playback(Game game, BeforeMoveHandler beforeMove, AfterMoveHandler afterMove, ErrorHandler onError)
     {
         game.Reset();
 
         Move lastMove = null;
         string lastMoveAsAlgebra = null;
 
-        for (int i = 1; i <= gameRecord.MoveCount; i++)
+        for (int i = 1; i <= MoveCount; i++)
         {
-            (PlayControl control, lastMove, lastMoveAsAlgebra) = PlayRecordedMove(game, gameRecord._moves[i - 1], lastMove, lastMoveAsAlgebra, beforeMove, afterMove, onError);
+            (PlayControl control, lastMove, lastMoveAsAlgebra) = PlayRecordedMove(game, _moves[i - 1], lastMove, lastMoveAsAlgebra, beforeMove, afterMove, onError);
             if (control.Stop)
             {
                 return; // stop processing further moves
             }
             else if (control.GoToRound > 0)
             {
-                RestartAndFastForwardRecordedGame(game, gameRecord, control.GoToRound, onError);
+                RestartAndFastForwardRecordedGame(game, control.GoToRound, onError);
             }
         }
     }
 
-    private void RestartAndFastForwardRecordedGame(Game game, GameRecord gameRecord, float roundToFastForwardTo, ErrorHandler onError)
+    private void RestartAndFastForwardRecordedGame(Game game, float roundToFastForwardTo, ErrorHandler onError)
     {
         game.Reset();
 
@@ -54,7 +54,7 @@ public class GameRecord
             int limit = (int)(roundToFastForwardTo * 2) - 2;
             for (int i = 0; i < limit; i++)
             {
-                PlayRecordedMove(game, gameRecord._moves[i], null, null, null, null, onError);
+                PlayRecordedMove(game, _moves[i], null, null, null, null, onError);
             }
         }
     }
