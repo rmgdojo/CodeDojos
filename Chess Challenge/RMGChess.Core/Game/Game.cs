@@ -7,6 +7,14 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RMGChess.Core
 {
+    public class OnCheckMateEventArgs : EventArgs
+    {
+        public Colour Colour { get; }
+        public OnCheckMateEventArgs(Colour colour)
+        {
+            Colour = colour;
+        }
+    }
 
     public class Game
     {
@@ -32,11 +40,12 @@ namespace RMGChess.Core
         public PieceCollection PiecesInPlay => _pieces.ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
         public PieceCollection CapturedPieces => _capturedPieces.ToPieceCollection(); // ditto
 
-        public event EventHandler<Colour> OnReadyToMove;
-        public event EventHandler<GameEndReason> OnGameEnded;
-        public event EventHandler<(Pawn, Type)> OnPiecePromoted;
-        public event EventHandler<(Colour, IEnumerable<Piece>)> OnCheck;
-        public event EventHandler<Colour> OnCheckMate;
+        public event EventHandler<OnReadyToMoveEventArgs> OnReadyToMove;
+        public event EventHandler<OnAfterMoveEventArgs> OnAfterMove;
+        public event EventHandler<OnGameEndedEventArgs> OnGameEnded;
+        public event EventHandler<OnPiecePromotedEventArgs> OnPiecePromoted;
+        public event EventHandler<OnCheckEventArgs> OnCheck;
+        public event EventHandler<OnCheckEventArgs> OnCheckMate;
 
         public Move LastMove { get; private set; }
 
@@ -73,11 +82,11 @@ namespace RMGChess.Core
             while (_isRunning)
             {
                 // notify listeners and get the selector
-                OnReadyToMove?.Invoke(this, _whoseTurn);
                 Func<IEnumerable<Move>, Move> moveSelector = _whoseTurn == Colour.White ? _whiteMoveSelector : _blackMoveSelector;
 
                 // find the move
                 IEnumerable<Move> validMoves = Board.GetValidMovesFor(_whoseTurn);
+                OnReadyToMove?.Invoke(this, new OnReadyToMoveEventArgs(_whoseTurn, validMoves));
                 Move move = moveSelector(validMoves);
 
                 //// check for check or checkmate
@@ -102,6 +111,7 @@ namespace RMGChess.Core
                 //}
 
                 MakeMove(move);
+                OnAfterMove?.Invoke(this, new OnAfterMoveEventArgs(_whoseTurn, move));
                 _whoseTurn = _whoseTurn.Switch();
             }
         }
