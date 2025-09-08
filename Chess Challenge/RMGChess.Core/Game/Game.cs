@@ -45,7 +45,7 @@ namespace RMGChess.Core
         public event EventHandler<OnGameEndedEventArgs> OnGameEnded;
         public event EventHandler<OnPiecePromotedEventArgs> OnPiecePromoted;
         public event EventHandler<OnCheckEventArgs> OnCheck;
-        public event EventHandler<OnCheckEventArgs> OnCheckMate;
+        public event EventHandler<OnCheckMateEventArgs> OnCheckMate;
 
         public Move LastMove { get; private set; }
 
