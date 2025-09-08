@@ -7,11 +7,18 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RMGChess.Core
 {
+
     public class Game
     {
+        private Thread _gameThread;
+        private bool _isRunning;
+
         private Dictionary<Colour, List<Move>> _history;
         private List<Piece> _pieces;
         private List<Piece> _capturedPieces;
+        private Colour _whoseTurn;
+        private Func<IEnumerable<Move>, Move> _whiteMoveSelector;
+        private Func<IEnumerable<Move>, Move> _blackMoveSelector;
 
         // we need to keep a list of pieces removed by promotion, because history items include the original piece
         private List<Piece> _promotedPieces;
@@ -20,8 +27,16 @@ namespace RMGChess.Core
 
         public Board Board => _board;
 
+        public Colour ColourPlaying => _whoseTurn;
+
         public PieceCollection PiecesInPlay => _pieces.ToPieceCollection(); // need a list underlying because the contents will change and PieceCollection is immutable
         public PieceCollection CapturedPieces => _capturedPieces.ToPieceCollection(); // ditto
+
+        public event EventHandler<Colour> OnReadyToMove;
+        public event EventHandler<GameEndReason> OnGameEnded;
+        public event EventHandler<(Pawn, Type)> OnPiecePromoted;
+        public event EventHandler<(Colour, IEnumerable<Piece>)> OnCheck;
+        public event EventHandler<Colour> OnCheckMate;
 
         public Move LastMove { get; private set; }
 
@@ -35,11 +50,60 @@ namespace RMGChess.Core
             return lastMove.PutsOpponentInCheck;
         }
 
-        public void TakeTurn(Colour whoseTurn, Func<IEnumerable<Move>, Move> moveSelector)
+        public void Start(Colour colour, Func<IEnumerable<Move>, Move> moveSelector)
         {
-            IEnumerable<Move> validMoves = Board.GetValidMovesFor(whoseTurn);
-            Move move = moveSelector(validMoves);
-            MakeMove(move);
+            if (colour == Colour.White)
+            {
+                _whiteMoveSelector = moveSelector;
+            }
+            else
+            {
+                _blackMoveSelector = moveSelector;
+            }
+
+            if (_whiteMoveSelector is not null && _blackMoveSelector is not null)
+            {
+                _gameThread = new Thread(GameLoop);
+                _gameThread.Start();
+            }
+        }
+
+        private void GameLoop()
+        {
+            while (_isRunning)
+            {
+                // notify listeners and get the selector
+                OnReadyToMove?.Invoke(this, _whoseTurn);
+                Func<IEnumerable<Move>, Move> moveSelector = _whoseTurn == Colour.White ? _whiteMoveSelector : _blackMoveSelector;
+
+                // find the move
+                IEnumerable<Move> validMoves = Board.GetValidMovesFor(_whoseTurn);
+                Move move = moveSelector(validMoves);
+
+                //// check for check or checkmate
+                //Colour opponent = _whoseTurn.Switch();
+                //IEnumerable<Piece> checkingPieces = validMoves.Where(m => m.PutsOpponentInCheck).Select(m => m.Piece);
+                //if (checkingPieces.Count() > 0)
+                //{
+                //    OnCheck?.Invoke(this, (opponent, checkingPieces));
+                //    // TODO: check for checkmate
+                //    //Game clone = Clone(); // clone the game to see if the opponent has any valid moves
+                //    //IEnumerable<Move> opponentMoves = Board.GetValidMovesFor(opponent);
+                //    //if (!opponentMoves.Any())
+                //    //{
+                //    //    OnCheckMate?.Invoke(this, opponent);
+                //    //    OnGameEnded?.Invoke(this, GameEndReason.Checkmate);
+                //    //    break;
+                //    //}
+                //}
+                //else
+                //{
+                //    // TODO: check for stalemate
+                //}
+
+                MakeMove(move);
+                _whoseTurn = _whoseTurn.Switch();
+            }
         }
 
         internal Game Clone()
@@ -115,6 +179,7 @@ namespace RMGChess.Core
 
         internal void Reset()
         {
+            _whoseTurn = Colour.White;
             _history = new Dictionary<Colour, List<Move>>() { { Colour.White, new List<Move>() }, { Colour.Black, new List<Move>() } };
             _pieces = new List<Piece>();
             _capturedPieces = new List<Piece>();
