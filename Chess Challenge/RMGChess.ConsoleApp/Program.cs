@@ -66,8 +66,7 @@ namespace RMGChess.ConsoleApp
                             lastMove = move;
                             DisplayNextMove();
 
-                            bool animate = false;// mode is null;
-                            DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
+                            DisplayBoard(game.Board, whoseTurn, move.From, move.To, false);
 
                             #region read / set mode from key
                             while (true)
@@ -343,6 +342,7 @@ namespace RMGChess.ConsoleApp
                         },
                         (roundIndex, whoseTurn, move) =>
                         {
+                            DisplayBoard(game.Board, whoseTurn, move.From, move.To, mode is null);
                             #region tell the game replay engine what to do
                             PlayControl control = new();
                             if (mode == 'q' || mode == 'g') control.Stop = true;
@@ -433,11 +433,19 @@ namespace RMGChess.ConsoleApp
                 if (animateHighlight)
                 {
                     WriteBoard(true);
-                    Thread.Sleep(500); // wait for a moment before starting the animation
+                    if (Console.KeyAvailable) return;
+
+                    Thread.Sleep(100); // wait for a moment before starting the animation
 
                     for (int i = 1; i < 9; i++) // animate highlight for 4 cycles
                     {
                         WriteBoard(i % 2 == 0);
+                        if (Console.KeyAvailable)
+                        {
+                            WriteBoard(false);
+                            return;
+                        }
+
                         Thread.Sleep(100);
                     }
                 }
