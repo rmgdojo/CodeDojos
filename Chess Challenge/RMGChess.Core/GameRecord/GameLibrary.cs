@@ -1,6 +1,4 @@
 using RMGChess.Core.Resources;
-using System.Data;
-using System.Reflection;
 
 namespace RMGChess.Core;
 

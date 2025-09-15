@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Threading.Tasks;
-
-namespace RMGChess.Core
+﻿namespace RMGChess.Core
 {
     public class Move
     {

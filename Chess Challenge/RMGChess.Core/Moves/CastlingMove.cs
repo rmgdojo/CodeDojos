@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Net.NetworkInformation;
-
-namespace RMGChess.Core
+﻿namespace RMGChess.Core
 {
     public class CastlingMove : Move
     {

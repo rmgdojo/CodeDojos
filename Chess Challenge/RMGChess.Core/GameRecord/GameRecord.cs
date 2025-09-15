@@ -1,8 +1,3 @@
-using RMGChess.Core;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.Intrinsics.X86;
-using System.Security.AccessControl;
-
 namespace RMGChess.Core;
 
 public delegate void BeforeMoveHandler(float roundIndex, Colour whoseTurn, string moveAsAlgebra, Move move, string lastMoveAsAlgebra, Move lastMove, TimeSpan decodeTime);

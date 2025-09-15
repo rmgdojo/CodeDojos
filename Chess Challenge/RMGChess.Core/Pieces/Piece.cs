@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace RMGChess.Core
+﻿namespace RMGChess.Core
 {
     public abstract class Piece
     {

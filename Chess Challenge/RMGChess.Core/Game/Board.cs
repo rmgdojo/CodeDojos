@@ -1,6 +1,4 @@
-﻿using System.IO.Pipelines;
-
-namespace RMGChess.Core
+﻿namespace RMGChess.Core
 {
     public class Board
     {
