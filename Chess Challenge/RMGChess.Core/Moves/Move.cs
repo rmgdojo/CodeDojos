@@ -2,11 +2,6 @@
 {
     public class Move
     {
-        protected static void ExecuteMove(Game game, Move move)
-        {
-            move.Execute(game); // this is a protected method to allow derived classes to call up to here
-        }
-
         public Piece Piece { get; protected set; }
         public Position From { get; protected set; }
         public Position To { get; protected set; }

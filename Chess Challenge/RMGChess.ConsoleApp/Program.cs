@@ -14,7 +14,7 @@ namespace RMGChess.ConsoleApp
 
         static void Main(string[] args)
         {
-            bool invisibleUntilError = true;
+            bool invisibleUntilError = false;
 
             char? mode = null;
             float rollbackToRound = 1;

@@ -2,10 +2,11 @@
 {
     public enum GameEndReason
     {
-        CheckMate,
-        StaleMate,
+        Checkmate,
+        Stalemate,
         Resignation,
         Agreement,
-        TimeForfeit
+        TimeForfeit,
+        RecordEnded
     }
 }
