@@ -7,14 +7,6 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RMGChess.Core
 {
-    public class OnCheckMateEventArgs : EventArgs
-    {
-        public Colour Colour { get; }
-        public OnCheckMateEventArgs(Colour colour)
-        {
-            Colour = colour;
-        }
-    }
 
     public class Game
     {

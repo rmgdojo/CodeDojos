@@ -53,5 +53,12 @@
         }
     }
 
-
+    public class OnCheckMateEventArgs : EventArgs
+    {
+        public Colour Colour { get; }
+        public OnCheckMateEventArgs(Colour colour)
+        {
+            Colour = colour;
+        }
+    }
 }
