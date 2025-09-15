@@ -37,6 +37,7 @@ public class GameRecord
             else if (control.GoToRound > 0)
             {
                 RestartAndFastForwardRecordedGame(game, control.GoToRound, onError);
+                i = RoundToMove(control.GoToRound) - 1; // adjust for next iteration of loop
             }
         }
 
@@ -56,7 +57,7 @@ public class GameRecord
 
         if (roundToFastForwardTo > 1)
         {
-            int limit = (int)(roundToFastForwardTo * 2) - 2;
+            int limit = RoundToMove(roundToFastForwardTo) - 1;
             for (int i = 0; i < limit; i++)
             {
                 PlayRecordedMove(game, _moves[i], null, null, null, null, onError, true);
@@ -94,6 +95,11 @@ public class GameRecord
         }
 
         return (control, move, moveAsAlgebra);
+    }
+
+    private int RoundToMove(float round)
+    {
+        return (int)(round * 2) - 1;
     }
 
     public GameRecord(string @event, DateTime date, string playingWhite, string playingBlack, string[] movesAsAlgebra, bool timeForfeit)

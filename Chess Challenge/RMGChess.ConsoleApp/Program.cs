@@ -72,9 +72,9 @@ namespace RMGChess.ConsoleApp
                             #region read / set mode from key
                             while (true)
                             {
-                                // handle existing mode
+                                // handle existing modes
 
-                                // running all games non-stop
+                                // X mode: running all games non-stop
                                 if (mode == 'x')
                                 {
                                     DisplayPrompt("Playing all games at max speed. Press (X) to stop playback.");
@@ -91,7 +91,7 @@ namespace RMGChess.ConsoleApp
                                     break;
                                 }
 
-                                // running to end of game or set point
+                                // E or P or C mode: running to end of game or set point
                                 if (mode == 'e' || mode == 'p' || mode == 'c')
                                 {
                                     if (mode == 'p' && roundIndex >= playbackToRound)
@@ -126,7 +126,7 @@ namespace RMGChess.ConsoleApp
                                     break;
                                 }
 
-                                // no mode set - need to prompt
+                                // no mode set - need to prompt for action
                                 if (mode == null)
                                 {
                                     delay = DisplaySettings.Delay; // reset delay
@@ -135,7 +135,8 @@ namespace RMGChess.ConsoleApp
                                     {
                                         playbackToRound = 1;
 
-                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | (C)heck | (E)nd | (R)ollback | (Q)uit game | (G)o to game | (Z) restart game | (X) play all");
+                                        DisplayPrompt("[grey50][white]S[/] next, [white]B[/] back one, [white]P[/] play until, [white]E[/] play to end, [white]R[/] rollback to, [white]Q[/] quit game, " +
+                                            "[white]G[/] go to game, [white]Z[/] restart game, [white]X[/] play all[/]");
                                         mode = KeyPress();
 
                                         if (mode == 'x')
@@ -308,7 +309,6 @@ namespace RMGChess.ConsoleApp
                                 }
                             }
 
-
                             string GetMoveDescription(Move move)
                             {
                                 string output = null;
@@ -375,7 +375,7 @@ namespace RMGChess.ConsoleApp
                     {
                         DisplayBoard(game.Board, lastTurn, null, null, false);
                         playbackToRound = 0;
-                        ChessConsole.Write(wasError ? errorMsgLength : 0, DisplaySettings.PromptLine, "Game over. (Enter) next game, (R)eplay this game.", true);
+                        DisplayPrompt("Game over. (Enter) next game, (R)eplay this game.", wasError ? errorMsgLength : 0);
                         char key = KeyPress();
                         if (key == 'r')
                         {
@@ -401,10 +401,10 @@ namespace RMGChess.ConsoleApp
             ChessConsole.WriteLine($"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
             Console.ReadKey(false);
 
-            void DisplayPrompt(string prompt)
+            void DisplayPrompt(string prompt, int padLeft = 0)
             {
                 ClearPrompt();
-                ChessConsole.Write(0, DisplaySettings.PromptLine, prompt, true);
+                ChessConsole.Write(padLeft, DisplaySettings.PromptLine, prompt, true);
             }
 
             void ClearPrompt()
