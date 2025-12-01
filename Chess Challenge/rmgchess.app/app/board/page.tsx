@@ -7,8 +7,8 @@ export default function Board() {
       <header className="bg-gray-800 text-white p-4 shadow-lg">
         <h1 className="text-2xl font-bold">Chess Board</h1>
       </header>
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-full h-full max-w-screen max-h-screen flex flex-col border-4 border-gray-800">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="aspect-square w-full h-full max-w-[min(90vw,90vh)] max-h-[min(100vw,100vh)] flex flex-col border-4 border-gray-800">
           {ranks.map((rank) => (
             <div key={rank} className="flex flex-1">
               {files.map((file, fileIndex) => {
