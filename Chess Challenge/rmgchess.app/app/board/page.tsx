@@ -12,11 +12,11 @@ export default function Board() {
                             return (
                                 <div
                                     key={`${file}${rank}`}
-                                    className={`w-16 h-16 flex items-center justify-center text-xs font-semibold ${
+                                    className={`w-16 h-16 flex items-center justify-center text-3xl font-semibold ${
                                         isLight ? 'bg-amber-100' : 'bg-amber-700'
                                     }`}
                                 >
-                                    <span className={`fas fa-chess-king text-3xl ${
+                                    <span className={`fas fa-chess-king ${
                                         isLight ? 'text-black' : 'text-white'
                                     }`}></span>
                                 </div>
