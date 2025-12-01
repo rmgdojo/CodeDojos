@@ -1,0 +1,16 @@
+ Chess Challenge/RMGChess.ConsoleApp/Program.cs     |  4 [32m+[m[31m-[m
+ Chess Challenge/RMGChess.Core/ChessExceptions.cs   |  8 [32m+[m[31m-[m
+ Chess Challenge/RMGChess.Core/Game/Board.cs        |  4 [32m+[m[31m-[m
+ Chess Challenge/RMGChess.Core/Game/Game.cs         | 86 [32m+++++++++++++++++++[m[31m---[m
+ .../RMGChess.Core/Game/GameEndReason.cs            | 11 [32m+++[m
+ .../RMGChess.Core/Game/GameEventArgs.cs            | 64 [32m++++++++++++++++[m
+ .../RMGChess.Core/GameRecord/GameLibrary.cs        |  2 [31m-[m
+ .../RMGChess.Core/GameRecord/GameRecord.cs         | 17 [32m++[m[31m---[m
+ .../RMGChess.Core/Moves/CastlingMove.cs            |  8 [32m+[m[31m-[m
+ .../RMGChess.Core/Moves/EnPassantMove.cs           |  8 [32m+[m[31m-[m
+ Chess Challenge/RMGChess.Core/Moves/Move.cs        |  9 [32m+[m[31m--[m
+ Chess Challenge/RMGChess.Core/Moves/MovePath.cs    |  8 [32m+[m[31m-[m
+ Chess Challenge/RMGChess.Core/PGN/PGNConverter.cs  |  4 [32m+[m[31m-[m
+ Chess Challenge/RMGChess.Core/Pieces/Piece.cs      |  4 [32m+[m[31m-[m
+ .../RMGChess.Core/Resources/ResourceHandler.cs     |  7 [32m+[m[31m-[m
+ 15 files changed, 170 insertions(+), 74 deletions(-)
