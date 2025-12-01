@@ -16,13 +16,12 @@ export default function Board() {
                 return (
                   <div
                     key={`${file}${rank}`}
-                    className={`flex-1 flex items-center justify-center text-3xl font-semibold ${
-                      isLight ? "bg-amber-100" : "bg-amber-700"
-                    }`}
+                    className="flex-1 flex items-center justify-center text-7xl font-semibold"
+                    style={{ backgroundColor: isLight ? 'var(--chess-light-square)' : 'var(--chess-dark-square)' }}
                   >
                     <span
-                      className={`fas fa-chess-king ${
-                        isLight ? "text-black" : "text-white"
+                      className={`fas fa-chess-king fa-solid ${
+                        isLight ? "text-gray-900" : "text-gray-200"
                       }`}
                     ></span>
                   </div>

@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --chess-light-square: #EBECD0;
+  --chess-dark-square: #739552;
 }
 
 @theme inline {
