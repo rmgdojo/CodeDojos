@@ -32,7 +32,7 @@
              * - Valid moves: all the possible moves that do not put the player's king in check, and may or may not put the opponent's king in check
              */
 
-            List<Move> validMoves = GetPossibleMovesFor(Game, colourPlaying);
+            List<Move> validMoves = GetPossibleMovesFor(colourPlaying);
 
             // remove moves that would capture the opponent's king (taking a king is not possible)
             
@@ -45,7 +45,7 @@
             {
                 // simulate the move, then get the opponent's possible next moves and see if any of them would attack our king
                 Game simulatedGame = SimulateMove(move);
-                List<Move> opponentMoves = GetPossibleMovesFor(simulatedGame, colourPlaying.Switch());
+                List<Move> opponentMoves = simulatedGame.Board.GetPossibleMovesFor(colourPlaying.Switch());
                 foreach(Move opponentMove in opponentMoves)
                 {
                     if (opponentMove.PieceToTake is King)
@@ -65,10 +65,11 @@
                 // ignore the next opponent move and check *our* possible next moves from this position
                 // see if any of them would attack the opponent's king
                 Game simulatedGame = SimulateMove(move);
-                List<Move> simulatedNextMoves = GetPossibleMovesFor(simulatedGame, colourPlaying);
+                List<Move> simulatedNextMoves = simulatedGame.Board.GetPossibleMovesFor(colourPlaying);
                 if (simulatedNextMoves.Any(m => m.PieceToTake is King))
                 {
                     // this move puts the opponent's king in check, so we mark it as such
+                    // obviously the opponent might escape this when they do move
                     move.SetCheck();
                 }
             }
@@ -76,10 +77,10 @@
             return validMoves;
         }
 
-        private List<Move> GetPossibleMovesFor(Game game, Colour colour)
+        private List<Move> GetPossibleMovesFor(Colour colour)
         {
-            Board board = game.Board;
-            return game.PiecesInPlay.OfColour(colour).SelectMany(
+            Board board = this;
+            return Game.PiecesInPlay.OfColour(colour).SelectMany(
                 piece => 
                 {
                     List<Move> possibleMoves = new();
@@ -177,7 +178,7 @@
 
             // Execute the move on the cloned board
             Move simulatedMove = move.Clone(clonedPiece, clonedPieceToTake);
-            clonedGame.MakeMove(simulatedMove);
+            clonedGame.MakeMove(simulatedMove, true);
 
             // we'll send the cloned game back, so its state can be inspected
             return clonedGame;

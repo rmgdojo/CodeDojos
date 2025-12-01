@@ -18,6 +18,7 @@ public class GameRecord
     public IEnumerable<RoundRecord> Rounds => _rounds;
     public int MoveCount => _moves.Length;
     public int RoundCount => _rounds.Length;
+    public bool TimeForfeit { get; set; }
 
     public void Playback(Game game, BeforeMoveHandler beforeMove, AfterMoveHandler afterMove, ErrorHandler onError)
     {
@@ -28,7 +29,7 @@ public class GameRecord
 
         for (int i = 1; i <= MoveCount; i++)
         {
-            (PlayControl control, lastMove, lastMoveAsAlgebra) = PlayRecordedMove(game, _moves[i - 1], lastMove, lastMoveAsAlgebra, beforeMove, afterMove, onError);
+            (PlayControl control, lastMove, lastMoveAsAlgebra) = PlayRecordedMove(game, _moves[i - 1], lastMove, lastMoveAsAlgebra, beforeMove, afterMove, onError, false);
             if (control.Stop)
             {
                 return; // stop processing further moves
@@ -36,8 +37,18 @@ public class GameRecord
             else if (control.GoToRound > 0)
             {
                 RestartAndFastForwardRecordedGame(game, control.GoToRound, onError);
+                i = RoundToMove(control.GoToRound) - 1; // adjust for next iteration of loop
             }
         }
+
+        if (TimeForfeit)
+        {
+            game.EndGame(GameEndReason.TimeForfeit);
+        }
+        else
+        {
+            game.EndGame(GameEndReason.RecordEnded);
+        }   
     }
 
     private void RestartAndFastForwardRecordedGame(Game game, float roundToFastForwardTo, ErrorHandler onError)
@@ -46,16 +57,16 @@ public class GameRecord
 
         if (roundToFastForwardTo > 1)
         {
-            int limit = (int)(roundToFastForwardTo * 2) - 2;
+            int limit = RoundToMove(roundToFastForwardTo) - 1;
             for (int i = 0; i < limit; i++)
             {
-                PlayRecordedMove(game, _moves[i], null, null, null, null, onError);
+                PlayRecordedMove(game, _moves[i], null, null, null, null, onError, true);
             }
         }
     }
 
     private (PlayControl control, Move move, string moveAsAlgebra) PlayRecordedMove(Game game, MoveRecord moveRecord, Move lastMove, string lastMoveAsAlgebra,
-        BeforeMoveHandler beforeMove, AfterMoveHandler afterMove, ErrorHandler onError)
+        BeforeMoveHandler beforeMove, AfterMoveHandler afterMove, ErrorHandler onError, bool isFastForwarding)
     {
         Move move = null;
         PlayControl control = null;
@@ -71,7 +82,7 @@ public class GameRecord
             TimeSpan decodeTime = DateTime.Now - start;
 
             beforeMove?.Invoke(actualRoundIndex, whoseTurn, moveAsAlgebra, move, lastMoveAsAlgebra, lastMove, decodeTime);
-            game.MakeMove(move);
+            game.MakeMove(move, false);
 
             control = afterMove?.Invoke(actualRoundIndex, whoseTurn, move) ?? new PlayControl();
         }
@@ -86,7 +97,12 @@ public class GameRecord
         return (control, move, moveAsAlgebra);
     }
 
-    public GameRecord(string @event, DateTime date, string playingWhite, string playingBlack, string[] movesAsAlgebra)
+    private int RoundToMove(float round)
+    {
+        return (int)(round * 2) - 1;
+    }
+
+    public GameRecord(string @event, DateTime date, string playingWhite, string playingBlack, string[] movesAsAlgebra, bool timeForfeit)
     {
         Event = @event;
         Date = date;
@@ -110,5 +126,6 @@ public class GameRecord
             roundRecords.Add(new RoundRecord((i / 2) + 1, whiteMove, blackMove));
         }
         _rounds = roundRecords.ToArray();
+        TimeForfeit = timeForfeit;
     }
 }

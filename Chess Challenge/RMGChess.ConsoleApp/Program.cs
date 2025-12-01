@@ -3,6 +3,7 @@ using Spectre.Console;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.Intrinsics.X86;
+using System.Security.AccessControl;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -14,7 +15,7 @@ namespace RMGChess.ConsoleApp
 
         static void Main(string[] args)
         {
-            bool invisibleUntilError = true;
+            bool invisibleUntilError = false;
 
             char? mode = null;
             float rollbackToRound = 1;
@@ -59,22 +60,21 @@ namespace RMGChess.ConsoleApp
                             }
 
                             DisplayMoves(gameToPlay, roundIndex, whoseTurn);
-                            DisplayBoard(game.Board);
+                            //DisplayBoard(game.Board);
                             lastTurn = whoseTurn;
 
                             DisplayPreviousMove();
                             lastMove = move;
                             DisplayNextMove();
 
-                            bool animate = false;// mode is null;
-                            DisplayBoard(game.Board, whoseTurn, move.From, move.To, animate);
+                            DisplayBoard(game.Board, whoseTurn, move.From, move.To, false);
 
                             #region read / set mode from key
                             while (true)
                             {
-                                // handle existing mode
+                                // handle existing modes
 
-                                // running all games non-stop
+                                // X mode: running all games non-stop
                                 if (mode == 'x')
                                 {
                                     DisplayPrompt("Playing all games at max speed. Press (X) to stop playback.");
@@ -91,7 +91,7 @@ namespace RMGChess.ConsoleApp
                                     break;
                                 }
 
-                                // running to end of game or set point
+                                // E or P or C mode: running to end of game or set point
                                 if (mode == 'e' || mode == 'p' || mode == 'c')
                                 {
                                     if (mode == 'p' && roundIndex >= playbackToRound)
@@ -126,7 +126,7 @@ namespace RMGChess.ConsoleApp
                                     break;
                                 }
 
-                                // no mode set - need to prompt
+                                // no mode set - need to prompt for action
                                 if (mode == null)
                                 {
                                     delay = DisplaySettings.Delay; // reset delay
@@ -135,7 +135,8 @@ namespace RMGChess.ConsoleApp
                                     {
                                         playbackToRound = 1;
 
-                                        DisplayPrompt("(S)tep | (B)ack | (P)lay | (C)heck | (E)nd | (R)ollback | (Q)uit game | (G)o to game | (Z) restart game | (X) play all");
+                                        DisplayPrompt("[grey50][white]S[/] next, [white]B[/] back one, [white]P[/] play until, [white]E[/] play to end, [white]R[/] rollback to, [white]Q[/] quit game, " +
+                                            "[white]G[/] go to game, [white]Z[/] restart game, [white]X[/] play all[/]");
                                         mode = KeyPress();
 
                                         if (mode == 'x')
@@ -234,7 +235,6 @@ namespace RMGChess.ConsoleApp
 
                                         if (mode == 's')
                                         {
-                                            mode = null;
                                             break; // step through
                                         }
 
@@ -308,7 +308,6 @@ namespace RMGChess.ConsoleApp
                                 }
                             }
 
-
                             string GetMoveDescription(Move move)
                             {
                                 string output = null;
@@ -343,6 +342,14 @@ namespace RMGChess.ConsoleApp
                         },
                         (roundIndex, whoseTurn, move) =>
                         {
+                            if (!Console.KeyAvailable && mode == 's')
+                            {
+                                float movesRoundIndex = whoseTurn == Colour.Black ? roundIndex + 1f : roundIndex;
+                                Colour movesColour = whoseTurn.Switch();
+                                DisplayMoves(gameToPlay, movesRoundIndex, movesColour);
+                                DisplayBoard(game.Board, whoseTurn, move.From, move.To, true);
+                            }
+
                             #region tell the game replay engine what to do
                             PlayControl control = new();
                             if (mode == 'q' || mode == 'g') control.Stop = true;
@@ -351,7 +358,7 @@ namespace RMGChess.ConsoleApp
                                 control.GoToRound = rollbackToRound;
                             }
 
-                            if (mode == 'r') mode = null;
+                            if (mode == 'r' || mode == 's') mode = null;
                             return control;
                             #endregion
                         },
@@ -375,7 +382,7 @@ namespace RMGChess.ConsoleApp
                     {
                         DisplayBoard(game.Board, lastTurn, null, null, false);
                         playbackToRound = 0;
-                        ChessConsole.Write(wasError ? errorMsgLength : 0, DisplaySettings.PromptLine, "Game over. (Enter) next game, (R)eplay this game.", true);
+                        DisplayPrompt("Game over. (Enter) next game, (R)eplay this game.", wasError ? errorMsgLength : 0);
                         char key = KeyPress();
                         if (key == 'r')
                         {
@@ -401,10 +408,10 @@ namespace RMGChess.ConsoleApp
             ChessConsole.WriteLine($"Games outcomes: {gameRecords.Count - badGames} good games, {badGames} bad games");
             Console.ReadKey(false);
 
-            void DisplayPrompt(string prompt)
+            void DisplayPrompt(string prompt, int padLeft = 0)
             {
                 ClearPrompt();
-                ChessConsole.Write(0, DisplaySettings.PromptLine, prompt, true);
+                ChessConsole.Write(padLeft, DisplaySettings.PromptLine, prompt, true);
             }
 
             void ClearPrompt()
@@ -421,24 +428,26 @@ namespace RMGChess.ConsoleApp
             ChessConsole.WriteLine();
         }
 
-        private static void DisplayBoard(Board board)
-        {
-            DisplayBoard(board, Colour.White, null, null, false);
-        }
-
         private static void DisplayBoard(Board board, Colour whoseTurn, Position from, Position to, bool animateHighlight)
         {
             if (from is not null && to is not null)
             {
                 if (animateHighlight)
                 {
-                    WriteBoard(true);
-                    Thread.Sleep(500); // wait for a moment before starting the animation
+                    if (Console.KeyAvailable) return;
 
-                    for (int i = 1; i < 9; i++) // animate highlight for 4 cycles
+                    WriteBoard(true);
+                    DelayOrKeyPress(100, false); // wait for a moment before starting the animation
+                    for (int i = 1; i < 3; i++) // animate highlight for 2 cycles
                     {
+                        if (Console.KeyAvailable)
+                        {
+                            WriteBoard(false);
+                            return;
+                        }
+
                         WriteBoard(i % 2 == 0);
-                        Thread.Sleep(100);
+                        DelayOrKeyPress(200, false);
                     }
                 }
                 else
@@ -564,7 +573,7 @@ namespace RMGChess.ConsoleApp
             return key;
         }
 
-        private static char? DelayOrKeyPress(int delayInMilliseconds)
+        private static char? DelayOrKeyPress(int delayInMilliseconds, bool readKey = true)
         {
             char? key = null;
             if (delayInMilliseconds > 0)
@@ -572,23 +581,33 @@ namespace RMGChess.ConsoleApp
                 DateTime startDelay = DateTime.Now;
                 while (DateTime.Now < startDelay.AddMilliseconds(delayInMilliseconds))
                 {
-                    if (Console.KeyAvailable)
+                    char? response = getResponse();
+                    if (response.HasValue)
+                    {
+                        return response;
+                    }
+                }
+
+                return null;
+            }
+            else
+            {
+                return getResponse();
+            }
+
+            char? getResponse()
+            {
+                if (Console.KeyAvailable)
+                {
+                    if (readKey)
                     {
                         key = char.ToLower(Console.ReadKey(true).KeyChar);
                         return key;
                     }
                 }
-            }
-            else
-            {
-                if (Console.KeyAvailable)
-                {
-                    key = char.ToLower(Console.ReadKey(true).KeyChar);
-                    return key;
-                }
-            }
 
-            return null;
+                return null;
+            }
         }
     }
 }

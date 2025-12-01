@@ -23,6 +23,7 @@ namespace RMGChess.Core
         private const string DATE_IDENTIFIER = "[Date \"";
         private const string WHITE_IDENTIFIER = "[White \"";
         private const string BLACK_IDENTIFIER = "[Black \"";
+        private const string TERMINATION_IDENTIFIER = "[Termination \"";
         private const string HEADER_END = "\"]";
 
         public static IList<GameRecord> GetGameRecordsFromPGN(string pgnData)
@@ -37,6 +38,9 @@ namespace RMGChess.Core
                 string gameDate = gameBlock.HeaderBlock.GetValueFromHeader(DATE_IDENTIFIER);
                 string playingWhite = gameBlock.HeaderBlock.GetValueFromHeader(WHITE_IDENTIFIER);
                 string playingBlack = gameBlock.HeaderBlock.GetValueFromHeader(BLACK_IDENTIFIER);
+                string termination = gameBlock.HeaderBlock.GetValueFromHeader(TERMINATION_IDENTIFIER);
+
+                bool timeForfeit = termination?.Contains("Time forfeit") ?? false;
 
                 if (String.IsNullOrWhiteSpace(gameBlock.MovesBlock))
                 {
@@ -52,7 +56,9 @@ namespace RMGChess.Core
                     String.IsNullOrWhiteSpace(gameDate) ? DateTime.MinValue : DateTime.Parse(gameDate), 
                     playingWhite, 
                     playingBlack, 
-                    moves));
+                    moves,
+                    timeForfeit
+                    ));
             }
 
             return games;

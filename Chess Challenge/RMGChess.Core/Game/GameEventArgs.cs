@@ -22,6 +22,17 @@
         }
     }
 
+    public class OnPieceCapturedEventArgs
+    {
+        public Piece CapturedPiece { get; }
+        public Square Square { get; }
+        public OnPieceCapturedEventArgs(Piece capturedPiece, Square square)
+        {
+            CapturedPiece = capturedPiece;
+            Square = square;
+        }
+    }
+
     public class OnPiecePromotedEventArgs : EventArgs
     {
         public Piece OriginalPiece { get; }
@@ -45,11 +56,11 @@
     public class OnCheckEventArgs : EventArgs
     {
         public Colour Colour { get; }
-        public IEnumerable<Piece> CheckingPieces { get; }
-        public OnCheckEventArgs(Colour colour, IEnumerable<Piece> checkingPieces)
+        public Piece CheckingPiece { get; }
+        public OnCheckEventArgs(Colour colour, Piece checkingPiece)
         {
             Colour = colour;
-            CheckingPieces = checkingPieces;
+            CheckingPiece = checkingPiece;
         }
     }
 

@@ -29,6 +29,7 @@
         public event EventHandler<OnReadyToMoveEventArgs> OnReadyToMove;
         public event EventHandler<OnAfterMoveEventArgs> OnAfterMove;
         public event EventHandler<OnGameEndedEventArgs> OnGameEnded;
+        public event EventHandler<OnPieceCapturedEventArgs> OnPieceCaptured;
         public event EventHandler<OnPiecePromotedEventArgs> OnPiecePromoted;
         public event EventHandler<OnCheckEventArgs> OnCheck;
         public event EventHandler<OnCheckMateEventArgs> OnCheckMate;
@@ -64,43 +65,10 @@
             }
         }
 
-        private void GameLoop()
+        internal void EndGame(GameEndReason reason)
         {
-            while (_isRunning)
-            {
-                // notify listeners and get the selector
-                Func<IEnumerable<Move>, Move> moveSelector = _whoseTurn == Colour.White ? _whiteMoveSelector : _blackMoveSelector;
-
-                // find the move
-                IEnumerable<Move> validMoves = Board.GetValidMovesFor(_whoseTurn);
-                OnReadyToMove?.Invoke(this, new OnReadyToMoveEventArgs(_whoseTurn, validMoves));
-                Move move = moveSelector(validMoves);
-
-                //// check for check or checkmate
-                //Colour opponent = _whoseTurn.Switch();
-                //IEnumerable<Piece> checkingPieces = validMoves.Where(m => m.PutsOpponentInCheck).Select(m => m.Piece);
-                //if (checkingPieces.Count() > 0)
-                //{
-                //    OnCheck?.Invoke(this, (opponent, checkingPieces));
-                //    // TODO: check for checkmate
-                //    //Game clone = Clone(); // clone the game to see if the opponent has any valid moves
-                //    //IEnumerable<Move> opponentMoves = Board.GetValidMovesFor(opponent);
-                //    //if (!opponentMoves.Any())
-                //    //{
-                //    //    OnCheckMate?.Invoke(this, opponent);
-                //    //    OnGameEnded?.Invoke(this, GameEndReason.Checkmate);
-                //    //    break;
-                //    //}
-                //}
-                //else
-                //{
-                //    // TODO: check for stalemate
-                //}
-
-                MakeMove(move);
-                OnAfterMove?.Invoke(this, new OnAfterMoveEventArgs(_whoseTurn, move));
-                _whoseTurn = _whoseTurn.Switch();
-            }
+            _isRunning = false; // ends game loop (if running)
+            OnGameEnded?.Invoke(this, new OnGameEndedEventArgs(reason));
         }
 
         internal Game Clone()
@@ -153,18 +121,47 @@
             }
         }
 
-        internal bool MakeMove(Move move)
+        internal void MakeMove(Move move, bool isSimulation)
         {
             move.Execute(this);
             _history[move.WhoIsMoving].Add(move);
             LastMove = move; // store the last move made
-            return true;
+            OnAfterMove?.Invoke(this, new OnAfterMoveEventArgs(_whoseTurn, move));
+
+            if (move.PutsOpponentInCheck)
+            {
+                OnCheck?.Invoke(this, new OnCheckEventArgs(_whoseTurn.Switch(), move.Piece));
+            }
+
+            // check for checkmate or stalemate, but only if not a simulation
+            // (otherwise we get a stack overflow due to infinite nested simulations)
+            if (!isSimulation)
+            {
+                Colour opponent = _whoseTurn.Switch();
+                IEnumerable<Move> validMoves = Board.GetValidMovesFor(opponent);
+                if (validMoves.Count() == 0)
+                {
+                    _isRunning = false; // ends game loop (if running)
+
+                    if (move.PutsOpponentInCheck)
+                    {
+                        OnCheckMate?.Invoke(this, new OnCheckMateEventArgs(opponent));
+                        EndGame(GameEndReason.Checkmate);
+                    }
+                    else
+                    {
+                        EndGame(GameEndReason.Stalemate);
+                    }
+                }
+            }
         }
 
         internal void HandleCapture(Piece piece)
         {
+            Square square = piece.Square;
             _capturedPieces.Add(piece);
             _pieces.Remove(piece);
+            OnPieceCaptured?.Invoke(this, new OnPieceCapturedEventArgs(piece, square));
         }
 
         internal void HandlePromotion(Piece piece, Piece promotedPiece)
@@ -172,6 +169,7 @@
             _pieces.Remove(piece);
             _promotedPieces.Add(piece);
             _pieces.Add(promotedPiece);
+            OnPiecePromoted?.Invoke(this, new OnPiecePromotedEventArgs(piece, promotedPiece));
         }
 
         internal void Reset()
@@ -214,6 +212,26 @@
             for (char file = 'a'; file <= 'h'; file++)
             {
                 SetupPiece((file, 7), new Pawn(Colour.Black));
+            }
+        }
+
+        private void GameLoop()
+        {
+            while (_isRunning)
+            {
+                // notify listeners and get the selector
+                Func<IEnumerable<Move>, Move> moveSelector = _whoseTurn == Colour.White ? _whiteMoveSelector : _blackMoveSelector;
+
+                // find / get the move
+                IEnumerable<Move> validMoves = Board.GetValidMovesFor(_whoseTurn);
+                OnReadyToMove?.Invoke(this, new OnReadyToMoveEventArgs(_whoseTurn, validMoves));
+                Move move = moveSelector(validMoves);
+
+                // MakeMove handles all other events so that stored game replay 
+                // generates the same events as a live game 
+                MakeMove(move, false);
+
+                _whoseTurn = _whoseTurn.Switch();
             }
         }
 
