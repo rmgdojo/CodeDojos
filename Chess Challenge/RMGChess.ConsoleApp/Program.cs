@@ -50,16 +50,17 @@ namespace RMGChess.ConsoleApp
             Console.CursorVisible = false;
 
             PlaybackController playbackController = null;
-            PlaybackMode currentMode = PlaybackMode.None; // Preserve mode across games
+            PlaybackMode preservedMode = PlaybackMode.None; // Preserve mode across games (specifically PlayAllGames)
 
             for (int gameIndex = 0; gameIndex < gameRecords.Count; gameIndex++)
             {
                 GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
                 
-                // Create new controller but preserve the mode from previous game
+                // Create new controller but restore PlayAllGames mode if it was active
+                // Only PlayAllGames mode persists across game boundaries
                 playbackController = new PlaybackController(gameToPlay, gameRecords.Count);
-                if (currentMode == PlaybackMode.PlayAllGames)
+                if (preservedMode == PlaybackMode.PlayAllGames)
                 {
                     playbackController.SetMode(PlaybackMode.PlayAllGames);
                 }
@@ -154,8 +155,8 @@ namespace RMGChess.ConsoleApp
 
                     playbackController.ResetForNextGame();
                     
-                    // Preserve the mode for the next game iteration
-                    currentMode = playbackController.State.Mode;
+                    // Save the mode for the next game iteration (only PlayAllGames persists)
+                    preservedMode = playbackController.State.Mode;
 
                     ChessConsole.Clear();
                 }
