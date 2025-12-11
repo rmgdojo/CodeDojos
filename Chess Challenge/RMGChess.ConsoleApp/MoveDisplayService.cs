@@ -99,7 +99,7 @@ namespace RMGChess.ConsoleApp
 
         public static string GetMoveDescription(Move move)
         {
-            string output = null;
+            string output = string.Empty;
             if (move is CastlingMove castlingMove)
             {
                 Move rookMove = castlingMove.RookMove;

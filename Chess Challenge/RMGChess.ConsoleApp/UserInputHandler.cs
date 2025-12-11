@@ -20,7 +20,6 @@ namespace RMGChess.ConsoleApp
         {
             Console.CursorVisible = true;
             PromptDisplay.ShowPrompt(prompt);
-            Console.CursorVisible = true;
             string input = Console.ReadLine()?.Trim() ?? string.Empty;
             Console.CursorVisible = false;
             return input;
@@ -36,11 +35,15 @@ namespace RMGChess.ConsoleApp
                 runTo = "1";
 
             // Add 'w' if no color specified
-            if (runTo.Length > 0 && char.IsDigit(runTo.LastOrDefault()))
+            if (char.IsDigit(runTo.LastOrDefault()))
                 runTo += 'w';
 
             char colour = runTo.Last();
-            int roundNumber = int.Parse(runTo.Substring(0, runTo.Length - 1).Trim());
+            
+            if (!int.TryParse(runTo.Substring(0, runTo.Length - 1).Trim(), out int roundNumber))
+            {
+                throw new FormatException("Invalid round number format");
+            }
             
             return roundNumber + (colour == 'b' ? 0.5f : 0f);
         }

@@ -74,7 +74,6 @@ namespace RMGChess.ConsoleApp
 
                     char content = ' ';
                     Square square = board[file, rank];
-                    Position position = square.Position;
 
                     if (square.Piece is not null)
                     {
