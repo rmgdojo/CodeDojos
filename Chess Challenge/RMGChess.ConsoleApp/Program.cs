@@ -9,6 +9,8 @@ namespace RMGChess.ConsoleApp
 
         static void Main(string[] args)
         {
+            const float DEFAULT_ROUND = 1f;
+            
             // Check for test mode
             if (args.Length > 0 && args[0] == "--test")
             {
@@ -51,7 +53,7 @@ namespace RMGChess.ConsoleApp
 
             PlaybackController playbackController = null;
             PlaybackMode preservedMode = PlaybackMode.None; // Preserve mode across games (specifically PlayAllGames)
-            float preservedPlaybackToRound = 1; // Preserve target round when jumping to a new game
+            float preservedPlaybackToRound = DEFAULT_ROUND; // Preserve target round when jumping to a new game
 
             for (int gameIndex = 0; gameIndex < gameRecords.Count; gameIndex++)
             {
@@ -67,10 +69,10 @@ namespace RMGChess.ConsoleApp
                 }
                 
                 // Restore the target round if we jumped to this game
-                if (preservedPlaybackToRound > 1)
+                if (preservedPlaybackToRound > DEFAULT_ROUND)
                 {
                     playbackController.State.PlaybackToRound = preservedPlaybackToRound;
-                    preservedPlaybackToRound = 1; // Reset after use
+                    preservedPlaybackToRound = DEFAULT_ROUND; // Reset after use
                 }
                 
                 bool replayGame = false;
