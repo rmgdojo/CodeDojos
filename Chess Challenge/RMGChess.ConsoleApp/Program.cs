@@ -50,12 +50,20 @@ namespace RMGChess.ConsoleApp
             Console.CursorVisible = false;
 
             PlaybackController playbackController = null;
+            PlaybackMode currentMode = PlaybackMode.None; // Preserve mode across games
 
             for (int gameIndex = 0; gameIndex < gameRecords.Count; gameIndex++)
             {
                 GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
+                
+                // Create new controller but preserve the mode from previous game
                 playbackController = new PlaybackController(gameToPlay, gameRecords.Count);
+                if (currentMode == PlaybackMode.PlayAllGames)
+                {
+                    playbackController.SetMode(PlaybackMode.PlayAllGames);
+                }
+                
                 bool replayGame = false;
 
                 do
@@ -145,6 +153,9 @@ namespace RMGChess.ConsoleApp
                     }
 
                     playbackController.ResetForNextGame();
+                    
+                    // Preserve the mode for the next game iteration
+                    currentMode = playbackController.State.Mode;
 
                     ChessConsole.Clear();
                 }
