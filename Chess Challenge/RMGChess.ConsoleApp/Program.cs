@@ -51,6 +51,7 @@ namespace RMGChess.ConsoleApp
 
             PlaybackController playbackController = null;
             PlaybackMode preservedMode = PlaybackMode.None; // Preserve mode across games (specifically PlayAllGames)
+            float preservedPlaybackToRound = 1; // Preserve target round when jumping to a new game
 
             for (int gameIndex = 0; gameIndex < gameRecords.Count; gameIndex++)
             {
@@ -63,6 +64,13 @@ namespace RMGChess.ConsoleApp
                 if (preservedMode == PlaybackMode.PlayAllGames)
                 {
                     playbackController.SetMode(PlaybackMode.PlayAllGames);
+                }
+                
+                // Restore the target round if we jumped to this game
+                if (preservedPlaybackToRound > 1)
+                {
+                    playbackController.State.PlaybackToRound = preservedPlaybackToRound;
+                    preservedPlaybackToRound = 1; // Reset after use
                 }
                 
                 bool replayGame = false;
@@ -149,6 +157,7 @@ namespace RMGChess.ConsoleApp
                     if (playbackController.State.Mode == PlaybackMode.GoToGame && playbackController.State.TargetGameIndex >= 0)
                     {
                         gameIndex = playbackController.State.TargetGameIndex - 1; // -1 because loop will increment
+                        preservedPlaybackToRound = playbackController.State.PlaybackToRound; // Save the target round
                         playbackController.State.TargetGameIndex = -1;
                         replayGame = false;
                     }
