@@ -9,6 +9,36 @@ namespace RMGChess.ConsoleApp
 
         static void Main(string[] args)
         {
+            // Check for test mode
+            if (args.Length > 0 && args[0] == "--test")
+            {
+                Console.WriteLine("Testing all games in the library...");
+                Console.WriteLine();
+
+                var (totalGames, successfulGames, failedGames, errors) = GamePlaybackTest.TestAllGames();
+
+                Console.WriteLine($"Total games: {totalGames}");
+                Console.WriteLine($"Successful games: {successfulGames}");
+                Console.WriteLine($"Failed games: {failedGames}");
+                Console.WriteLine();
+
+                if (errors.Count > 0)
+                {
+                    Console.WriteLine("Errors:");
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine($"  - {error}");
+                    }
+                    Environment.Exit(1);
+                }
+                else
+                {
+                    Console.WriteLine("All games played successfully!");
+                    Environment.Exit(0);
+                }
+                return;
+            }
+
             bool invisibleUntilError = false;
             Colour lastTurn = Colour.White;
 
