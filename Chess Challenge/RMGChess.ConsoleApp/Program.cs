@@ -55,7 +55,7 @@ namespace RMGChess.ConsoleApp
             {
                 GameRecord gameToPlay = gameRecords[gameIndex];
                 Game game = new Game();
-                playbackController = new PlaybackController(gameToPlay);
+                playbackController = new PlaybackController(gameToPlay, gameRecords.Count);
                 bool replayGame = false;
 
                 do

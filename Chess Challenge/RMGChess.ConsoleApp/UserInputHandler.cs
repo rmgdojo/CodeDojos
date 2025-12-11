@@ -40,7 +40,7 @@ namespace RMGChess.ConsoleApp
 
             char colour = runTo.Last();
             
-            if (!int.TryParse(runTo.Substring(0, runTo.Length - 1).Trim(), out int roundNumber))
+            if (!int.TryParse(runTo[..^1].Trim(), out int roundNumber))
             {
                 throw new FormatException("Invalid round number format");
             }
@@ -63,14 +63,12 @@ namespace RMGChess.ConsoleApp
                 throw new IndexOutOfRangeException("Invalid round number");
             }
 
-            if (round >= 1)
-            {
-                return round;
-            }
-            else
+            if (round < 1)
             {
                 throw new IndexOutOfRangeException("Round must be >= 1");
             }
+
+            return round;
         }
 
         /// <summary>

@@ -9,10 +9,12 @@ namespace RMGChess.ConsoleApp
     {
         private readonly PlaybackState _state;
         private readonly GameRecord _gameRecord;
+        private readonly int _totalGameCount;
 
-        public PlaybackController(GameRecord gameRecord)
+        public PlaybackController(GameRecord gameRecord, int totalGameCount)
         {
             _gameRecord = gameRecord;
+            _totalGameCount = totalGameCount;
             _state = new PlaybackState();
         }
 
@@ -193,7 +195,7 @@ namespace RMGChess.ConsoleApp
             try
             {
                 string gameNumber = UserInputHandler.GetUserInput("Go to game (game index): ");
-                if (int.TryParse(gameNumber, out int gameNum) && gameNum > 0 && gameNum <= GameLibrary.MagnusCarlsenGames.Count)
+                if (int.TryParse(gameNumber, out int gameNum) && gameNum > 0 && gameNum <= _totalGameCount)
                 {
                     _state.TargetGameIndex = gameNum - 1; // Store zero-based index
                     _state.PlaybackToRound = UserInputHandler.GetRoundInput(1, _gameRecord.RoundCount, false);
