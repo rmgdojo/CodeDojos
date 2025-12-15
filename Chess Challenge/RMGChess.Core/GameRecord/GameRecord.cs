@@ -36,8 +36,9 @@ public class GameRecord
             }
             else if (control.GoToRound > 0)
             {
-                RestartAndFastForwardRecordedGame(game, control.GoToRound, onError);
-                i = RoundToMove(control.GoToRound) - 1; // adjust for next iteration of loop
+                // we go back and start the game again and then fast-forward to the round specified in the control response
+                RestartAndFastForward(game, control.GoToRound, onError);
+                i = RoundToMoveIndex(control.GoToRound) - 1; // adjust for next iteration of loop
             }
         }
 
@@ -48,17 +49,17 @@ public class GameRecord
         else
         {
             game.EndGame(GameEndReason.RecordEnded);
-        }   
+        }
     }
 
-    private void RestartAndFastForwardRecordedGame(Game game, float roundToFastForwardTo, ErrorHandler onError)
+    private void RestartAndFastForward(Game game, float roundToFastForwardTo, ErrorHandler onError)
     {
         game.Reset();
 
         if (roundToFastForwardTo > 1)
         {
-            int limit = RoundToMove(roundToFastForwardTo) - 1;
-            for (int i = 0; i < limit; i++)
+            int moveIndex = RoundToMoveIndex(roundToFastForwardTo) - 1;
+            for (int i = 0; i < moveIndex; i++)
             {
                 PlayRecordedMove(game, _moves[i], null, null, null, null, onError, true);
             }
@@ -97,7 +98,7 @@ public class GameRecord
         return (control, move, moveAsAlgebra);
     }
 
-    private int RoundToMove(float round)
+    private int RoundToMoveIndex(float round)
     {
         return (int)(round * 2) - 1;
     }
