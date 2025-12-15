@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\RMGChess.Core\RMGChess.Core.csproj" />
   </ItemGroup>
 
 </Project>

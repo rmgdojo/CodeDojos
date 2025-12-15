@@ -1,0 +1,1 @@
+export const API_URL = process.env["services__rmgchess-api__http__0"] || "http://localhost:5125";
