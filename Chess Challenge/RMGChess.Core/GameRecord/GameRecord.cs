@@ -8,7 +8,9 @@ public class GameRecord
 {
     private MoveRecord[] _moves;
     private RoundRecord[] _rounds;
+    private readonly Guid _id = Guid.NewGuid();
 
+    public Guid Id => _id;
     public string Name => $"{Event} | {Date.ToShortDateString()} | {PlayingWhite} vs {PlayingBlack}";
     public string Event { get; init; }
     public DateTime Date { get; init; }

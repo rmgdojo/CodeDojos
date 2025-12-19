@@ -8,7 +8,8 @@ var api = builder
         {
             url.DisplayText = "Chess Board API Documentation";
             url.Url += "/docs";
-        });
+        })
+    .WithExternalHttpEndpoints();
 
 builder
     .AddViteApp("rmgchess-ui", "../rmgchess.app")
@@ -17,7 +18,6 @@ builder
         url =>
         {
             url.DisplayText = "Chess Board UI";
-            url.Url += "/board";
         })
     .WithNpm(install: true)
     .WithOtlpExporter()
