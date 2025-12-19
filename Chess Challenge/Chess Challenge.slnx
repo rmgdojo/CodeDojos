@@ -6,7 +6,10 @@
   <Project Path="Aspire.AppHost/Aspire.AppHost.csproj" />
   <Project Path="Aspire.ServiceDefaults/Aspire.ServiceDefaults.csproj" />
   <Project Path="RMGChess.Api/RMGChess.Api.csproj" />
-  <Project Path="rmgchess.app/rmgchess.app.esproj" />
+  <Project Path="rmgchess.app/rmgchess.app.esproj">
+    <Build />
+    <Deploy />
+  </Project>
   <Project Path="RMGChess.ConsoleApp/RMGChess.ConsoleApp.csproj" />
   <Project Path="RMGChess.Core/RMGChess.Core.csproj" />
   <Project Path="RMGChess.Test.Unit/RMGChess.Test.Unit.csproj" />
