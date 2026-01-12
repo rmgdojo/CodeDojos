@@ -2,7 +2,8 @@
   <PropertyGroup>
     <StartupCommand>npm run dev</StartupCommand>
     <JavaScriptTestRoot>\</JavaScriptTestRoot>
-    <JavaScriptTestFramework></JavaScriptTestFramework>
+    <JavaScriptTestFramework>
+    </JavaScriptTestFramework>
     <!-- Allows the build (or compile) script located on package.json to run on Build -->
     <ShouldRunBuildScript>false</ShouldRunBuildScript>
     <!-- Folder where production build objects will be placed -->

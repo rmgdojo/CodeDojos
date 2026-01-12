@@ -1,3 +1,4 @@
+using RMGChess.Api.Models;
 using RMGChess.Core;
 using Scalar.AspNetCore;
 
@@ -17,6 +18,10 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
+
+// In-memory game storage (for demonstration purposes)
+// In production, you'd use a proper game manager/database
+var activeGames = new Dictionary<Guid, Game>();
 
 var app = builder.Build();
 
@@ -39,16 +44,52 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Game Record endpoints (historical games)
 app.MapGet(
     "/games",
     () => GameLibrary.MagnusCarlsenGames
         .Select(g => new { g.Id, g.PlayingWhite, g.PlayingBlack, g.Event, g.Date })
-        .ToList());
+        .ToList())
+    .WithName("GetGames")
+    .WithOpenApi();
 
 app.MapGet(
     "/games/{id}",
     (Guid id) => GameLibrary.MagnusCarlsenGames
-        .FirstOrDefault(g => g.Id == id));
+        .FirstOrDefault(g => g.Id == id))
+    .WithName("GetGameRecord")
+    .WithOpenApi();
+
+// Game State endpoints (live games)
+app.MapGet(
+    "/api/game/new",
+    () =>
+    {
+        var game = new Game();
+        activeGames[game.Id] = game;
+        var gameState = GameStateModel.FromGame(game);
+        return Results.Ok(gameState);
+    })
+    .WithName("CreateNewGame")
+    .WithOpenApi()
+    .Produces<GameStateModel>();
+
+app.MapGet(
+    "/api/game/{id:guid}",
+    (Guid id) =>
+    {
+        if (activeGames.TryGetValue(id, out var game))
+        {
+            var gameState = GameStateModel.FromGame(game);
+            return Results.Ok(gameState);
+        }
+
+        return Results.NotFound(new { message = $"Game with ID {id} not found" });
+    })
+    .WithName("GetGameState")
+    .WithOpenApi()
+    .Produces<GameStateModel>()
+    .Produces(StatusCodes.Status404NotFound);
 
 app.UseCors();
 

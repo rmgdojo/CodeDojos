@@ -1,4 +1,4 @@
-﻿namespace RMGChess.Core
+namespace RMGChess.Core
 {
 
     public class Game
@@ -17,6 +17,8 @@
         private List<Piece> _promotedPieces;
 
         private Board _board;
+
+        public Guid Id { get; } = Guid.NewGuid();
 
         public Board Board => _board;
 
