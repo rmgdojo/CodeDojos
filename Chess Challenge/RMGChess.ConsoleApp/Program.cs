@@ -160,7 +160,7 @@ namespace RMGChess.ConsoleApp
                                                 }
                                                 break;
                                             }
-                                            catch (Exception ex)
+                                            catch
                                             {
                                                 DisplayErrorPrompt($"[red]Invalid rollback target.[/]");
                                                 continue;
@@ -185,7 +185,7 @@ namespace RMGChess.ConsoleApp
                                                 playbackToRound = getRoundInput(false);
                                                 break;
                                             }
-                                            catch (Exception ex)
+                                            catch
                                             {
                                                 DisplayErrorPrompt($"[red]Invalid game target.[/]");
                                                 continue;
@@ -221,7 +221,7 @@ namespace RMGChess.ConsoleApp
                                                 playbackToRound = getRoundInput(true);
                                                 break;
                                             }
-                                            catch (Exception ex)
+                                            catch
                                             {
                                                 DisplayErrorPrompt($"[red]Invalid run target.[/]");
                                                 continue;

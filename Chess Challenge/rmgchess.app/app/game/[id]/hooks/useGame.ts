@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { fetchGame } from "@/lib/api";
-import { GameRecord } from "@/app/models/GameRecord";
+import { fetchGameState } from "@/lib/api";
+import { GameStateModel } from "../../../models";
 
 export function useGame(gameId: string) {
-  const [game, setGame] = useState<GameRecord | null>(null);
+  const [gameState, setGameState] = useState<GameStateModel | null>(null);
 
   useEffect(() => {
     async function loadGame() {
-      await fetchGame(gameId).then(data => setGame(data));
+      await fetchGameState(gameId).then(data => setGameState(data));
     }
 
     loadGame();
   }, [gameId]);
 
-  return { game };
+  return { gameState };
 }

@@ -4,7 +4,7 @@ import Link from "next/dist/client/link";
 import { useGame } from "../hooks/useGame";
 
 export default function Board({ gameId }: { gameId: string }) {
-  const { game } = useGame(gameId);
+  const { gameState } = useGame(gameId);
 
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const ranks = [8, 7, 6, 5, 4, 3, 2, 1];
@@ -64,7 +64,7 @@ export default function Board({ gameId }: { gameId: string }) {
   return (
     <div className="flex flex-col w-screen h-screen bg-gray-100">
       <header className="bg-gray-800 text-white p-4 shadow-lg">
-        <h1 className="text-2xl font-bold">{game?.name ?? "Loading..."}</h1>
+        <h1 className="text-2xl font-bold">{gameState?.id ?? "Loading..."}</h1>
         <Link className="items-center px-5" href="/">{"< Back"}</Link>
       </header>
       <div className="flex-1 flex items-center justify-center p-4">
@@ -79,13 +79,18 @@ export default function Board({ gameId }: { gameId: string }) {
                 return (
                   <div
                     key={square}
-                    className="flex-1 flex items-center justify-center text-7xl font-semibold"
+                    className="flex-1 flex items-center justify-center text-7xl font-semibold relative cursor-pointer hover:opacity-80 transition-opacity"
                     style={{
                       backgroundColor: isLight
                         ? "var(--chess-light-square)"
                         : "var(--chess-dark-square)",
                     }}
                   >
+                    {/* Square label */}
+                    <span className="absolute bottom-1 left-1 text-xs opacity-30 font-mono select-none">
+                      {square}
+                    </span>
+
                     {pieceData && (
                       <span
                         className={`fas ${getPieceIcon(pieceData.piece)} ${
@@ -102,6 +107,16 @@ export default function Board({ gameId }: { gameId: string }) {
           ))}
         </div>
       </div>
-    </div>
+
+      {gameState &&
+        <footer className="bg-gray-200 p-3 text-center text-sm text-gray-600">
+          <div className="flex justify-center gap-8">
+            <span>Game ID: <code className="text-xs bg-gray-300 px-2 py-1 rounded">{gameState?.id}</code></span>
+            {gameState.lastMove && (
+              <span>Last Move: <strong>{gameState.lastMove.moveNotation}</strong></span>
+            )}
+          </div>
+        </footer>}
+      </div>
   );
 }

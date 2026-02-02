@@ -1,24 +1,29 @@
-import Link from "next/link";
 import { GameStateModel } from "./models/GameStateModel";
-import { Suspense } from "react";
-import { fetchGameState } from "@/lib/api";
+import { createGameState } from "@/lib/api";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
-  // const games: GameRecord[] = await fetchGames();
-  const game: GameStateModel = await fetchGameState();
+  async function handleCreateGame() {
+    "use server";
+    const gameState: GameStateModel = await createGameState();
+    redirect(`/game/${gameState.id}`);
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-s text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Game State
+          <h1>
+            <form action={handleCreateGame}>
+              <button 
+                type="submit" 
+                id="createGame" 
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                Create New Game
+              </button>
+            </form>
           </h1>
-          <Suspense fallback={<p>Loading..</p>}>
-            <p>
-              {JSON.stringify(game)}
-            </p>
-          </Suspense>
         </div>
       </main>
     </div>
