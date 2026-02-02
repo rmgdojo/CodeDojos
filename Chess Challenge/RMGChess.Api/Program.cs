@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using RMGChess.Api.Models;
 using RMGChess.Core;
 using Scalar.AspNetCore;
@@ -21,7 +22,7 @@ builder.Services.AddCors(options =>
 
 // In-memory game storage (for demonstration purposes)
 // In production, you'd use a proper game manager/database
-var activeGames = new Dictionary<Guid, Game>();
+var activeGames = new ConcurrentDictionary<Guid, Game>();
 
 var app = builder.Build();
 
@@ -50,19 +51,17 @@ app.MapGet(
     () => GameLibrary.MagnusCarlsenGames
         .Select(g => new { g.Id, g.PlayingWhite, g.PlayingBlack, g.Event, g.Date })
         .ToList())
-    .WithName("GetGames")
-    .WithOpenApi();
+    .WithName("GetGames");
 
 app.MapGet(
-    "/games/{id}",
+    "/games/{id:guid}",
     (Guid id) => GameLibrary.MagnusCarlsenGames
         .FirstOrDefault(g => g.Id == id))
-    .WithName("GetGameRecord")
-    .WithOpenApi();
+    .WithName("GetGameRecord");
 
 // Game State endpoints (live games)
-app.MapGet(
-    "/api/game/new",
+app.MapPost(
+    "/gameStates",
     () =>
     {
         var game = new Game();
@@ -71,11 +70,10 @@ app.MapGet(
         return Results.Ok(gameState);
     })
     .WithName("CreateNewGame")
-    .WithOpenApi()
     .Produces<GameStateModel>();
 
 app.MapGet(
-    "/api/game/{id:guid}",
+    "/gameStates/{id:guid}",
     (Guid id) =>
     {
         if (activeGames.TryGetValue(id, out var game))
@@ -87,7 +85,6 @@ app.MapGet(
         return Results.NotFound(new { message = $"Game with ID {id} not found" });
     })
     .WithName("GetGameState")
-    .WithOpenApi()
     .Produces<GameStateModel>()
     .Produces(StatusCodes.Status404NotFound);
 
