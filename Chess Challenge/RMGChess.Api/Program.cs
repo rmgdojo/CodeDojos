@@ -24,6 +24,9 @@ builder.Services.AddCors(options =>
 // In production, you'd use a proper game manager/database
 var activeGames = new ConcurrentDictionary<Guid, Game>();
 
+// Cache for game records being viewed
+var gameRecordSessions = new ConcurrentDictionary<string, Game>();
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -61,7 +64,7 @@ app.MapGet(
 
 // Game State endpoints (live games)
 app.MapPost(
-    "/gameStates",
+    "/createNewGameState",
     () =>
     {
         var game = new Game();
@@ -85,6 +88,29 @@ app.MapGet(
         return Results.NotFound(new { message = $"Game with ID {id} not found" });
     })
     .WithName("GetGameState")
+    .Produces<GameStateModel>()
+    .Produces(StatusCodes.Status404NotFound);
+
+app.MapGet(
+    "/gameRecords/{libraryName}/{gameIndex:int}/{moveIndex:int}",
+    (string libraryName, int gameIndex, int moveIndex) =>
+    {
+        var record = GameLibrary.MagnusCarlsenGames.Skip(gameIndex).First();
+
+        // Create a session key for this game record
+        string sessionKey = $"{libraryName}-{gameIndex}";
+
+        // Get or create a Game instance for this record
+        var game = gameRecordSessions.GetOrAdd(sessionKey, _ => new Game());
+
+        // Convert move index to round number and fast-forward to that position
+        float roundNumber = record.MoveIndexToRound(moveIndex);
+        record.RestartAndFastForward(game, roundNumber, null);
+
+        var gameState = GameStateModel.FromGame(game);
+        return Results.Ok(gameState);
+    })
+    .WithName("GameRecordByLibraryAndIndex")
     .Produces<GameStateModel>()
     .Produces(StatusCodes.Status404NotFound);
 

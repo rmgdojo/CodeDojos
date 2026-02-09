@@ -22,6 +22,16 @@ public class GameRecord
     public int RoundCount => _rounds.Length;
     public bool TimeForfeit { get; set; }
 
+    public int RoundToMoveIndex(float round)
+    {
+        return (int)(round * 2) - 1;
+    }
+
+    public float MoveIndexToRound(int moveIndex)
+    {
+        return (moveIndex / 2f) + 1;
+    }
+
     public void Playback(Game game, BeforeMoveHandler beforeMove, AfterMoveHandler afterMove, ErrorHandler onError)
     {
         game.Reset();
@@ -54,11 +64,11 @@ public class GameRecord
         }
     }
 
-    private void RestartAndFastForward(Game game, float roundToFastForwardTo, ErrorHandler onError)
+    public void RestartAndFastForward(Game game, float roundToFastForwardTo, ErrorHandler onError)
     {
         game.Reset();
 
-        if (roundToFastForwardTo > 1)
+        if (roundToFastForwardTo >= 1)
         {
             int moveIndex = RoundToMoveIndex(roundToFastForwardTo) - 1;
             for (int i = 0; i < moveIndex; i++)
@@ -98,11 +108,6 @@ public class GameRecord
         }
 
         return (control, move, moveAsAlgebra);
-    }
-
-    private int RoundToMoveIndex(float round)
-    {
-        return (int)(round * 2) - 1;
     }
 
     public GameRecord(string @event, DateTime date, string playingWhite, string playingBlack, string[] movesAsAlgebra, bool timeForfeit)
