@@ -30,9 +30,63 @@ export default function ChessBoard(props: ChessBoardProps) {
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [validMoves, setValidMoves] = useState<MoveModel[]>([]);
   const [processing, setProcessing] = useState(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const [autoPlayHighlight, setAutoPlayHighlight] = useState<{ square: string, stage: 'pre' | 'post' } | null>(null);
 
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const ranks = [8, 7, 6, 5, 4, 3, 2, 1];
+
+  useEffect(() => {
+    if (!isAutoPlaying || props.mode !== "record" || !gameState) return;
+
+    let active = true;
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const playMoves = async () => {
+      let moveIndex = currentMoveIndex;
+
+      try {
+        while (active) {
+          if (moveIndex >= gameState.recordMoveCount) {
+            setIsAutoPlaying(false);
+            break;
+          }
+
+          // Stage 1: Peek at next move target
+          const nextState = await fetchGameRecordState(props.libraryName, props.gameIndex, moveIndex + 1);
+          if (!active || !nextState.lastMove) break;
+
+          setAutoPlayHighlight({
+            square: nextState.lastMove.to.notation,
+            stage: "pre",
+          });
+
+          // Delay before move
+          await delay(800);
+          if (!active) break;
+
+          // Stage 2: Move made
+          moveIndex += 1;
+          setCurrentMoveIndex(moveIndex);
+          setAutoPlayHighlight({
+            square: nextState.lastMove.to.notation,
+            stage: "post",
+          });
+
+          // Short delay after move before next auto-play step
+          await delay(500);
+          if (!active) break;
+
+          setAutoPlayHighlight(null);
+        }
+      } catch (err) {
+        setIsAutoPlaying(false);
+      }
+    };
+
+    playMoves();
+    return () => { active = false; };
+  }, [isAutoPlaying, props.mode, props.mode === "record" ? props.libraryName : null, props.mode === "record" ? props.gameIndex : null, gameState?.recordMoveCount]);
 
   useEffect(() => {
     async function loadState() {
@@ -62,10 +116,12 @@ export default function ChessBoard(props: ChessBoardProps) {
   ]);
 
   const goToPreviousMove = () => {
+    setIsAutoPlaying(false);
     setCurrentMoveIndex((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
   const goToNextMove = () => {
+    setIsAutoPlaying(false);
     setCurrentMoveIndex((prev) => prev + 1);
   };
 
@@ -215,6 +271,8 @@ export default function ChessBoard(props: ChessBoardProps) {
                   const isSelected = square === selectedSquare;
                   const isValidTarget = validMoveTargets.includes(square);
                   const isCapture = isValidTarget && pieceData !== null;
+                  const isAutoPre = autoPlayHighlight?.square === square && autoPlayHighlight.stage === 'pre';
+                  const isAutoPost = autoPlayHighlight?.square === square && autoPlayHighlight.stage === 'post';
 
                   return (
                     <div
@@ -238,6 +296,28 @@ export default function ChessBoard(props: ChessBoardProps) {
                             inset: 0,
                             backgroundColor: "rgba(255, 255, 80, 0.7)",
                             pointerEvents: "none",
+                          }}
+                        />
+                      )}
+                      {isAutoPre && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            backgroundColor: "rgba(130, 190, 255, 0.5)",
+                            pointerEvents: "none",
+                            zIndex: 1,
+                          }}
+                        />
+                      )}
+                      {isAutoPost && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            backgroundColor: "rgba(255, 210, 80, 0.7)",
+                            pointerEvents: "none",
+                            zIndex: 1,
                           }}
                         />
                       )}
@@ -321,6 +401,15 @@ export default function ChessBoard(props: ChessBoardProps) {
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 ← Previous Move
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                className={`px-4 py-2 text-white rounded transition-colors ${
+                  isAutoPlaying ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {isAutoPlaying ? "Stop Auto-Play ⏹" : "🚀 Auto-Play"}
               </button>
               <button
                 type="button"

@@ -72,7 +72,17 @@ public class GameStateModel
     /// </summary>
     public int CurrentRound { get; set; }
 
-    public static GameStateModel FromGame(Game game)
+    /// <summary>
+    /// Whether this game state belongs to a historical game record
+    /// </summary>
+    public bool IsRecord { get; set; }
+
+    /// <summary>
+    /// Total moves in the record (if applicable)
+    /// </summary>
+    public int RecordMoveCount { get; set; }
+
+    public static GameStateModel FromGame(Game game, bool isRecord = false, int recordMoveCount = 0)
     {
         if (game == null) return null;
 
@@ -82,7 +92,7 @@ public class GameStateModel
         // Build move histories
         int whiteCount = 0;
         int blackCount = 0;
-        
+
         // Count moves to determine how many to retrieve
         try
         {
@@ -122,7 +132,9 @@ public class GameStateModel
             IsGameEnded = false, // This would need to be tracked separately in the game
             GameEndReason = null,
             TotalMoves = whiteHistory.Count + blackHistory.Count,
-            CurrentRound = Math.Max(whiteHistory.Count, blackHistory.Count)
+            CurrentRound = Math.Max(whiteHistory.Count, blackHistory.Count),
+            IsRecord = isRecord,
+            RecordMoveCount = recordMoveCount
         };
     }
 }

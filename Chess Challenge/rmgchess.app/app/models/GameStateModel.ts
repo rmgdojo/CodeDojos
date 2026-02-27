@@ -69,4 +69,14 @@ export interface GameStateModel {
      * Current round number
      */
     currentRound: number;
+
+    /**
+     * Whether this game state belongs to a historical game record
+     */
+    isRecord: boolean;
+
+    /**
+     * Total moves in the record (if applicable)
+     */
+    recordMoveCount: number;
 }

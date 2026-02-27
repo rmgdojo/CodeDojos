@@ -150,7 +150,7 @@ app.MapGet(
         float roundNumber = record.MoveIndexToRound(moveIndex);
         record.RestartAndFastForward(game, roundNumber, null);
 
-        var gameState = GameStateModel.FromGame(game);
+        var gameState = GameStateModel.FromGame(game, isRecord: true, recordMoveCount: record.MoveCount);
         return Results.Ok(gameState);
     })
     .WithName("GameRecordByLibraryAndIndex")
