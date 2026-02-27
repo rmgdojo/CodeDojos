@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { fetchGameState, fetchGameRecordState } from "@/lib/api";
+import { fetchGameState, fetchGameRecordState, fetchMovesForPiece, makeMove } from "@/lib/api";
 import { mapGameStateToBoard, getPieceAtSquare, getPieceIcon } from "@/lib/boardMapper";
-import { GameStateModel } from "@/app/models";
+import { GameStateModel, MoveModel } from "@/app/models";
 
 type LiveGameMode = {
   mode: "live";
@@ -27,6 +27,9 @@ export default function ChessBoard(props: ChessBoardProps) {
   );
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+  const [validMoves, setValidMoves] = useState<MoveModel[]>([]);
+  const [processing, setProcessing] = useState(false);
 
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const ranks = [8, 7, 6, 5, 4, 3, 2, 1];
@@ -64,6 +67,50 @@ export default function ChessBoard(props: ChessBoardProps) {
 
   const goToNextMove = () => {
     setCurrentMoveIndex((prev) => prev + 1);
+  };
+
+  const validMoveTargets = validMoves.map((m) => m.to.notation);
+
+  const handleSquareClick = async (square: string) => {
+    if (props.mode !== "live" || !gameState || gameState.isGameEnded || processing) return;
+
+    // If clicking a valid move target, execute the move
+    if (selectedSquare && validMoveTargets.includes(square)) {
+      try {
+        setProcessing(true);
+        const updated = await makeMove(props.gameId, selectedSquare, square);
+        setGameState(updated);
+        setSelectedSquare(null);
+        setValidMoves([]);
+      } catch (err) {
+        // Keep selection so user can retry
+      } finally {
+        setProcessing(false);
+      }
+      return;
+    }
+
+    // If clicking a square with the current player's piece, select it
+    const boardState = mapGameStateToBoard(gameState);
+    const piece = boardState[square];
+    if (piece && piece.color === gameState.colourPlaying.toLowerCase()) {
+      try {
+        setProcessing(true);
+        setSelectedSquare(square);
+        const moves = await fetchMovesForPiece(props.gameId, square);
+        setValidMoves(moves);
+      } catch (err) {
+        setSelectedSquare(null);
+        setValidMoves([]);
+      } finally {
+        setProcessing(false);
+      }
+      return;
+    }
+
+    // Otherwise, clear selection
+    setSelectedSquare(null);
+    setValidMoves([]);
   };
 
   if (initialLoading) {
@@ -165,11 +212,15 @@ export default function ChessBoard(props: ChessBoardProps) {
                   const isLight = (rank + fileIndex) % 2 === 0;
                   const square = `${file}${rank}`;
                   const pieceData = getPieceAtSquare(boardState, file, rank);
+                  const isSelected = square === selectedSquare;
+                  const isValidTarget = validMoveTargets.includes(square);
+                  const isCapture = isValidTarget && pieceData !== null;
 
                   return (
                     <div
                       key={square}
-                      className={`flex-1 flex items-center justify-center font-semibold relative${
+                      onClick={() => handleSquareClick(square)}
+                      className={`flex-1 flex items-center justify-center font-semibold relative overflow-hidden${
                         props.mode === "live" ? " cursor-pointer hover:opacity-80 transition-opacity" : ""
                       }`}
                       style={{
@@ -180,6 +231,39 @@ export default function ChessBoard(props: ChessBoardProps) {
                         lineHeight: 1,
                       }}
                     >
+                      {isSelected && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            backgroundColor: "rgba(255, 255, 80, 0.7)",
+                            pointerEvents: "none",
+                          }}
+                        />
+                      )}
+                      {isValidTarget && !isCapture && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            width: "28%",
+                            height: "28%",
+                            borderRadius: "50%",
+                            backgroundColor: "rgba(0, 0, 0, 0.25)",
+                            pointerEvents: "none",
+                          }}
+                        />
+                      )}
+                      {isCapture && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: "2px",
+                            borderRadius: "50%",
+                            border: "4px solid rgba(0, 0, 0, 0.25)",
+                            pointerEvents: "none",
+                          }}
+                        />
+                      )}
                       {pieceData && (
                         <span
                           className={`fas ${getPieceIcon(pieceData.piece)} ${
@@ -187,6 +271,7 @@ export default function ChessBoard(props: ChessBoardProps) {
                               ? "text-[#f0f0f0] [text-shadow:0_0_0_1px_#000] [-webkit-text-stroke:1px_#000]"
                               : "text-[#3d3d3d] [text-shadow:0_0_0_1px_#000] [-webkit-text-stroke:1px_#000]"
                           }`}
+                          style={{ position: "relative", zIndex: 1 }}
                         ></span>
                       )}
                     </div>

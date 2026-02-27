@@ -48,6 +48,23 @@ namespace RMGChess.Core
             return lastMove.PutsOpponentInCheck;
         }
 
+        public IEnumerable<Move> GetValidMovesFrom(Position position)
+        {
+            return Board.GetValidMovesFor(_whoseTurn)
+                .Where(move => move.From.ToString() == position.ToString());
+        }
+
+        public Move PlayMove(Position from, Position to)
+        {
+            IEnumerable<Move> validMoves = GetValidMovesFrom(from);
+            Move move = validMoves.FirstOrDefault(m => m.To.ToString() == to.ToString())
+                ?? throw new InvalidMoveException($"No valid move from {from} to {to}.");
+
+            MakeMove(move, false);
+            _whoseTurn = _whoseTurn.Switch();
+            return move;
+        }
+
         public void Start(Colour colour, Func<IEnumerable<Move>, Move> moveSelector)
         {
             if (colour == Colour.White)

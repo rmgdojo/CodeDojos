@@ -92,6 +92,49 @@ app.MapGet(
     .Produces(StatusCodes.Status404NotFound);
 
 app.MapGet(
+    "/gameStates/{id:guid}/moves/{position}",
+    (Guid id, string position) =>
+    {
+        if (activeGames.TryGetValue(id, out var game))
+        {
+            var moves = game.GetValidMovesFrom(position)
+                .Select(MoveModel.FromMove)
+                .ToList();
+            return Results.Ok(moves);
+        }
+
+        return Results.NotFound(new { message = $"Game with ID {id} not found" });
+    })
+    .WithName("GetMovesForPiece")
+    .Produces<List<MoveModel>>()
+    .Produces(StatusCodes.Status404NotFound);
+
+app.MapPost(
+    "/gameStates/{id:guid}/move",
+    (Guid id, MakeMoveRequest request) =>
+    {
+        if (activeGames.TryGetValue(id, out var game))
+        {
+            try
+            {
+                game.PlayMove(request.From, request.To);
+                var gameState = GameStateModel.FromGame(game);
+                return Results.Ok(gameState);
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new { message = ex.Message });
+            }
+        }
+
+        return Results.NotFound(new { message = $"Game with ID {id} not found" });
+    })
+    .WithName("MakeMove")
+    .Produces<GameStateModel>()
+    .Produces(StatusCodes.Status400BadRequest)
+    .Produces(StatusCodes.Status404NotFound);
+
+app.MapGet(
     "/gameRecords/{libraryName}/{gameIndex:int}/{moveIndex:int}",
     (string libraryName, int gameIndex, int moveIndex) =>
     {
